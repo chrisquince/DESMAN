@@ -51,6 +51,8 @@ def benjamini_Hochberg(pvalues):
     return new_pvalues
     
 class Variant_Filter():
+    """Filters variant position based on simple binomial 
+    or log ratio of binomial to mixtures of binomials"""
 
     def __init__(self,variants, randomState, optimise = True, threshold = 3.84, min_base = 100, qvalue_cutoff = 1.0e-9,max_iter = 100):
         #first get array dimensions
