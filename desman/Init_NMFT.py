@@ -82,7 +82,8 @@ class Init_NMFT:
                 divl = div
                 div = self.div_objective()
  
-                #print str(iter) + "," + str(div)
+                if iter % 100 == 0: 
+                    print str(iter) + "," + str(div)
 
                 iter += 1
                 

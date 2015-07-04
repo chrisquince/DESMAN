@@ -26,7 +26,7 @@ class Constants(object):
 
 class HaploSNP_Sampler():
     
-    def __init__(self,snps,G,randomState,fixed_tau=None,burn_iter=None,max_iter=None,alpha_constant=10.0,delta_constant=10.0, epsilon=1.0e-6):
+    def __init__(self,snps,G,randomState,fixed_tau=None,burn_iter=None,max_iter=None,bFast=False,bSlow=False,alpha_constant=10.0,delta_constant=10.0, epsilon=1.0e-6):
 
         if burn_iter is None:
             self.burn_iter = 250
@@ -54,6 +54,8 @@ class HaploSNP_Sampler():
         self.delta_constant = delta_constant
         
         self.alpha = np.empty(self.G); self.alpha.fill(alpha_constant)
+        self.bFast = bFast
+        self.bSlow = bSlow
         self.alpha_constant = alpha_constant
         
         self.gamma = self.randomState.dirichlet(self.alpha, size=self.S)
@@ -156,10 +158,13 @@ class HaploSNP_Sampler():
             if self.tauIndices[v] != tsample:
                 nchange+=1
                 dist = self.tauDist(self.tauStates[self.tauIndices[v],:,:],self.tauStates[tsample,:,:])
-                print str(self.tauIndices[v]) + " " + str(tsample) + " " + str(dist) + "\n"
+                #sys.stdout.write("," + str(self.tauIndices[v]) + "->" + str(tsample) + "=" + str(dist))
+                 
             self.tauIndices[v] = tsample
             self.tau[v,:,:] = self.tauStates[tsample,:,:]
-        print str(nchange) + "\n"
+        return nchange
+        #sys.stdout.write("," + str(nchange) + "\n")
+         
     
     def mapTauState(self,tauState):
         map = np.einsum('ga,ga',self.tauMap,tauState)
@@ -194,11 +199,12 @@ class HaploSNP_Sampler():
             if self.tauIndices[v] != tidx:
                 nchange+=1
                 dist = self.tauDist(self.tauStates[self.tauIndices[v],:,:],self.tauStates[tidx,:,:])
-                print str(self.tauIndices[v]) + " " + str(tidx) + " " + str(dist) + "\n"
+                #sys.stdout.write("," + str(self.tauIndices[v]) + "->" + str(tidx) + "=" + str(dist))
+              
             self.tauIndices[v] = tidx
             self.tau[v,:,:] = tauNeighbours[tsample,:,:]
-        
-        print str(nchange) + "\n"
+        return nchange
+        #sys.stdout.write("," + str(nchange) +"\n")
      
     def getNeighbourTau(self,tauState):
         
@@ -327,10 +333,15 @@ class HaploSNP_Sampler():
             self.sampleMu()
             self.sampleGamma()
             
-            if (iter < 10 or iter % 10 == 0): 
-                self.sampleTau()
+            if (self.bSlow == True):
+                nchange = self.sampleTau()
+            elif (self.bFast == True):
+                nchange = self.sampleTauNeighbour()
             else:
-                self.sampleTauNeighbour()
+                if (iter < 10 or iter % 10 == 0) and (self.bFast == False): 
+                    nchange = self.sampleTau()
+                else:
+                    nchange = self.sampleTauNeighbour()
                 
             self.sampleEta()
             
@@ -343,8 +354,8 @@ class HaploSNP_Sampler():
             self.eta_store[iter] = self.eta
             self.gamma_store[iter,] = np.copy(self.gamma)    
             
-            print str(iter) + " " + str(self.ll)
-            
+            print str(iter) + "," + str(nchange) + "," + str(self.ll)
+            sys.stdout.flush()
             iter = iter + 1
     
     def update_fixed_tau(self): #perform max_iter Gibbs updates
@@ -442,7 +453,7 @@ class HaploSNP_Sampler():
                     logTotalP += logP
                 
             gammaHat += exp(logTotalP)
-            print str(i) + " " + str(logTotalP) + " " + str(gammaHat) + "\n"
+            #print str(i) + " " + str(logTotalP) + " " + str(gammaHat) + "\n"
             logTotalE = 0.0
             for a in range(4):
                 logE = du.log_dirichlet_pdf(self.eta_star[a,:],self.delta + sum_E[:,a])
