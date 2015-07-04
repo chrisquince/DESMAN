@@ -75,7 +75,7 @@ def main(argv):
     random_select = args.random_select
     output_dir = args.output_dir
     tau_file = args.tau_file
-    min_base = args.min_base
+    min_coverage = args.min_coverage
     optimiseP = args.optimiseP
     max_qvalue = args.max_qvalue
     genomes = args.genomes
@@ -88,7 +88,7 @@ def main(argv):
     #read in snp variants
     variants    = p.read_csv(variant_file, header=0, index_col=0)
     
-    import ipdb; ipdb.set_trace()
+    #import ipdb; ipdb.set_trace()
     
     #construct variant filter to only select most likely SNPS
     variant_Filter = vf.Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, min_coverage = min_coverage, qvalue_cutoff = max_qvalue)
