@@ -202,6 +202,7 @@ class Variant_Filter():
             lastSelect = Select
             Select = self.V - self.filtered.sum()
             print str(iter) + " " + str(Select) + " " + str(self.eta)
+            sys.stdout.flush()
             iter = iter + 1
             
         self.pvalue = 1.0 - chi2.cdf(ratioNLL,1)
@@ -302,7 +303,7 @@ def main(argv):
     #read in snp variants
     variants    = p.read_csv(variant_file, header=0, index_col=0)
     
-    import ipdb; ipdb.set_trace()
+    #import ipdb; ipdb.set_trace()
     
     variant_Filter =  Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, 
         min_coverage = min_coverage, qvalue_cutoff = max_qvalue)
