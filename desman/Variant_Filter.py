@@ -318,6 +318,7 @@ def main(argv):
     snps_reshape = np.reshape(variant_Filter.snps_filter,(variant_Filter.NS,variant_Filter.S*4))
     
     selected_Variants = variants[variant_Filter.selected]
+    filtered_position = selected_Variants['Position']
     selected_contig_names = selected_Variants.index
     
     varCols = variants.columns.values.tolist()
@@ -334,6 +335,12 @@ def main(argv):
             j = j + 1
     
     snps_reshape_df = p.DataFrame(snps_reshape,index=selected_contig_names,columns=sampleNames)
+    
+    snps_reshape_df['Position'] = filtered_position
+    cols =  snps_reshape_df.columns.tolist()
+    cols = cols[-1:] + cols[:-1]
+    snps_reshape_df = tau_df[cols]
+    
     snps_reshape_df.to_csv(output_stub+"sel_var.csv")
                 
     p_df = p.DataFrame(variant_Filter.pvalue,index=contig_names)
