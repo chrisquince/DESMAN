@@ -54,8 +54,8 @@ def main(argv):
     parser.add_argument('-l', '--xtraslow', action='store_true',
         help=("always perform full state sampling"))
     
-    parser.add_argument('-m','--min_base', type=str, default=100,
-        help=("minimum total bases mapping for sample to be included"))
+    parser.add_argument('-m','--min_coverage', type=str, default=5.0,
+        help=("minimum coverage for sample to be included"))
     
     parser.add_argument('-t','--tau_file', type=str, default=None,
         help=("read in known tau file"))
@@ -91,7 +91,7 @@ def main(argv):
     import ipdb; ipdb.set_trace()
     
     #construct variant filter to only select most likely SNPS
-    variant_Filter = vf.Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, min_base = min_base, qvalue_cutoff = max_qvalue)
+    variant_Filter = vf.Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, min_coverage = min_coverage, qvalue_cutoff = max_qvalue)
     
     if filter_variants is not None:    
         #variants_matrix = variant_Filter.get_filtered_Variants()

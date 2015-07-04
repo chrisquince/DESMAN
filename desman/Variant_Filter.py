@@ -54,20 +54,21 @@ class Variant_Filter():
     """Filters variant position based on simple binomial 
     or log ratio of binomial to mixtures of binomials"""
 
-    def __init__(self,variants, randomState, optimise = True, threshold = 3.84, min_base = 100, qvalue_cutoff = 1.0e-9,max_iter = 100):
+    def __init__(self,variants, randomState, optimise = True, threshold = 3.84, min_coverage = 5.0, qvalue_cutoff = 0.1,max_iter = 100):
         #first get array dimensions
         
         variants_matrix = variants.as_matrix()
         variants_matrix = np.delete(variants_matrix, 0, 1)
     
         snps = np.reshape(variants_matrix, (variants_matrix.shape[0],variants_matrix.shape[1]/4,4))
-        vs_sum = snps.sum(axis=(0,2))
-        
+        vs_sum = snps.sum(axis=(2))
+        vs_mean = np.mean(vs_sum,axis=0)
         #set random state
         self.randomState = randomState
         
-        #stores samples filtered because min size too low
-        self.sample_filter = vs_sum > min_base
+        #stores samples filtered because min coverage too low
+        
+        self.sample_filter = vs_mean > min_coverage
         self.sample_indices  = list(np.where(self.sample_filter == True))
         self.sample_indices = self.sample_indices[0].tolist()
            
@@ -265,11 +266,11 @@ def main(argv):
     parser.add_argument('-f','--filter_variants',nargs='?', const=3.84, type=float, 
         help=("binomial loge likelihood species p-value threshold for initial filtering as chi2"))
     
-    parser.add_argument('-q','--max_qvalue',nargs='?', const=1.0e-9, type=float, 
-        help=("specifies q value cut-off for variant defaults 1.0e-9"))
+    parser.add_argument('-q','--max_qvalue',nargs='?', const=0.1, type=float, 
+        help=("specifies q value cut-off for variant defaults 0.1"))
     
-    parser.add_argument('-m','--min_base', type=str, default=100,
-        help=("minimum total bases mapping for sample to be included"))
+    parser.add_argument('-m','--min_coverage', type=str, default=100,
+        help=("minimum coverage for sample to be included"))
     
     parser.add_argument('-o','--output_stub', type=str, default="output",
         help=("string specifying file stubs"))
@@ -283,14 +284,14 @@ def main(argv):
     
     variant_file = args.variant_file
     
-    min_base = args.min_base
+    min_coverage = args.min_coverage
     output_stub = args.output_stub
     optimiseP = args.optimiseP
     random_seed = args.random_seed
     #create new random state
     prng = RandomState(args.random_seed)
     
-    max_qvalue = 1.0e-9
+    max_qvalue = 0.1
     if args.max_qvalue is not None:
         max_qvalue = args.max_qvalue
     
@@ -303,7 +304,8 @@ def main(argv):
     
     import ipdb; ipdb.set_trace()
     
-    variant_Filter =  Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, min_base = min_base, qvalue_cutoff = max_qvalue)
+    variant_Filter =  Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, 
+        min_coverage = min_coverage, qvalue_cutoff = max_qvalue)
     
     snps_filter = variant_Filter.get_filtered_VariantsLogRatio()
         
