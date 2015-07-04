@@ -270,7 +270,7 @@ def main(argv):
     parser.add_argument('-q','--max_qvalue',nargs='?', const=0.1, type=float, 
         help=("specifies q value cut-off for variant defaults 0.1"))
     
-    parser.add_argument('-m','--min_coverage', type=str, default=100,
+    parser.add_argument('-m','--min_coverage', type=str, default=5.0,
         help=("minimum coverage for sample to be included"))
     
     parser.add_argument('-o','--output_stub', type=str, default="output",
@@ -303,7 +303,7 @@ def main(argv):
     #read in snp variants
     variants    = p.read_csv(variant_file, header=0, index_col=0)
     
-    #import ipdb; ipdb.set_trace()
+    import ipdb; ipdb.set_trace()
     
     variant_Filter =  Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, 
         min_coverage = min_coverage, qvalue_cutoff = max_qvalue)
@@ -314,8 +314,27 @@ def main(argv):
     
     contig_names = variants.index.tolist()
     position = variants['Position']
+    
+    snps_reshape = np.reshape(variant_Filter.snps_filter,(variant_Filter.NS,variant_Filter.S*4))
+    
     selected_Variants = variants[variant_Filter.selected]
-    selected_Variants.to_csv(output_stub+"sel_var.csv")
+    selected_contig_names = selected_Variants.index
+    
+    varCols = variants.columns.values.tolist()
+    originalS = (len(varCols) - 1)/4
+    sampleNames = list()
+    
+    j = 0
+    for i in range(originalS):
+        if i == variant_Filter.sample_indices[j]:
+            
+            for a in range(4):
+                sampleNames.append(varCols[i*4 + 1 + a])
+            
+            j = j + 1
+    
+    snps_reshape_df = p.DataFrame(snps_reshape,index=selected_contig_names,columns=sampleNames)
+    snps_reshape_df.to_csv(output_stub+"sel_var.csv")
                 
     p_df = p.DataFrame(variant_Filter.pvalue,index=contig_names)
     p_df = addPositions(p_df,position)   
