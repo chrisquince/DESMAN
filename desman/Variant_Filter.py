@@ -327,7 +327,7 @@ def main(argv):
     
     j = 0
     for i in range(originalS):
-        if i == variant_Filter.sample_indices[j]:
+        if j < variant_Filter.S and i == variant_Filter.sample_indices[j]:
             
             for a in range(4):
                 sampleNames.append(varCols[i*4 + 1 + a])
@@ -339,7 +339,7 @@ def main(argv):
     snps_reshape_df['Position'] = filtered_position
     cols =  snps_reshape_df.columns.tolist()
     cols = cols[-1:] + cols[:-1]
-    snps_reshape_df = tau_df[cols]
+    snps_reshape_df = snps_reshape_df[cols]
     
     snps_reshape_df.to_csv(output_stub+"sel_var.csv")
                 
