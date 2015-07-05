@@ -199,13 +199,13 @@ class HaploSNP_Sampler():
             tidx = self.mapTauState(tauNeighbours[tsample,:,:])
             if self.tauIndices[v] != tidx:
                 nchange+=1
-                dist = self.tauDist(self.tauStates[self.tauIndices[v],:,:],self.tauStates[tidx,:,:])
-                sys.stdout.write("," + str(self.tauIndices[v]) + "->" + str(tidx) + "=" + str(dist))
+                #dist = self.tauDist(self.tauStates[self.tauIndices[v],:,:],self.tauStates[tidx,:,:])
+                #sys.stdout.write("," + str(self.tauIndices[v]) + "->" + str(tidx) + "=" + str(dist))
               
             self.tauIndices[v] = tidx
             self.tau[v,:,:] = tauNeighbours[tsample,:,:]
         return nchange
-        sys.stdout.write("," + str(nchange) +"\n")
+        #sys.stdout.write("," + str(nchange) +"\n")
      
     def getNeighbourTau(self,tauState):
         
@@ -227,7 +227,7 @@ class HaploSNP_Sampler():
         return tauNeighbours
     
     def getNeighbourTau2(self,tauState):
-        NN = 1 + 9*self.G*self.G  
+        NN = 1 + 9*self.G*(self.G - 1) + 3*self.G  
         
         tauNeighbours = np.zeros((NN,self.G,4),dtype=np.int)
         
