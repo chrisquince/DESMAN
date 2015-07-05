@@ -88,7 +88,7 @@ def main(argv):
     #read in snp variants
     variants    = p.read_csv(variant_file, header=0, index_col=0)
     
-    #import ipdb; ipdb.set_trace()
+    import ipdb; ipdb.set_trace()
     
     #construct variant filter to only select most likely SNPS
     variant_Filter = vf.Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, min_coverage = min_coverage, qvalue_cutoff = max_qvalue)

@@ -181,8 +181,9 @@ class HaploSNP_Sampler():
         nchange = 0
         for v in range(self.V):
             #get neighbours of current state
-            NN = 3*self.G + 1
-            tauNeighbours = self.getNeighbourTau(self.tau[v,:,:])    
+            
+            tauNeighbours = self.getNeighbourTau2(self.tau[v,:,:])    
+            NN = tauNeighbours.shape[0]
             
             #first compute base probabilities at each site for each neighbour
             neighbourProb = np.zeros((NN,self.S,4))
@@ -199,12 +200,12 @@ class HaploSNP_Sampler():
             if self.tauIndices[v] != tidx:
                 nchange+=1
                 dist = self.tauDist(self.tauStates[self.tauIndices[v],:,:],self.tauStates[tidx,:,:])
-                #sys.stdout.write("," + str(self.tauIndices[v]) + "->" + str(tidx) + "=" + str(dist))
+                sys.stdout.write("," + str(self.tauIndices[v]) + "->" + str(tidx) + "=" + str(dist))
               
             self.tauIndices[v] = tidx
             self.tau[v,:,:] = tauNeighbours[tsample,:,:]
         return nchange
-        #sys.stdout.write("," + str(nchange) +"\n")
+        sys.stdout.write("," + str(nchange) +"\n")
      
     def getNeighbourTau(self,tauState):
         
@@ -222,6 +223,43 @@ class HaploSNP_Sampler():
                     tauNeighbours[nindex,g,currt] = 0
                     tauNeighbours[nindex,g,a] = 1
                     nindex = nindex + 1
+                    
+        return tauNeighbours
+    
+    def getNeighbourTau2(self,tauState):
+        NN = 1 + 9*self.G*self.G  
+        
+        tauNeighbours = np.zeros((NN,self.G,4),dtype=np.int)
+        
+        tauNeighbours[0,:,:] = np.copy(tauState)
+        nindex = 1
+        
+        for g in range(self.G):
+            curr = np.where(tauState[g,:] == 1)[0]
+            currt = curr[0]
+            for a in range(4):       
+                if a != currt:
+                    tauNeighbours[nindex,:,:] = np.copy(tauState)
+                    tauNeighbours[nindex,g,currt] = 0
+                    tauNeighbours[nindex,g,a] = 1
+                    
+                    step1 = tauNeighbours[nindex,:,:]        
+                    nindex = nindex + 1
+                    
+                    #now add 2nd order state changes
+                    for h in range(self.G):
+                        if h != g:
+                            curr2 = np.where(tauState[h,:] == 1)[0]
+                            currh = curr2[0]
+                        
+                            for b in range(4): 
+                                if b != currh:
+                                    tauNeighbours[nindex,:,:] = np.copy(step1)
+                                    tauNeighbours[nindex,h,currh] = 0
+                                    tauNeighbours[nindex,h,b] = 1
+                            
+                                    nindex = nindex + 1
+                    
                     
         return tauNeighbours
     
