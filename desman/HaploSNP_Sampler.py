@@ -26,7 +26,7 @@ class Constants(object):
 
 class HaploSNP_Sampler():
     
-    def __init__(self,snps,G,randomState,fixed_tau=None,burn_iter=None,max_iter=None,bFast=False,bSlow=False,alpha_constant=10.0,delta_constant=10.0, epsilon=1.0e-6):
+    def __init__(self,snps,G,randomState,fixed_tau=None,burn_iter=None,max_iter=None,bSlow=False,alpha_constant=10.0,delta_constant=10.0, epsilon=1.0e-6):
 
         if burn_iter is None:
             self.burn_iter = 250
@@ -54,7 +54,6 @@ class HaploSNP_Sampler():
         self.delta_constant = delta_constant
         
         self.alpha = np.empty(self.G); self.alpha.fill(alpha_constant)
-        self.bFast = bFast
         self.bSlow = bSlow
         self.alpha_constant = alpha_constant
         
@@ -175,14 +174,18 @@ class HaploSNP_Sampler():
             tidx = self.mapTauState(self.tau[v,:,:])
             self.tauIndices[v] = tidx
             
-    def sampleTauNeighbour(self):
+    def sampleTauNeighbour(self,bSecond):
         
         #loop each contig
         nchange = 0
         for v in range(self.V):
             #get neighbours of current state
             
-            tauNeighbours = self.getNeighbourTau2(self.tau[v,:,:])    
+            if  bSecond == True:
+                tauNeighbours = self.getNeighbourTau2(self.tau[v,:,:])    
+            else:
+                tauNeighbours = self.getNeighbourTau(self.tau[v,:,:])
+            
             NN = tauNeighbours.shape[0]
             
             #first compute base probabilities at each site for each neighbour
@@ -373,13 +376,11 @@ class HaploSNP_Sampler():
             
             if (self.bSlow == True):
                 nchange = self.sampleTau()
-            elif (self.bFast == True):
-                nchange = self.sampleTauNeighbour()
             else:
-                if (iter < 10 or iter % 10 == 0) and (self.bFast == False): 
-                    nchange = self.sampleTau()
+                if (iter < 10 or iter % 10 == 0): 
+                    nchange = self.sampleTauNeighbour(bSecond = True)
                 else:
-                    nchange = self.sampleTauNeighbour()
+                    nchange = self.sampleTauNeighbour(bSecond = False)
                 
             self.sampleEta()
             

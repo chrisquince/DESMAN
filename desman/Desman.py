@@ -47,9 +47,6 @@ def main(argv):
     
     parser.add_argument('-p', '--optimiseP', default=True, type=bool,
         help=("optimise proportions in likelihood ratio test"))
-    
-    parser.add_argument('-x', '--xtrafast', action='store_true',
-        help=("do not perform full state sampling"))
         
     parser.add_argument('-l', '--xtraslow', action='store_true',
         help=("always perform full state sampling"))
@@ -64,7 +61,7 @@ def main(argv):
         help=("specifies q value cut-off for variant detection defaults 1.0e-3"))
     
     parser.add_argument('-s','--random_seed',default=23724839, type=int, 
-        help=("specifies seed for numpy random number generator defaults to 23724839"))
+        help=("specifies seed for numpy random number generator defaults to 23724839 applied after random filtering"))
     
     #get command line arguments  
     args = parser.parse_args()
@@ -79,11 +76,11 @@ def main(argv):
     optimiseP = args.optimiseP
     max_qvalue = args.max_qvalue
     genomes = args.genomes
-    xtrafast = args.xtrafast
     xtraslow = args.xtraslow
     random_seed = args.random_seed
-    #create new random state
-    prng = RandomState(args.random_seed)
+    
+    #create new random state with fixed seed 
+    prng = RandomState(238329)
     
     #read in snp variants
     variants    = p.read_csv(variant_file, header=0, index_col=0)
@@ -111,10 +108,11 @@ def main(argv):
         haplo_SNP_fixed = HaploSNP_Sampler(snps_filter,tau_matrix.shape[1]/4,tau_matrix)
         haplo_SNP_fixed.update_fixed_tau()
     
+    prng = RandomState(args.random_seed)
     init_NMFT = inmft.Init_NMFT(variant_Filter.snps_filter,genomes,prng)
     init_NMFT.factorize()
     
-    haplo_SNP = hsnp.HaploSNP_Sampler(variant_Filter.snps_filter,genomes,prng,bFast=xtrafast,bSlow=xtraslow)
+    haplo_SNP = hsnp.HaploSNP_Sampler(variant_Filter.snps_filter,genomes,prng,bSlow=xtraslow)
     haplo_SNP.tau = init_NMFT.get_tau()
     haplo_SNP.updateTauIndices()
     haplo_SNP.gamma = init_NMFT.get_gamma()
