@@ -156,6 +156,19 @@ def main(argv):
         #import ipdb; ipdb.set_trace()
         (assignTau,confTau) = haplo_SNP.assignTau(assigns_matrix)
         snda = haplo_SNP.calculateSND(assignTau)
+        
+        assign_contig_names = assigns.index.tolist()
+        assign_position = assigns['Position']
+        
+        AV = assigns_matrix.shape[0]
+        assign_tau_res = np.reshape(assignTau,(AV,haplo_SNP.G*4))
+        assign_tau_df = p.DataFrame(assign_tau_res,index=assign_contig_names)
+    
+        assign_tau_df['Position'] = assign_position
+        cols = assign_tau_df.columns.tolist()
+        cols = cols[-1:] + cols[:-1]
+        assign_tau_df = assign_tau_df[cols]
+        assign_tau_df.to_csv(output_dir+"/Assigned_Tau_star.csv")
     
 if __name__ == "__main__":
     main(sys.argv[1:])
