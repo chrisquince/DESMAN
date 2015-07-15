@@ -51,6 +51,9 @@ def main(argv):
     parser.add_argument('-l', '--xtraslow', action='store_true',
         help=("always perform full state sampling"))
     
+    parser.add_argument('-i','--no_iter',nargs='?', const=250, type=int, 
+        help=("Number of iterations of Gibbs sampler"))
+    
     parser.add_argument('-m','--min_coverage', type=str, default=5.0,
         help=("minimum coverage for sample to be included"))
     
@@ -77,6 +80,7 @@ def main(argv):
     max_qvalue = args.max_qvalue
     genomes = args.genomes
     xtraslow = args.xtraslow
+    no_iter = args.no_iter
     random_seed = args.random_seed
     
     #create new random state with fixed seed 
@@ -109,10 +113,16 @@ def main(argv):
         haplo_SNP_fixed.update_fixed_tau()
     
     prng = RandomState(args.random_seed)
+    
     init_NMFT = inmft.Init_NMFT(variant_Filter.snps_filter,genomes,prng)
     init_NMFT.factorize()
     
-    haplo_SNP = hsnp.HaploSNP_Sampler(variant_Filter.snps_filter,genomes,prng,bSlow=xtraslow)
+    haplo_SNP = hsnp.HaploSNP_Sampler(variant_Filter.snps_filter,genomes,prng,max_iter=no_iter,bSlow=xtraslow)
+    
+    #init_NMFT.discretise_tau()
+    
+    #init_NMFT.factorize_gamma()
+    
     haplo_SNP.tau = init_NMFT.get_tau()
     haplo_SNP.updateTauIndices()
     haplo_SNP.gamma = init_NMFT.get_gamma()
@@ -163,12 +173,22 @@ def main(argv):
         AV = assigns_matrix.shape[0]
         assign_tau_res = np.reshape(assignTau,(AV,haplo_SNP.G*4))
         assign_tau_df = p.DataFrame(assign_tau_res,index=assign_contig_names)
-    
+        conf_tau_df = p.DataFrame(confTau,index=assign_contig_names)
+        
         assign_tau_df['Position'] = assign_position
+        conf_tau_df['Position'] = assign_position
+        
         cols = assign_tau_df.columns.tolist()
         cols = cols[-1:] + cols[:-1]
+        
         assign_tau_df = assign_tau_df[cols]
         assign_tau_df.to_csv(output_dir+"/Assigned_Tau_star.csv")
+    
+        cols = conf_tau_df.columns.tolist()
+        cols = cols[-1:] + cols[:-1]
+        
+        conf_tau_df = conf_tau_df[cols]
+        conf_tau_df.to_csv(output_dir+"/Assigned_Tau_conf.csv")
     
 if __name__ == "__main__":
     main(sys.argv[1:])

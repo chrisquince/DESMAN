@@ -87,6 +87,24 @@ class Init_NMFT:
 
                 iter += 1
                 
+    def factorize_gamma(self):
+        for run in xrange(self.n_run):
+           
+            divl = 0.0
+            div = self.div_objective()
+            iter=0
+            while iter < self.max_iter and math.fabs(divl - div) > self.min_change:
+                self.div_update_gamma()
+                #self._adjustment()
+                divl = div
+                div = self.div_objective()
+ 
+                if iter % 100 == 0: 
+                    print str(iter) + "," + str(div)
+
+                iter += 1
+
+
     def div_objective(self):
         """Compute divergence of target matrix from its NMF estimate."""
         pa = np.dot(self.tau, self.gamma)
@@ -115,8 +133,35 @@ class Init_NMFT:
                 for a in range(4):
                     self.tau[v + a*self.V,g] = self.tau[v + a*self.V,g]/sumvg 
 
+    def div_update_gamma(self):
+        """Update basis and mixture matrix based on divergence multiplicative update rules."""
+        H1 = np.tile(self.tau.sum(0)[:,np.newaxis],(1, self.S))
+        
+        self.gamma = np.multiply(self.gamma, du.elop(np.dot(self.tau.T, du.elop(self.freq_matrix, np.dot(self.tau, self.gamma), div)), H1, div))
+
+        gamma_sum = self.gamma.sum(axis = 0)
+        self.gamma = self.gamma/gamma_sum[np.newaxis,:]
+
     def get_gamma(self):
         return np.transpose(self.gamma)
+
+    def discretise_tau(self):
+    
+        #convert VX4 X G into VXGX4 shape
+        discrete_tau = np.zeros((self.V*4,self.G))
+        
+        for v in range(self.V):
+            for g in range(self.G):
+                maxt = 0.0
+                maxa = 0
+                for a in range(4):
+                    if(self.tau[v + a*self.V,g] > maxt):
+                        maxt = self.tau[v + a*self.V,g] 
+                        maxa = a 
+                
+                discrete_tau[v + self.V*maxa,g] = 1. 
+        
+        self.tau = discrete_tau
         
     def get_tau(self):
     

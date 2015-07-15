@@ -316,9 +316,9 @@ class HaploSNP_Sampler():
             self.eta[a,:] = self.randomState.dirichlet(self.delta + Esum[:,a])
         
         
-    def sampleMu(self):
+    def sampleMu(self,tauC,gammaC,etaC):
         
-        tau_gamma_eta = np.einsum('ijk,lj,km->ilmkj',self.tau,self.gamma,self.eta)
+        tau_gamma_eta = np.einsum('ijk,lj,km->ilmkj',tauC,gammaC,etaC)
   
         tau_gamma_eta_gsum = tau_gamma_eta.sum(axis=4)
   
@@ -348,7 +348,7 @@ class HaploSNP_Sampler():
     def burn(self): #perform max_iter Gibbs updates
         iter = 0
         while (iter < self.burn_iter):
-            self.sampleMu()
+            self.sampleMu(self.tau,self.gamma,self.eta)
             self.sampleGamma()
             self.sampleTau()
             self.sampleEta()
@@ -371,7 +371,7 @@ class HaploSNP_Sampler():
         self.storeStarState(iter)
         
         while (iter < self.max_iter):
-            self.sampleMu()
+            self.sampleMu(self.tau,self.gamma,self.eta)
             self.sampleGamma()
             
             if (self.bSlow == True):
@@ -403,7 +403,7 @@ class HaploSNP_Sampler():
         self.storeStarState(iter)
         
         while (iter < self.max_iter):
-            self.sampleMu()
+            self.sampleMu(self.tau,self.gamma,self.eta)
             self.sampleGamma()
             self.sampleEta()
             
@@ -480,9 +480,13 @@ class HaploSNP_Sampler():
         gammaHat = 0.0
         etaHat = 0.0
         
+        
+        
         for i in range(self.max_iter):
-            sum_mu = self.mu_store[i,].sum(axis=(0,2))
-            sum_E =  self.E_store[i,].sum(axis=(0,1))
+            self.sampleMu(self.tau_star,self.gamma_star,self.eta_star)
+            
+            sum_mu = self.mu.sum(axis=(0,2))
+            sum_E =  self.E.sum(axis=(0,1))
         
             logTotalP = 0.0;
             
@@ -492,7 +496,7 @@ class HaploSNP_Sampler():
                     logTotalP += logP
                 
             gammaHat += exp(logTotalP)
-            #print str(i) + " " + str(logTotalP) + " " + str(gammaHat) + "\n"
+            print str(i) + " " + str(logTotalP) + " " + str(gammaHat) + "\n"
             logTotalE = 0.0
             for a in range(4):
                 logE = du.log_dirichlet_pdf(self.eta_star[a,:],self.delta + sum_E[:,a])
