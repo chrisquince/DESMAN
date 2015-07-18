@@ -37,6 +37,8 @@ class HaploSNP_Sampler():
             self.max_iter = 250
         else:
             self.max_iter = max_iter
+            
+        self.tau_comp_iter = 10
 
         self.randomState = randomState
         self.G = G
@@ -310,7 +312,7 @@ class HaploSNP_Sampler():
     def sampleEta(self):
         Esum =  self.E.sum(axis=(0,1)) #AXB with A deriving from B
         
-        self.E = np.zeros((self.V,self.S,4,4),dtype=np.int)
+        #self.E = np.zeros((self.V,self.S,4,4),dtype=np.int)
         
         for a in range(4):
             self.eta[a,:] = self.randomState.dirichlet(self.delta + Esum[:,a])
@@ -390,7 +392,7 @@ class HaploSNP_Sampler():
             self.mu_store[iter,]=np.copy(self.mu)
             self.tau_store[iter,]=np.copy(self.tau)
             self.E_store[iter,]=np.copy(self.E)
-            self.eta_store[iter] = self.eta
+            self.eta_store[iter,] = np.copy(self.eta)
             self.gamma_store[iter,] = np.copy(self.gamma)    
             
             print str(iter) + "," + str(nchange) + "," + str(self.ll)
@@ -413,7 +415,7 @@ class HaploSNP_Sampler():
             self.mu_store[iter,]=np.copy(self.mu)
             self.tau_store[iter,]=np.copy(self.tau)
             self.E_store[iter,]=np.copy(self.E)
-            self.eta_store[iter] = self.eta
+            self.eta_store[iter,] = np.copy(self.eta)
             self.gamma_store[iter,] = np.copy(self.gamma)    
             #print str(iter) + " " + str(self.ll)
             
@@ -433,7 +435,7 @@ class HaploSNP_Sampler():
                 logLL += du.log_multinomial_pdf(self.variants[v,s,:], probVS[v,s,:])
         return logLL
     
-    def logTauProb(self,cTau,cGamma,cEta):
+    def logTauProb(self,cGamma,cEta):
         
         ret = 0.0
     
@@ -441,7 +443,7 @@ class HaploSNP_Sampler():
         siteProb = np.zeros((self.nTauStates,self.S,4))
         
         for t in range(self.nTauStates): 
-            siteProb[t,:,:] = self.baseProbabilityGivenTau(self.tauStates[t,:,:],self.gamma_star,self.eta_star)
+            siteProb[t,:,:] = self.baseProbabilityGivenTau(self.tauStates[t,:,:],cGamma,cEta)
         
         stateLogProb = np.zeros(self.nTauStates)
         #loop each position
@@ -460,8 +462,9 @@ class HaploSNP_Sampler():
             ret += log(dP[self.tauIndices_star[v]])
             
         return ret
+
     
-    def chibbMarginalLogLikelihood(self):
+    def chibMarginalLogLikelihood(self):
         #compute likelihood
         cMLogL = self.logLikelihood(self.gamma_star,self.tau_star,self.eta_star)
         
@@ -477,40 +480,70 @@ class HaploSNP_Sampler():
             cMLogL += log(1.0/float(self.nTauStates))
         
         #estimate posteriors
+        tauHat = 0.0
         gammaHat = 0.0
         etaHat = 0.0
         
+        #compute first tau term
+        for i in range(self.tau_comp_iter):
+            tauHat +=  exp(self.logTauProb(self.gamma_store[i,:],self.eta_store[i,:]))
         
+        tauHat /= float(self.tau_comp_iter)
         
+        #sample for pi term
+        storeLogGamma = np.zeros(self.max_iter)
         for i in range(self.max_iter):
-            self.sampleMu(self.tau_star,self.gamma_star,self.eta_star)
+                
+            self.sampleMu(self.tau_star,self.gamma,self.eta)
             
-            sum_mu = self.mu.sum(axis=(0,2))
-            sum_E =  self.E.sum(axis=(0,1))
-        
+            self.sampleGamma()
+                
+            self.sampleEta()
+            
             logTotalP = 0.0;
             
+            sum_mu = self.mu.sum(axis=(0,2))
             for s in range(self.S):
                 logP = du.log_dirichlet_pdf(self.gamma_star[s,:], self.alpha + sum_mu[s,:])
-                if logTotalP < Constants.MAX_LOG_DIR_PROB:
-                    logTotalP += logP
                 
-            gammaHat += exp(logTotalP)
-            print str(i) + " " + str(logTotalP) + " " + str(gammaHat) + "\n"
+                logTotalP += logP
+            
+            storeLogGamma[i] = logTotalP
+            
+        maxSampleGamma = np.max(storeLogGamma)
+        
+        storeLogGamma = storeLogGamma - maxSampleGamma
+        storeLogGamma = np.exp(storeLogGamma)
+        gammaSum = storeLogGamma.sum()
+        
+        logGammaHat =  maxSampleGamma + np.log(gammaSum) - np.log(self.max_iter) 
+        
+        #sample for epsilon term
+        storeLogEpsilon = np.zeros(self.max_iter)
+        for i in range(self.max_iter):
+                
+            self.sampleMu(self.tau_star,self.gamma_star,self.eta)
+                
+            self.sampleEta()
+            
+            sum_E =  self.E.sum(axis=(0,1))
+            
             logTotalE = 0.0
             for a in range(4):
                 logE = du.log_dirichlet_pdf(self.eta_star[a,:],self.delta + sum_E[:,a])
                 logTotalE += logE
-                
-            etaHat += exp(logTotalE)
-            #print str(i) + " " + str(gammaHat) + " " + str(logTotalP)
-        gammaHat /= float(self.max_iter)
-        etaHat /= float(self.max_iter) 
+            
+            storeLogEpsilon[i] = logTotalE
         
+        maxSampleEpsilon = np.max(storeLogEpsilon)
         
-        logTauHat = self.logTauProb(self.tau_star,self.gamma_star,self.eta_star)
-                
-        cMLogL += -log(gammaHat) - log(etaHat) - logTauHat
+        storeLogEpsilon = storeLogEpsilon - maxSampleEpsilon
+        storeLogEpsilon = np.exp(storeLogEpsilon)
+        epsilonSum = storeLogEpsilon.sum()
+        
+        logEpsilonHat =  maxSampleEpsilon + np.log(epsilonSum) - np.log(self.max_iter)
+        
+        cMLogL += -logGammaHat - logEpsilonHat - log(tauHat)
         return cMLogL
         
     def calculateSND(self, tau):

@@ -89,7 +89,7 @@ def main(argv):
     #read in snp variants
     variants    = p.read_csv(variant_file, header=0, index_col=0)
     
-    import ipdb; ipdb.set_trace()
+    #import ipdb; ipdb.set_trace()
     
     #construct variant filter to only select most likely SNPS
     variant_Filter = vf.Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, min_coverage = min_coverage, qvalue_cutoff = max_qvalue)
@@ -139,7 +139,7 @@ def main(argv):
     if tau_file is not None:
         snd_comp = haplo_SNP.compSND(haplo_SNP_fixed.tau,haplo_SNP.tau)
     #import ipdb; ipdb.set_trace()
-    cMLogL = haplo_SNP.chibbMarginalLogLikelihood()
+    cMLogL = haplo_SNP.chibMarginalLogLikelihood()
     logLL = haplo_SNP.logLikelihood(haplo_SNP.gamma,haplo_SNP.tau,haplo_SNP.eta)
     snd = haplo_SNP.calculateSND(haplo_SNP.tau_star)
     variableTau = haplo_SNP.variableTau(haplo_SNP.tau_star)
@@ -163,7 +163,7 @@ def main(argv):
         assigns    = p.read_csv(assign_file, header=0, index_col=0)    
         assigns_matrix = assigns.as_matrix()
         assigns_matrix = np.delete(assigns_matrix, 0, 1)
-        #import ipdb; ipdb.set_trace()
+     #  import ipdb; ipdb.set_trace()
         (assignTau,confTau) = haplo_SNP.assignTau(assigns_matrix)
         snda = haplo_SNP.calculateSND(assignTau)
         
