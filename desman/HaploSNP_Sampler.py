@@ -485,10 +485,17 @@ class HaploSNP_Sampler():
         etaHat = 0.0
         
         #compute first tau term
+        storeLogTau = np.zeros(self.tau_comp_iter)
         for i in range(self.tau_comp_iter):
-            tauHat +=  exp(self.logTauProb(self.gamma_store[i,:],self.eta_store[i,:]))
+            storeLogTau[i] = self.logTauProb(self.gamma_store[i,:],self.eta_store[i,:])
         
-        tauHat /= float(self.tau_comp_iter)
+        maxSampleTau = np.max(storeLogTau)
+        
+        storeLogTau = storeLogTau - maxSampleTau
+        storeLogTau = np.exp(storeLogTau)
+        tauSum = storeLogTau.sum()
+        
+        logTauHat =  maxSampleTau + np.log(tauSum) - np.log(self.tau_comp_iter) 
         
         #sample for pi term
         storeLogGamma = np.zeros(self.max_iter)
@@ -543,7 +550,9 @@ class HaploSNP_Sampler():
         
         logEpsilonHat =  maxSampleEpsilon + np.log(epsilonSum) - np.log(self.max_iter)
         
-        cMLogL += -logGammaHat - logEpsilonHat - log(tauHat)
+        print str(cMLogL) +  "," + str(logGammaHat) + "," + str(logEpsilonHat) + "," + str(logTauHat)
+        cMLogL += -logGammaHat - logEpsilonHat - logTauHat
+        
         return cMLogL
         
     def calculateSND(self, tau):
