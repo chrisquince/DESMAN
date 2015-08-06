@@ -63,6 +63,14 @@ class Init_NMFT:
                 for a in range(4):
                     self.tau[v + a*self.V,g] = tempvg[a] 
     
+    def random_initialize_tau(self):
+                
+        for v in range(self.V):
+            for g in range(self.G):
+                tempvg = self.randomState.dirichlet(self.alpha4)
+                for a in range(4):
+                    self.tau[v + a*self.V,g] = tempvg[a] 
+    
     def _adjustment(self):
         """Adjust small values to factors to avoid numerical underflow."""
         self.tau = np.maximum(self.tau, np.finfo(self.tau.dtype).eps)
@@ -95,6 +103,23 @@ class Init_NMFT:
             iter=0
             while iter < self.max_iter and math.fabs(divl - div) > self.min_change:
                 self.div_update_gamma()
+                #self._adjustment()
+                divl = div
+                div = self.div_objective()
+ 
+                if iter % 100 == 0: 
+                    print str(iter) + "," + str(div)
+
+                iter += 1
+
+    def factorize_tau(self):
+        for run in xrange(self.n_run):
+            self.random_initialize_tau()
+            divl = 0.0
+            div = self.div_objective()
+            iter=0
+            while iter < self.max_iter and math.fabs(divl - div) > self.min_change:
+                self.div_update_tau()
                 #self._adjustment()
                 divl = div
                 div = self.div_objective()
@@ -141,6 +166,23 @@ class Init_NMFT:
 
         gamma_sum = self.gamma.sum(axis = 0)
         self.gamma = self.gamma/gamma_sum[np.newaxis,:]
+
+    def div_update_tau(self):
+        """Update basis and mixture matrix based on divergence multiplicative update rules."""
+        tau1 = np.tile(self.gamma.sum(1)[np.newaxis,:],(self.N, 1))
+        self.tau = np.multiply(
+            self.tau, du.elop(np.dot(du.elop(self.freq_matrix, np.dot(self.tau, self.gamma), div), self.gamma.T), tau1, div)) 
+            
+        for v in range(self.V):
+            for g in range(self.G):
+                sumvg = 0.0
+                for a in range(4):
+                    sumvg += self.tau[v + a*self.V,g]
+                    
+                for a in range(4):
+                    self.tau[v + a*self.V,g] = self.tau[v + a*self.V,g]/sumvg 
+
+
 
     def get_gamma(self):
         return np.transpose(self.gamma)

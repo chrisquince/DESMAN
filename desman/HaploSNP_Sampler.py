@@ -272,6 +272,7 @@ class HaploSNP_Sampler():
         """Computes tau matrix for new sets of variants"""
         N = assignMatrix.shape[0]
         assignVariants = np.reshape(assignMatrix, (N,self.S,4)) 
+        
         assignTau = np.zeros((N,self.G,4), dtype=np.int)
         conf = np.zeros(N)
         #first compute base probabilities at each site for each state
@@ -295,6 +296,90 @@ class HaploSNP_Sampler():
             conf[n] = np.amax(dP)
             #print "Assign " + str(n) + " " + str(conf[n])
             assignTau[n,:,:] = self.tauStates[tsample,:,:]
+        return (assignTau,conf)
+        
+    def assignTauFast(self,assignMatrix):
+        """Computes tau matrix for new sets of variants"""
+        N = assignMatrix.shape[0]
+        assignVariants = np.reshape(assignMatrix, (N,self.S,4)) 
+        
+        assignTau = np.zeros((N,self.G,4), dtype=np.int)
+        
+        #init_NMFT = inmft.Init_NMFT(assignVariants,self.G,self.randomState)
+        #init_NMFT.gamma = np.transpose(self.gamma_star)
+        #init_NMFT.factorize_tau()
+        
+        #assignTau = init_NMFT.get_tau()
+        
+        freq = assignVariants.sum(axis=1)
+        
+        maxA = np.argmax(freq,axis=1)
+        
+        for n in range(N):
+            a = maxA[n]
+            for g in range(self.G):
+                assignTau[n,g,a] = 1
+        
+        assignIndices = np.zeros(N,dtype=np.int)
+        
+        for n in range(N):
+            assignIndices[n] = self.mapTauState(assignTau[n,:,:])
+        
+        nchange = 1
+        iter = 0
+        bChange = np.ones(N, dtype=bool)
+        
+        while(nchange > 0 and iter < 5000):
+            nchange = 0
+            bSecond = False
+            
+            if(iter % 10 == 0):
+                bSecond = True    
+            
+            for n in range(N):
+                if bChange[n] == True:
+                    #get neighbours of current state
+            
+                    if  bSecond is True:
+                        tauNeighbours = self.getNeighbourTau2(assignTau[n,:,:])    
+                    else:
+                        tauNeighbours = self.getNeighbourTau(assignTau[n,:,:])
+            
+                    NN = tauNeighbours.shape[0]
+            
+                    #first compute base probabilities at each site for each neighbour
+                    neighbourProb = np.zeros((NN,self.S,4))
+                    stateLogProb = np.zeros(NN)
+        
+                    for t in range(NN): 
+                        neighbourProb[t,:,:] = self.baseProbabilityGivenTau(tauNeighbours[t,:,:],self.gamma_star,self.eta_star)
+             
+                        st1 = np.log(neighbourProb[t,:,:])*assignVariants[n,:,:]
+                
+                        stateLogProb[t] = st1.sum()
+                
+                    tsample = np.argmax(stateLogProb)
+                
+                    #tsample = self.sampleLogProb(stateLogProb)
+                
+                    tidx = self.mapTauState(tauNeighbours[tsample,:,:])
+                
+                    if assignIndices[n] != tidx:
+                        nchange+=1
+                        bChange[n] = True
+                    else:
+                        bChange[n] = False
+                
+                    assignIndices[n] = tidx
+                    assignTau[n,:,:] = tauNeighbours[tsample,:,:]
+            iter += 1
+        
+        return assignTau
+        
+        
+        
+        conf = np.zeros(N)
+        
         return (assignTau,conf)
         
     def sampleGamma(self):
