@@ -270,7 +270,7 @@ def main(argv):
     parser.add_argument('-q','--max_qvalue',nargs='?', const=0.1, type=float, 
         help=("specifies q value cut-off for variant defaults 0.1"))
     
-    parser.add_argument('-m','--min_coverage', type=str, default=5.0,
+    parser.add_argument('-m','--min_coverage', type=float, default=5.0,
         help=("minimum coverage for sample to be included"))
     
     parser.add_argument('-o','--output_stub', type=str, default="output",
@@ -303,7 +303,7 @@ def main(argv):
     #read in snp variants
     variants    = p.read_csv(variant_file, header=0, index_col=0)
     
-    import ipdb; ipdb.set_trace()
+    #import ipdb; ipdb.set_trace()
     
     variant_Filter =  Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, 
         min_coverage = min_coverage, qvalue_cutoff = max_qvalue)
