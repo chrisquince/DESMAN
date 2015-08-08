@@ -176,7 +176,13 @@ class HaploSNP_Sampler():
             tidx = self.mapTauState(self.tau[v,:,:])
             self.tauIndices[v] = tidx
             
-    def sampleTauNeighbour(self,bSecond):
+    def sampleTauNeighbour(self,bSecond,gamma=None,eta=None):
+        
+        if gamma is None:
+            gamma = self.gamma
+        
+        if eta is None:
+            eta = self.eta
         
         #loop each contig
         nchange = 0
@@ -483,6 +489,57 @@ class HaploSNP_Sampler():
             print str(iter) + "," + str(nchange) + "," + str(self.ll)
             sys.stdout.flush()
             iter = iter + 1
+    
+    def burnTau(self):
+        iter = 0
+        self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
+        
+        while (iter < self.burn_iter):
+                    
+            if (self.bSlow == True):
+                nchange = self.sampleTau()
+            else:
+                if (iter < 10 or iter % 10 == 0): 
+                    nchange = self.sampleTauNeighbour(bSecond = True, gamma=self.gamma_star,eta=self.eta_star)
+                else:
+                    nchange = self.sampleTauNeighbour(bSecond = False)
+            
+            self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
+               
+            print str(iter) + "," + str(nchange) + "," + str(self.ll)
+            sys.stdout.flush()
+            iter = iter + 1
+    
+    
+    def updateTau(self): #perform max_iter Gibbs updates
+        
+        iter = 0
+        self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
+        
+        self.ll_star = self.ll
+        self.tau_store[iter,]=np.copy(self.tau)
+        
+        while (iter < self.max_iter):
+                    
+            if (self.bSlow == True):
+                nchange = self.sampleTau()
+            else:
+                if (iter < 10 or iter % 10 == 0): 
+                    nchange = self.sampleTauNeighbour(bSecond = True, gamma=self.gamma_star,eta=self.eta_star)
+                else:
+                    nchange = self.sampleTauNeighbour(bSecond = False)
+            
+            self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
+            if (self.ll > self.ll_star):
+                self.tau_star = np.copy(self.tau)
+                self.ll_star = self.ll
+             
+            self.tau_store[iter,]=np.copy(self.tau)
+               
+            print str(iter) + "," + str(nchange) + "," + str(self.ll)
+            sys.stdout.flush()
+            iter = iter + 1
+    
     
     def update_fixed_tau(self): #perform max_iter Gibbs updates
         iter = 0
