@@ -54,7 +54,7 @@ def main(argv):
     parser.add_argument('-i','--no_iter',nargs='?', const=250, type=int, 
         help=("Number of iterations of Gibbs sampler"))
     
-    parser.add_argument('-m','--min_coverage', type=str, default=5.0,
+    parser.add_argument('-m','--min_coverage', type=float, default=5.0,
         help=("minimum coverage for sample to be included"))
     
     parser.add_argument('-t','--tau_file', type=str, default=None,
