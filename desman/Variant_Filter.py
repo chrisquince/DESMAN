@@ -54,7 +54,7 @@ class Variant_Filter():
     """Filters variant position based on simple binomial 
     or log ratio of binomial to mixtures of binomials"""
 
-    def __init__(self,variants, randomState, optimise = True, threshold = 3.84, min_coverage = 5.0, qvalue_cutoff = 0.1,max_iter = 100):
+    def __init__(self,variants, randomState, optimise = True, threshold = 3.84, min_coverage = 5.0, qvalue_cutoff = 0.1,max_iter = 100, min_p = 0.01):
         #first get array dimensions
         
         variants_matrix = variants.as_matrix()
@@ -90,7 +90,7 @@ class Variant_Filter():
         self.max_iter = max_iter
         
         self.eta = 0.96*np.identity((4)) + 0.01*np.ones((4,4))
-        
+        self.upperP = 1.0 - min_p
         #default select everything
         self.NS = self.V
         self.selected = np.ones((self.V), dtype=bool)    
@@ -179,7 +179,7 @@ class Variant_Filter():
          
             for v in range(self.V):
                 if  self.optimise:
-                    res = minimize_scalar(mixNLL, bounds=(0, 1), args = (self.eta,self.maxA[v],self.maxB[v],self.ffreq[v,:]), method='bounded')
+                    res = minimize_scalar(mixNLL, bounds=(0.0, self.upperP), args = (self.eta,self.maxA[v],self.maxB[v],self.ffreq[v,:]), method='bounded')
                     p[v] = res.x
                 MLL[v] = mixNLL(p[v],self.eta,self.maxA[v],self.maxB[v],self.ffreq[v,:])
             
@@ -267,8 +267,11 @@ def main(argv):
     parser.add_argument('-f','--filter_variants',nargs='?', const=3.84, type=float, 
         help=("binomial loge likelihood species p-value threshold for initial filtering as chi2"))
     
-    parser.add_argument('-q','--max_qvalue',nargs='?', const=0.1, type=float, 
-        help=("specifies q value cut-off for variant defaults 0.1"))
+    parser.add_argument('-q','--max_qvalue',nargs='?', const=1.0e-3, type=float, 
+        help=("specifies q value cut-off for variant defaults 1.0e-3"))
+    
+    parser.add_argument('-v','--min_variant_freq',nargs='?', const=0.01, type=float, 
+        help=("specifies minimum variant frequency defaults 0.01"))
     
     parser.add_argument('-m','--min_coverage', type=float, default=5.0,
         help=("minimum coverage for sample to be included"))
@@ -289,10 +292,11 @@ def main(argv):
     output_stub = args.output_stub
     optimiseP = args.optimiseP
     random_seed = args.random_seed
+
     #create new random state
     prng = RandomState(args.random_seed)
     
-    max_qvalue = 0.1
+    max_qvalue = 1.0e-3
     if args.max_qvalue is not None:
         max_qvalue = args.max_qvalue
     
@@ -300,13 +304,17 @@ def main(argv):
     if args.filter_variants is not None:
         filter_variants = args.filter_variants
     
+    min_variant_freq = 0.01
+    if args.min_variant_freq is not None:
+        min_variant_freq = args.min_variant_freq
+        
     #read in snp variants
     variants    = p.read_csv(variant_file, header=0, index_col=0)
     
-    #import ipdb; ipdb.set_trace()
+    import ipdb; ipdb.set_trace()
     
     variant_Filter =  Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, 
-        min_coverage = min_coverage, qvalue_cutoff = max_qvalue)
+        min_coverage = min_coverage, qvalue_cutoff = max_qvalue, min_p = min_variant_freq)
     
     snps_filter = variant_Filter.get_filtered_VariantsLogRatio()
         
