@@ -139,7 +139,7 @@ def main(argv):
     if tau_file is not None:
         snd_comp = haplo_SNP.compSND(haplo_SNP_fixed.tau,haplo_SNP.tau)
     #import ipdb; ipdb.set_trace()
-    cMLogL = haplo_SNP.chibMarginalLogLikelihood()
+    #cMLogL = haplo_SNP.chibMarginalLogLikelihood()
     logLL = haplo_SNP.logLikelihood(haplo_SNP.gamma,haplo_SNP.tau,haplo_SNP.eta)
     snd = haplo_SNP.calculateSND(haplo_SNP.tau_star)
     variableTau = haplo_SNP.variableTau(haplo_SNP.tau_star)
@@ -147,7 +147,9 @@ def main(argv):
     probTau = haplo_SNP.probabilisticTau()
     
     #output log likelihood and Chib's approxn to the log marginal likelihood
-    print str(genomes) + "," + str(haplo_SNP.G) + "," + str(logLL) + "," + str(cMLogL)
+    
+    AIC = 2.0*haplo_SNP.calcK() - 2.0*logLL
+    print str(genomes) + "," + str(haplo_SNP.G) + "," + str(logLL) + "," + str(AIC)
     
     #output results to files
     #import ipdb; ipdb.set_trace()

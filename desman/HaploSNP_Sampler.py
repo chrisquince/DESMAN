@@ -113,7 +113,11 @@ class HaploSNP_Sampler():
             for a in range(4):
                 self.tauMap[g,a] = a*(4**(G - g - 1))
                 
-        
+    
+    def calcK(self):
+    
+        return self.V*self.G + self.S*(self.G - 1)
+            
     def sampleLogProb(self,adLogProbS):
         dP = np.exp(adLogProbS - np.max(adLogProbS))
         dP = dP/np.sum(dP,axis=0)
