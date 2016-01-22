@@ -1,9 +1,19 @@
 # DESMAN
 De novo Extraction of Strains from MetAgeNomes
 
-First step is to identify variant positions. The '-p' flag uses one dimenisonal optimisition to find individual base frequencies.
+First step is to identify variant positions. This is performed by the program Variant_Filter.py. 
+Start assuming you are in the DESMAN repo directory by making a test folder.
 
-	python ./desman/Variant_Filter.py data/Mock_15_var_freq.csv -o COG0015_out -p
+    mkdir test
+    cd test
 
-Generates output files: 
+Then run the example data file which corresponds to a single COG from the mock community data set 
+described in the manuscript. This COG0015 has 933 variant positions. The input file is in the data 
+folder. We run the variant filtering as follows:
+
+    python ../desman/Variant_Filter.py data/contig_6or16_genesL_scgCOG0015.freq -o COG0015_out -p
+
+The '-p' flag uses one dimenisonal optimisition to find individual base frequencies.
+
+This generates output files: 
 
