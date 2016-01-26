@@ -47,9 +47,6 @@ def main(argv):
     
     parser.add_argument('-p', '--optimiseP', default=True, type=bool,
         help=("optimise proportions in likelihood ratio test"))
-        
-    parser.add_argument('-l', '--xtraslow', action='store_true',
-        help=("always perform full state sampling"))
     
     parser.add_argument('-i','--no_iter',nargs='?', const=250, type=int, 
         help=("Number of iterations of Gibbs sampler"))
@@ -79,7 +76,6 @@ def main(argv):
     optimiseP = args.optimiseP
     max_qvalue = args.max_qvalue
     genomes = args.genomes
-    xtraslow = args.xtraslow
     no_iter = args.no_iter
     random_seed = args.random_seed
     
@@ -117,7 +113,7 @@ def main(argv):
     init_NMFT = inmft.Init_NMFT(variant_Filter.snps_filter,genomes,prng)
     init_NMFT.factorize()
     
-    haplo_SNP = hsnp.HaploSNP_Sampler(variant_Filter.snps_filter,genomes,prng,max_iter=no_iter,bSlow=xtraslow)
+    haplo_SNP = hsnp.HaploSNP_Sampler(variant_Filter.snps_filter,genomes,prng,max_iter=no_iter)
     
     #init_NMFT.discretise_tau()
     
@@ -152,13 +148,18 @@ def main(argv):
     print str(genomes) + "," + str(haplo_SNP.G) + "," + str(logLL) + "," + str(AIC)
     
     #output results to files
-    #import ipdb; ipdb.set_trace()
     output_Results = outr.Output_Results(variants,haplo_SNP,variant_Filter, output_dir)
+    
     output_Results.output_Filtered_Tau(haplo_SNP.tau_star)
+
+    output_Results.output_Prob_Tau(probTau)
+    
     output_Results.output_Gamma(haplo_SNP.gamma_star)
+    
     output_Results.output_Eta(haplo_SNP.eta_star)
+    
     output_Results.output_Selected_Variants()
-    output_Results.output_Pickled_haploSNP()
+
     
     #assign if assignment file given
     if(assign_file != None):

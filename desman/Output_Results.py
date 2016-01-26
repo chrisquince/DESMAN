@@ -31,22 +31,32 @@ class Output_Results():
         self.position = variants['Position']
         self.haplo_SNP = haplo_SNP
         
-    def output_Filtered_Tau(self,tau):
-
-        filtered_contig_names = []
-        filtered_position = []
+        self.filtered_contig_names = []
+        self.filtered_position = []
         for i in self.variantFilter.selected_indices:
-            filtered_contig_names.append(self.contig_names[i])
-            filtered_position.append(self.position[i]) 
+            self.filtered_contig_names.append(self.contig_names[i])
+            self.filtered_position.append(self.position[i]) 
         
+    def output_Filtered_Tau(self,tau):
         tau_res = np.reshape(tau,(self.haplo_SNP.V,self.haplo_SNP.G*4))
-        tau_df = p.DataFrame(tau_res,index=filtered_contig_names)
+        tau_df = p.DataFrame(tau_res,index=self.filtered_contig_names)
     
-        tau_df['Position'] = filtered_position
+        tau_df['Position'] = self.filtered_position
         cols = tau_df.columns.tolist()
         cols = cols[-1:] + cols[:-1]
         tau_df = tau_df[cols]
         tau_df.to_csv(self.outputDir+"/Filtered_Tau_star.csv")
+    
+    def output_Prob_Tau(self,tauProb):
+        
+        tau_res = np.reshape(tauProb,(self.haplo_SNP.V,self.haplo_SNP.G*4))
+        tau_df = p.DataFrame(tau_res,index=self.filtered_contig_names)
+    
+        tau_df['Position'] = self.filtered_position
+        cols = tau_df.columns.tolist()
+        cols = cols[-1:] + cols[:-1]
+        tau_df = tau_df[cols]
+        tau_df.to_csv(self.outputDir+"/Probabilistic_Tau.csv")
     
     def output_Gamma(self,gamma):
         #output max posterior relative frequencies gamma

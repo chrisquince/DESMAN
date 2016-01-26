@@ -26,7 +26,7 @@ class Constants(object):
 
 class HaploSNP_Sampler():
     
-    def __init__(self,snps,G,randomState,fixed_tau=None,burn_iter=None,max_iter=None,bSlow=False,alpha_constant=10.0,delta_constant=10.0, epsilon=1.0e-6):
+    def __init__(self,snps,G,randomState,fixed_tau=None,burn_iter=None,max_iter=None,alpha_constant=10.0,delta_constant=10.0, epsilon=1.0e-6):
 
         if burn_iter is None:
             self.burn_iter = 250
@@ -56,7 +56,6 @@ class HaploSNP_Sampler():
         self.delta_constant = delta_constant
         
         self.alpha = np.empty(self.G); self.alpha.fill(alpha_constant)
-        self.bSlow = bSlow
         self.alpha_constant = alpha_constant
         
         self.gamma = self.randomState.dirichlet(self.alpha, size=self.S)
@@ -143,34 +142,35 @@ class HaploSNP_Sampler():
         return dist 
     
     def sampleTau(self):
-        #first compute base probabilities at each site for each state
-        siteProb = np.zeros((self.nTauStates,self.S,4))
-        
-        for t in range(self.nTauStates): 
-                siteProb[t,:,:] = self.baseProbabilityGivenTau(self.tauStates[t,:,:],self.gamma,self.eta)
-        stateLogProb = np.zeros(self.nTauStates)
-        #loop each contig
+
         nchange = 0
         for v in range(self.V):
-            #calculate probability of all possible assignments of genomes to variants
-            #at each SNP
-            #there are 4^G of these
-            for t in range(self.nTauStates):
-                st1 = np.log(siteProb[t,:,:])*self.variants[v,:,:]
+            #calculate probability of assignment of each genome to 1 of 4 bases
+            for g in range(self.G):
+                propTau = np.zeros((4,self.G,4),dtype=np.int)    
+                stateLogProb = np.zeros(4)
                 
-                stateLogProb[t] = st1.sum()
-            tsample = self.sampleLogProb(stateLogProb)
-            if self.tauIndices[v] != tsample:
-                nchange+=1
-                dist = self.tauDist(self.tauStates[self.tauIndices[v],:,:],self.tauStates[tsample,:,:])
-                #sys.stdout.write("," + str(self.tauIndices[v]) + "->" + str(tsample) + "=" + str(dist))
-                 
-            self.tauIndices[v] = tsample
-            self.tau[v,:,:] = self.tauStates[tsample,:,:]
+                for a in range(4):
+                    propTau[a,:,:] = self.tau[v,:,:]
+                    propTau[a,g,:] = np.zeros(4,dtype=np.int)
+                    propTau[a,g,a] = 1
+                        
+                    siteProb  = self.baseProbabilityGivenTau(propTau[a,:,:],self.gamma,self.eta)
+                    st1 = np.log(siteProb)*self.variants[v,:,:]
+                    stateLogProb[a] = st1.sum()
+                    
+                s = self.sampleLogProb(stateLogProb)
+                    
+                self.tau[v,:,:] = propTau[s,:,:] 
+                    
+                tsample = self.mapTauState(self.tau[v,:,:])
+            
+                if self.tauIndices[v] != tsample:
+                    nchange+=1
+                    
+                    self.tauIndices[v] = tsample
         return nchange
-        #sys.stdout.write("," + str(nchange) + "\n")
-         
-    
+        
     def mapTauState(self,tauState):
         map = np.einsum('ga,ga',self.tauMap,tauState)
         return map
@@ -180,104 +180,6 @@ class HaploSNP_Sampler():
             tidx = self.mapTauState(self.tau[v,:,:])
             self.tauIndices[v] = tidx
             
-    def sampleTauNeighbour(self,bSecond,gamma=None,eta=None):
-        
-        if gamma is None:
-            gamma = self.gamma
-        
-        if eta is None:
-            eta = self.eta
-        
-        #loop each contig
-        nchange = 0
-        for v in range(self.V):
-            #get neighbours of current state
-            
-            if  bSecond == True:
-                tauNeighbours = self.getNeighbourTau2(self.tau[v,:,:])    
-            else:
-                tauNeighbours = self.getNeighbourTau(self.tau[v,:,:])
-            
-            NN = tauNeighbours.shape[0]
-            
-            #first compute base probabilities at each site for each neighbour
-            neighbourProb = np.zeros((NN,self.S,4))
-            stateLogProb = np.zeros(NN)
-        
-            for t in range(NN): 
-                neighbourProb[t,:,:] = self.baseProbabilityGivenTau(tauNeighbours[t,:,:],self.gamma,self.eta)
-             
-                st1 = np.log(neighbourProb[t,:,:])*self.variants[v,:,:]
-                
-                stateLogProb[t] = st1.sum()
-            tsample = self.sampleLogProb(stateLogProb)
-            tidx = self.mapTauState(tauNeighbours[tsample,:,:])
-            if self.tauIndices[v] != tidx:
-                nchange+=1
-                #dist = self.tauDist(self.tauStates[self.tauIndices[v],:,:],self.tauStates[tidx,:,:])
-                #sys.stdout.write("," + str(self.tauIndices[v]) + "->" + str(tidx) + "=" + str(dist))
-              
-            self.tauIndices[v] = tidx
-            self.tau[v,:,:] = tauNeighbours[tsample,:,:]
-        return nchange
-        #sys.stdout.write("," + str(nchange) +"\n")
-     
-    def getNeighbourTau(self,tauState):
-        
-        tauNeighbours = np.zeros((self.G*3 + 1,self.G,4),dtype=np.int)
-        
-        tauNeighbours[0,:,:] = np.copy(tauState)
-        nindex = 1
-        
-        for g in range(self.G):
-            curr = np.where(tauState[g,:] == 1)[0]
-            currt = curr[0]
-            for a in range(4):       
-                if a != currt:
-                    tauNeighbours[nindex,:,:] = np.copy(tauState)
-                    tauNeighbours[nindex,g,currt] = 0
-                    tauNeighbours[nindex,g,a] = 1
-                    nindex = nindex + 1
-                    
-        return tauNeighbours
-    
-    def getNeighbourTau2(self,tauState):
-        NN = 1 + 9*self.G*(self.G - 1) + 3*self.G  
-        
-        tauNeighbours = np.zeros((NN,self.G,4),dtype=np.int)
-        
-        tauNeighbours[0,:,:] = np.copy(tauState)
-        nindex = 1
-        
-        for g in range(self.G):
-            curr = np.where(tauState[g,:] == 1)[0]
-            currt = curr[0]
-            for a in range(4):       
-                if a != currt:
-                    tauNeighbours[nindex,:,:] = np.copy(tauState)
-                    tauNeighbours[nindex,g,currt] = 0
-                    tauNeighbours[nindex,g,a] = 1
-                    
-                    step1 = tauNeighbours[nindex,:,:]        
-                    nindex = nindex + 1
-                    
-                    #now add 2nd order state changes
-                    for h in range(self.G):
-                        if h != g:
-                            curr2 = np.where(tauState[h,:] == 1)[0]
-                            currh = curr2[0]
-                        
-                            for b in range(4): 
-                                if b != currh:
-                                    tauNeighbours[nindex,:,:] = np.copy(step1)
-                                    tauNeighbours[nindex,h,currh] = 0
-                                    tauNeighbours[nindex,h,b] = 1
-                            
-                                    nindex = nindex + 1
-                    
-                    
-        return tauNeighbours
-    
     def assignTau(self,assignMatrix):
         """Computes tau matrix for new sets of variants"""
         N = assignMatrix.shape[0]
@@ -306,90 +208,6 @@ class HaploSNP_Sampler():
             conf[n] = np.amax(dP)
             #print "Assign " + str(n) + " " + str(conf[n])
             assignTau[n,:,:] = self.tauStates[tsample,:,:]
-        return (assignTau,conf)
-        
-    def assignTauFast(self,assignMatrix):
-        """Computes tau matrix for new sets of variants"""
-        N = assignMatrix.shape[0]
-        assignVariants = np.reshape(assignMatrix, (N,self.S,4)) 
-        
-        assignTau = np.zeros((N,self.G,4), dtype=np.int)
-        
-        #init_NMFT = inmft.Init_NMFT(assignVariants,self.G,self.randomState)
-        #init_NMFT.gamma = np.transpose(self.gamma_star)
-        #init_NMFT.factorize_tau()
-        
-        #assignTau = init_NMFT.get_tau()
-        
-        freq = assignVariants.sum(axis=1)
-        
-        maxA = np.argmax(freq,axis=1)
-        
-        for n in range(N):
-            a = maxA[n]
-            for g in range(self.G):
-                assignTau[n,g,a] = 1
-        
-        assignIndices = np.zeros(N,dtype=np.int)
-        
-        for n in range(N):
-            assignIndices[n] = self.mapTauState(assignTau[n,:,:])
-        
-        nchange = 1
-        iter = 0
-        bChange = np.ones(N, dtype=bool)
-        
-        while(nchange > 0 and iter < 5000):
-            nchange = 0
-            bSecond = False
-            
-            if(iter % 10 == 0):
-                bSecond = True    
-            
-            for n in range(N):
-                if bChange[n] == True:
-                    #get neighbours of current state
-            
-                    if  bSecond is True:
-                        tauNeighbours = self.getNeighbourTau2(assignTau[n,:,:])    
-                    else:
-                        tauNeighbours = self.getNeighbourTau(assignTau[n,:,:])
-            
-                    NN = tauNeighbours.shape[0]
-            
-                    #first compute base probabilities at each site for each neighbour
-                    neighbourProb = np.zeros((NN,self.S,4))
-                    stateLogProb = np.zeros(NN)
-        
-                    for t in range(NN): 
-                        neighbourProb[t,:,:] = self.baseProbabilityGivenTau(tauNeighbours[t,:,:],self.gamma_star,self.eta_star)
-             
-                        st1 = np.log(neighbourProb[t,:,:])*assignVariants[n,:,:]
-                
-                        stateLogProb[t] = st1.sum()
-                
-                    tsample = np.argmax(stateLogProb)
-                
-                    #tsample = self.sampleLogProb(stateLogProb)
-                
-                    tidx = self.mapTauState(tauNeighbours[tsample,:,:])
-                
-                    if assignIndices[n] != tidx:
-                        nchange+=1
-                        bChange[n] = True
-                    else:
-                        bChange[n] = False
-                
-                    assignIndices[n] = tidx
-                    assignTau[n,:,:] = tauNeighbours[tsample,:,:]
-            iter += 1
-        
-        return assignTau
-        
-        
-        
-        conf = np.zeros(N)
-        
         return (assignTau,conf)
         
     def sampleGamma(self):
@@ -471,13 +289,7 @@ class HaploSNP_Sampler():
             self.sampleMu(self.tau,self.gamma,self.eta)
             self.sampleGamma()
             
-            if (self.bSlow == True):
-                nchange = self.sampleTau()
-            else:
-                if (iter < 10 or iter % 10 == 0): 
-                    nchange = self.sampleTauNeighbour(bSecond = True)
-                else:
-                    nchange = self.sampleTauNeighbour(bSecond = False)
+            nchange = self.sampleTau()
                 
             self.sampleEta()
             
@@ -499,14 +311,7 @@ class HaploSNP_Sampler():
         self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
         
         while (iter < self.burn_iter):
-                    
-            if (self.bSlow == True):
-                nchange = self.sampleTau()
-            else:
-                if (iter < 10 or iter % 10 == 0): 
-                    nchange = self.sampleTauNeighbour(bSecond = True, gamma=self.gamma_star,eta=self.eta_star)
-                else:
-                    nchange = self.sampleTauNeighbour(bSecond = False)
+            nchange = self.sampleTau()
             
             self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
                
@@ -525,13 +330,7 @@ class HaploSNP_Sampler():
         
         while (iter < self.max_iter):
                     
-            if (self.bSlow == True):
-                nchange = self.sampleTau()
-            else:
-                if (iter < 10 or iter % 10 == 0): 
-                    nchange = self.sampleTauNeighbour(bSecond = True, gamma=self.gamma_star,eta=self.eta_star)
-                else:
-                    nchange = self.sampleTauNeighbour(bSecond = False)
+            nchange = self.sampleTau()
             
             self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
             if (self.ll > self.ll_star):
