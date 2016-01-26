@@ -311,8 +311,6 @@ def main(argv):
     #read in snp variants
     variants    = p.read_csv(variant_file, header=0, index_col=0)
     
-    import ipdb; ipdb.set_trace()
-    
     variant_Filter =  Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, 
         min_coverage = min_coverage, qvalue_cutoff = max_qvalue, min_p = min_variant_freq)
     
