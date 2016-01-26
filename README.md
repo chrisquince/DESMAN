@@ -15,5 +15,7 @@ folder. We run the variant filtering as follows:
 
 The '-p' flag uses one dimenisonal optimisition to find individual base frequencies.
 
+This version now uses Gibbs sampling for tau.
+
 This generates output files: 
 
