@@ -363,12 +363,6 @@ def main(argv):
         
     etahat_df = p.DataFrame(transition_matrix)
     etahat_df.to_csv(output_stub+"tran_df.csv")
-        
-    with open(output_stub+"transition_matrix.pickle", 'w') as f:
-        cPickle.dump(transition_matrix,f)
-    
-    with open(output_stub+"sel_var.pickle", 'w') as f:
-        cPickle.dump(selected_Variants,f)
     
 if __name__ == "__main__":
     main(sys.argv[1:])
