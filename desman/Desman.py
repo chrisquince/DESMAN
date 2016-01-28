@@ -143,9 +143,11 @@ def main(argv):
     probTau = haplo_SNP.probabilisticTau()
     
     #output log likelihood and Chib's approxn to the log marginal likelihood
+    #import ipdb; ipdb.set_trace()
+    chib = haplo_SNP.chibMarginalLogLikelihood2()
     
     AIC = 2.0*haplo_SNP.calcK() - 2.0*logLL
-    print str(genomes) + "," + str(haplo_SNP.G) + "," + str(logLL) + "," + str(AIC)
+    print str(genomes) + "," + str(haplo_SNP.G) + "," + str(logLL) + "," + str(AIC) + "," + str(chib)
     
     #output results to files
     output_Results = outr.Output_Results(variants,haplo_SNP,variant_Filter, output_dir)

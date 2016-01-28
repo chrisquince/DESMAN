@@ -141,7 +141,14 @@ class HaploSNP_Sampler():
         
         return dist 
     
-    def sampleTau(self):
+    def sampleTau(self,gamma=None,eta=None):
+
+        if gamma is None:
+            gamma = self.gamma
+        
+        if eta is None:
+            eta = self.eta
+            
 
         nchange = 0
         for v in range(self.V):
@@ -155,7 +162,7 @@ class HaploSNP_Sampler():
                     propTau[a,g,:] = np.zeros(4,dtype=np.int)
                     propTau[a,g,a] = 1
                         
-                    siteProb  = self.baseProbabilityGivenTau(propTau[a,:,:],self.gamma,self.eta)
+                    siteProb  = self.baseProbabilityGivenTau(propTau[a,:,:],gamma,eta)
                     st1 = np.log(siteProb)*self.variants[v,:,:]
                     stateLogProb[a] = st1.sum()
                     
@@ -170,6 +177,44 @@ class HaploSNP_Sampler():
                     
                     self.tauIndices[v] = tsample
         return nchange
+       
+    def normaliseLogProb(self,logProb):
+            
+        maxLog = np.max(logProb)
+        
+        logProb = logProb - maxLog
+        
+        logProbExp = np.exp(logProb) 
+        
+        return logProb - np.log(logProbExp.sum()) 
+     
+    def sampleTauFixTau(self,fixedTau,H,gammaStar,etaStar):
+
+        storeHLogProb = np.zeros((self.V,4))
+
+        for v in range(self.V):
+            #calculate probability of assignment of each genome to 1 of 4 bases
+            for g in range(H,self.G):
+                propTau = np.zeros((4,self.G,4),dtype=np.int)    
+                
+                stateLogProb = np.zeros(4)
+                
+                for a in range(4):
+                    propTau[a,:,:] = fixedTau[v,:,:]
+                    propTau[a,g,:] = np.zeros(4,dtype=np.int)
+                    propTau[a,g,a] = 1
+                        
+                    siteProb  = self.baseProbabilityGivenTau(propTau[a,:,:],gammaStar,etaStar)
+                    st1 = np.log(siteProb)*self.variants[v,:,:]
+                    stateLogProb[a] = st1.sum()
+                if g == H:
+                    storeHLogProb[v,:] = self.normaliseLogProb(stateLogProb)
+                    
+                s = self.sampleLogProb(stateLogProb)
+                        
+                fixedTau[v,:,:] = propTau[s,:,:] 
+        
+        return storeHLogProb
         
     def mapTauState(self,tauState):
         map = np.einsum('ga,ga',self.tauMap,tauState)
@@ -408,6 +453,100 @@ class HaploSNP_Sampler():
             
         return ret
 
+    def logMean(self, logStore):
+        
+        nSamples = logStore.shape[0]
+        
+        maxLog = np.max(logStore)
+        
+        logStore = logStore - maxLog
+        
+        logStoreExp = np.exp(logStore) 
+        
+        return maxLog + np.log(logStoreExp.sum()) - np.log(nSamples)
+
+    def chibMarginalLogLikelihood2(self):
+        #compute likelihood
+        cMLogL = self.logLikelihood(self.gamma_star,self.tau_star,self.eta_star)
+        
+        #add on priors
+        logGammaPrior = 0.0
+        for s in range(self.S):
+            logGammaPrior += du.log_dirichlet_pdf(self.gamma_star[s,:], self.alpha)
+        
+        logEtaPrior = 0.0
+        for a in range(4):
+            logEtaPrior += du.log_dirichlet_pdf(self.eta_star[a,:],self.delta)
+        
+        #need tau prior assume uniform over all possible states
+        logTauPrior = self.V*self.G*log(1.0/4.0)
+
+        #compute eta term
+        storeLogEpsilon = np.zeros(self.max_iter)
+        for i in range(self.max_iter):
+            
+            sum_E =  self.E_store[i,].sum(axis=(0,1))
+            
+            logTotalE = 0.0
+            for a in range(4):
+                logE = du.log_dirichlet_pdf(self.eta_star[a,:],self.delta + sum_E[:,a])
+                logTotalE += logE
+            
+            storeLogEpsilon[i] = logTotalE
+        
+        logEpsilonHat =  self.logMean(storeLogEpsilon)
+            
+        #sample for pi term
+
+        storeLogGamma = np.zeros(self.max_iter)
+        for i in range(self.max_iter):
+            
+            self.sampleTau(self.gamma,self.eta_star)
+            
+            self.sampleMu(self.tau,self.gamma,self.eta_star)
+            
+            self.sampleGamma()
+            
+            logTotalP = 0.0;
+            
+            sum_mu = self.mu.sum(axis=(0,2))
+            for s in range(self.S):
+                logP = du.log_dirichlet_pdf(self.gamma_star[s,:], self.alpha + sum_mu[s,:])
+                
+                logTotalP += logP
+            print str(i)+",GC," + str(logTotalP)
+            storeLogGamma[i] = logTotalP
+            
+        logGammaHat = self.logMean(storeLogGamma)
+        
+        logTauHat = 0.0
+        for h in range(self.G):
+            workingTau = np.copy(self.tau_star)
+            
+            storeLogTau = np.zeros(self.max_iter)
+            for i in range(self.max_iter):
+                
+                tauLogProb = self.sampleTauFixTau(workingTau,h,self.gamma_star,self.eta_star)
+                
+                temp = 0.0
+                for v in range(self.V):
+                    temp += tauLogProb[v,self.tauOne(self.tau_star[v,h,:])]
+                storeLogTau[i] = temp
+                print str(i)+",GT," + str(h) + "," + str(temp)
+            logTauHat += self.logMean(storeLogTau)
+        
+        return cMLogL + logEtaPrior - logEpsilonHat + logGammaPrior - logGammaHat + logTauPrior - logTauHat
+    
+    def tauOne(self,tauSlice):
+        
+        g = 0
+        while True:
+            if tauSlice[g] == 1:
+                break
+            g=g+1
+        
+        return g
+                
     
     def chibMarginalLogLikelihood(self):
         #compute likelihood
