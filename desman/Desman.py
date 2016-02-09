@@ -8,6 +8,7 @@ import scipy.misc as spm
 import math
 import argparse
 import cPickle
+import copy
 
 from operator import mul, div, eq, ne, add, ge, le, itemgetter
 from itertools import izip
@@ -97,8 +98,8 @@ def main(argv):
     if eta_file is not None:
         eta_df = p.read_csv(eta_file, header=0, index_col=0)    
         variant_Filter.eta = eta_df.as_matrix()
-         
-    if random_select is not None:
+     
+    if random_select is not None:    
         variant_Filter.select_Random(random_select)
     
     if tau_file is not None:
@@ -114,10 +115,6 @@ def main(argv):
     init_NMFT.factorize()
     
     haplo_SNP = hsnp.HaploSNP_Sampler(variant_Filter.snps_filter,genomes,prng,max_iter=no_iter)
-    
-    #init_NMFT.discretise_tau()
-    
-    #init_NMFT.factorize_gamma()
     
     haplo_SNP.tau = init_NMFT.get_tau()
     haplo_SNP.updateTauIndices()
@@ -144,10 +141,10 @@ def main(argv):
     
     #output log likelihood and Chib's approxn to the log marginal likelihood
     #import ipdb; ipdb.set_trace()
-    chib = haplo_SNP.chibMarginalLogLikelihood2()
+    #chib = haplo_SNP.chibMarginalLogLikelihood2()
     
     AIC = 2.0*haplo_SNP.calcK() - 2.0*logLL
-    print str(genomes) + "," + str(haplo_SNP.G) + "," + str(logLL) + "," + str(AIC) + "," + str(chib)
+    print str(genomes) + "," + str(haplo_SNP.G) + "," + str(logLL) + "," + str(AIC) 
     
     #output results to files
     output_Results = outr.Output_Results(variants,haplo_SNP,variant_Filter, output_dir)
@@ -161,14 +158,85 @@ def main(argv):
     output_Results.output_Eta(haplo_SNP.eta_star)
     
     output_Results.output_Selected_Variants()
-
     
+    import ipdb; ipdb.set_trace()
+    if random_select is not None:
+        VS = variant_Filter.snps_filter_original.shape[0] 
+        
+        snps_notselected = variant_Filter.snps_filter_original[variant_Filter.selected != True,:]
+    
+        init_NMFT_NS = inmft.Init_NMFT(snps_notselected,haplo_SNP.G,haplo_SNP.randomState)
+        
+        init_NMFT_NS.gamma = np.transpose(haplo_SNP.gamma)
+        
+        init_NMFT_NS.factorize_tau()
+        
+        haplo_SNP_NS = hsnp.HaploSNP_Sampler(snps_notselected,haplo_SNP.G,haplo_SNP.randomState,max_iter=no_iter)
+    
+        haplo_SNP_NS.tau = init_NMFT_NS.get_tau()
+        haplo_SNP_NS.updateTauIndices()
+        haplo_SNP_NS.gamma_star = haplo_SNP.gamma_star
+        haplo_SNP_NS.eta_star = haplo_SNP.eta_star
+     
+        haplo_SNP_NS.updateTau()
+        #after burn-in phase remove degeneracies?
+        haplo_SNP_NS.removeDegenerate()
+    
+        haplo_SNP_NS.updateTau()
+    
+        collateTau = np.zeros((VS,haplo_SNP.G,4), dtype=np.int)
+        collatePTau = np.zeros((VS,haplo_SNP.G,4))
+        pTau_NS = haplo_SNP_NS.probabilisticTau()
+        pTau = haplo_SNP_NS.probabilisticTau()
+         
+        g = 0
+        h = 0
+        for v in range(VS):
+        
+            if variant_Filter.selected[v] != True:
+                collateTau[v,:] = haplo_SNP_NS.tau_star[g,:]
+                collatePTau[v,:] = pTau_NS[g,:]
+                g = g+1
+            else:
+                collateTau[v,:] = haplo_SNP.tau_star[h,:]
+                collatePTau[v,:] = pTau[h,:]
+                h = h + 1
+                
+        
+        contig_names = variants.index.tolist()
+        position = variants['Position']
+        
+        original_contig_names = []
+        original_position = []
+        for i in variant_Filter.selected_indices_original:
+            original_contig_names.append(contig_names[i])
+            original_position.append(position[i])
+        
+        collateTau_res = np.reshape(collateTau,(VS,haplo_SNP.G*4))
+        collatePTau_res = np.reshape(collatePTau,(VS,haplo_SNP.G*4))
+        
+        collate_tau_df = p.DataFrame(collateTau_res,index=original_contig_names)
+        collate_tau_df['Position'] = original_position
+        
+        cols = collate_tau_df.columns.tolist()
+        cols = cols[-1:] + cols[:-1]
+        collate_tau_df = collate_tau_df[cols]
+        collate_tau_df.to_csv(output_dir+"/Collated_Tau_star.csv")
+        
+        collate_ptau_df = p.DataFrame(collatePTau_res,index=original_contig_names)
+        collate_ptau_df['Position'] = original_position
+        
+        cols = collate_ptau_df.columns.tolist()
+        cols = cols[-1:] + cols[:-1]
+        collate_ptau_df = collate_ptau_df[cols]
+        collate_ptau_df.to_csv(output_dir+"/Collated_PTau_star.csv")
     #assign if assignment file given
     if(assign_file != None):
         assigns    = p.read_csv(assign_file, header=0, index_col=0)    
         assigns_matrix = assigns.as_matrix()
         assigns_matrix = np.delete(assigns_matrix, 0, 1)
-     #  import ipdb; ipdb.set_trace()
+        import ipdb; ipdb.set_trace()
+       
         (assignTau,confTau) = haplo_SNP.assignTau(assigns_matrix)
         snda = haplo_SNP.calculateSND(assignTau)
         

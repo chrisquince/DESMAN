@@ -375,13 +375,13 @@ class HaploSNP_Sampler():
         
         while (iter < self.max_iter):
                     
-            nchange = self.sampleTau()
+            nchange = self.sampleTau(self.gamma_star,self.eta_star)
             
             self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
             if (self.ll > self.ll_star):
                 self.tau_star = np.copy(self.tau)
                 self.ll_star = self.ll
-             
+            
             self.tau_store[iter,]=np.copy(self.tau)
                
             print str(iter) + "," + str(nchange) + "," + str(self.ll)

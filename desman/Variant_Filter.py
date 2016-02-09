@@ -97,6 +97,8 @@ class Variant_Filter():
         self.selected_indices  = list(np.where(self.selected))
         self.selected_indices = self.selected_indices[0].tolist()
     
+        #denotes whether a random selection of significant positions has occured
+        self.randomSelect = False
     def get_filtered_Variants(self):
         iter = 0
         
@@ -219,17 +221,20 @@ class Variant_Filter():
         
     def select_Random(self, random_select):
         if(random_select < self.NS):
-            select = np.sort(self.randomState.choice(self.NS, random_select, replace=False))
+            self.randomSelect = True
         
+            select = np.sort(self.randomState.choice(self.NS, random_select, replace=False))
+            
+            self.snps_filter_original = np.copy(self.snps_filter)
             self.snps_filter = self.snps_filter[select,:,:]
             
             self.NS = random_select
             
-            #all needs to be corrected to refer to original array.... 
+            self.selected_indices_original = np.copy(self.selected_indices)
             self.selected_indices = [self.selected_indices[i] for i in select]
         
-            self.selected = np.zeros((self.V), dtype=bool)
-            
+            self.selected_original = np.copy(self.selected)
+            self.selected = np.zeros((self.V), dtype=bool)  
             self.selected[self.selected_indices] = True
         
         return self.snps_filter
