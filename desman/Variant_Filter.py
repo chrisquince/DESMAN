@@ -158,7 +158,7 @@ class Variant_Filter():
         
         ftemp = np.copy(self.freq)
         for v in range(self.V):
-            ftemp[v,self.maxA[v]] = 0
+            ftemp[v,self.maxA[v]] = -1
         self.maxB = np.argmax(ftemp,axis=1)
         
         N = (self.freq.sum(axis=1)).astype(np.float64)
@@ -314,6 +314,7 @@ def main(argv):
         min_variant_freq = args.min_variant_freq
         
     #read in snp variants
+    #import ipdb; ipdb.set_trace()
     variants    = p.read_csv(variant_file, header=0, index_col=0)
     
     variant_Filter =  Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, 
