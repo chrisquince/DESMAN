@@ -8,6 +8,7 @@ import scipy.misc as spm
 import math
 import argparse
 import cPickle
+import sampletau
 
 from operator import mul, div, eq, ne, add, ge, le, itemgetter
 from itertools import izip
@@ -374,8 +375,8 @@ class HaploSNP_Sampler():
         self.tau_store[iter,]=np.copy(self.tau)
         
         while (iter < self.max_iter):
-                    
-            nchange = self.sampleTau(self.gamma_star,self.eta_star)
+            nchange = sampletau.sample_tau(self.tau, self.gamma_star, self.eta_star, self.variants)        
+            #nchange = self.sampleTau(self.gamma_star,self.eta_star)
             
             self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
             if (self.ll > self.ll_star):
@@ -387,7 +388,7 @@ class HaploSNP_Sampler():
             print str(iter) + "," + str(nchange) + "," + str(self.ll)
             sys.stdout.flush()
             iter = iter + 1
-    
+        self.updateTauIndices()
     
     def update_fixed_tau(self): #perform max_iter Gibbs updates
         iter = 0

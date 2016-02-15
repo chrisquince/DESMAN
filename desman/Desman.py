@@ -122,6 +122,7 @@ def main(argv):
     haplo_SNP.eta = variant_Filter.eta
      
     #haplo_SNP.burn()
+    
     haplo_SNP.update()
     #after burn-in phase remove degeneracies?
     haplo_SNP.removeDegenerate()
@@ -159,7 +160,7 @@ def main(argv):
     
     output_Results.output_Selected_Variants()
     
-    import ipdb; ipdb.set_trace()
+    #import ipdb; ipdb.set_trace()
     if random_select is not None:
         VS = variant_Filter.snps_filter_original.shape[0] 
         
@@ -176,11 +177,9 @@ def main(argv):
         haplo_SNP_NS.tau = init_NMFT_NS.get_tau()
         haplo_SNP_NS.updateTauIndices()
         haplo_SNP_NS.gamma_star = haplo_SNP.gamma_star
-        haplo_SNP_NS.eta_star = haplo_SNP.eta_star
-     
+        haplo_SNP_NS.eta_star = haplo_SNP.eta_star     
+               
         haplo_SNP_NS.updateTau()
-        #after burn-in phase remove degeneracies?
-        haplo_SNP_NS.removeDegenerate()
     
         haplo_SNP_NS.updateTau()
     
