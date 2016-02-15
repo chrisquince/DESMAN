@@ -27,7 +27,7 @@ class Constants(object):
 
 class HaploSNP_Sampler():
     
-    def __init__(self,snps,G,randomState,fixed_tau=None,burn_iter=None,max_iter=None,alpha_constant=10.0,delta_constant=10.0, epsilon=1.0e-6):
+    def __init__(self,snps,G,randomState,fixed_tau=None,burn_iter=None,max_iter=None,alpha_constant=0.1,delta_constant=0.1, epsilon=1.0e-6):
 
         if burn_iter is None:
             self.burn_iter = 250
