@@ -23,6 +23,7 @@ import Init_NMFT as inmft
 import Desman_Utils as du
 import HaploSNP_Sampler as hsnp
 import Output_Results as outr
+import sampletau
 
 def main(argv):
     parser = argparse.ArgumentParser()
@@ -110,16 +111,18 @@ def main(argv):
         haplo_SNP_fixed.update_fixed_tau()
     
     prng = RandomState(args.random_seed)
+    sampletau.initRNG()
+    sampletau.setRNG(args.random_seed)
     
     init_NMFT = inmft.Init_NMFT(variant_Filter.snps_filter,genomes,prng)
     init_NMFT.factorize()
     
     haplo_SNP = hsnp.HaploSNP_Sampler(variant_Filter.snps_filter,genomes,prng,max_iter=no_iter)
     
-    haplo_SNP.tau = init_NMFT.get_tau()
+    haplo_SNP.tau = np.copy(init_NMFT.get_tau(),order='C')
     haplo_SNP.updateTauIndices()
-    haplo_SNP.gamma = init_NMFT.get_gamma()
-    haplo_SNP.eta = variant_Filter.eta
+    haplo_SNP.gamma = np.copy(init_NMFT.get_gamma(),order='C')
+    haplo_SNP.eta = np.copy(variant_Filter.eta,order='C')
      
     #haplo_SNP.burn()
     
@@ -145,7 +148,7 @@ def main(argv):
     #chib = haplo_SNP.chibMarginalLogLikelihood2()
     
     AIC = 2.0*haplo_SNP.calcK() - 2.0*logLL
-    print str(genomes) + "," + str(haplo_SNP.G) + "," + str(logLL) + "," + str(AIC) 
+    print "Fit" + "," + str(genomes) + "," + str(haplo_SNP.G) + "," + str(logLL) + "," + str(AIC) 
     
     #output results to files
     output_Results = outr.Output_Results(variants,haplo_SNP,variant_Filter, output_dir)
@@ -176,13 +179,13 @@ def main(argv):
     
         haplo_SNP_NS.tau = init_NMFT_NS.get_tau()
         haplo_SNP_NS.updateTauIndices()
-        haplo_SNP_NS.gamma_star = haplo_SNP.gamma_star
-        haplo_SNP_NS.eta_star = haplo_SNP.eta_star     
-               
+        haplo_SNP_NS.gamma_star = np.copy(haplo_SNP.gamma_star,order='C')
+        haplo_SNP_NS.eta_star = np.copy(haplo_SNP.eta_star,order='C')     
+        
         haplo_SNP_NS.updateTau()
     
         haplo_SNP_NS.updateTau()
-    
+
         collateTau = np.zeros((VS,haplo_SNP.G,4), dtype=np.int)
         collatePTau = np.zeros((VS,haplo_SNP.G,4))
         pTau_NS = haplo_SNP_NS.probabilisticTau()
@@ -262,5 +265,6 @@ def main(argv):
         conf_tau_df = conf_tau_df[cols]
         conf_tau_df.to_csv(output_dir+"/Assigned_Tau_conf.csv")
     
+    sampletau.freeRNG()
 if __name__ == "__main__":
     main(sys.argv[1:])

@@ -166,7 +166,7 @@ class HaploSNP_Sampler():
                     siteProb  = self.baseProbabilityGivenTau(propTau[a,:,:],gamma,eta)
                     st1 = np.log(siteProb)*self.variants[v,:,:]
                     stateLogProb[a] = st1.sum()
-                    
+                
                 s = self.sampleLogProb(stateLogProb)
                     
                 self.tau[v,:,:] = propTau[s,:,:] 
@@ -174,6 +174,7 @@ class HaploSNP_Sampler():
                 tsample = self.mapTauState(self.tau[v,:,:])
             
                 if self.tauIndices[v] != tsample:
+                    #print "v=" + str(v) + ",g" + str(g) + "," + str(stateLogProb[0]) + "," + str(stateLogProb[1])  + "," + str(stateLogProb[2])  + "," + str(stateLogProb[3]) 
                     nchange+=1
                     
                     self.tauIndices[v] = tsample
@@ -335,8 +336,9 @@ class HaploSNP_Sampler():
             self.sampleMu(self.tau,self.gamma,self.eta)
             self.sampleGamma()
             
-            nchange = self.sampleTau()
-                
+            #nchange = self.sampleTau()
+            nchange = sampletau.sample_tau(self.tau, self.gamma, self.eta, self.variants)
+           
             self.sampleEta()
             
             self.ll = self.logLikelihood(self.gamma,self.tau,self.eta)
@@ -351,7 +353,9 @@ class HaploSNP_Sampler():
             print str(iter) + "," + str(nchange) + "," + str(self.ll)
             sys.stdout.flush()
             iter = iter + 1
-    
+
+        self.updateTauIndices()
+         
     def burnTau(self):
         iter = 0
         self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)

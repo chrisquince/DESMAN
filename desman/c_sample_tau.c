@@ -21,6 +21,30 @@
 /*User includes*/
 //#include "c_sample_tau.h"
 
+static gsl_rng *ptGSLRNG;
+
+void c_initRNG()
+{
+    //const gsl_rng_type * T;
+    
+    gsl_rng_env_setup();
+
+    //T = gsl_rng_default;
+    ptGSLRNG = gsl_rng_alloc (gsl_rng_mt19937);
+}
+
+void c_setRNG(unsigned long int seed)
+{
+    printf("GSL RNG initialise %lu\n",seed);
+    gsl_rng_set (ptGSLRNG, seed);
+}
+
+void c_freeRNG()
+{
+    gsl_rng_free (ptGSLRNG);
+}
+
+
 void normaliseLog4(double *adLogProb)
 {
     double dMax = adLogProb[0], dSum = 0.0;
@@ -66,6 +90,8 @@ int sample4(double *adProb, double dU){
     }
 }
 
+
+
 int c_sample_tau (long *anTau, double* adPi, double *adEta, long* anVariants, int nV, int nG, int nS)
 {
     int a = 0, b = 0;
@@ -76,13 +102,7 @@ int c_sample_tau (long *anTau, double* adPi, double *adEta, long* anVariants, in
     double dLogProb[4];
     int** anTauIndex = NULL;
     double u = 0.0;
-    const gsl_rng_type * T;
-    gsl_rng * r;
-    
-    gsl_rng_env_setup();
 
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);
     
     anTauIndex = (int **) malloc(nV*sizeof(int*));
     if(!anTauIndex)
@@ -147,13 +167,14 @@ int c_sample_tau (long *anTau, double* adPi, double *adEta, long* anVariants, in
                     }
                 }
             }            
+  //          printf("u=%f,p1=%f,p2=%f,p3=%f,p4 =%f\n",u,dLogProb[0],dLogProb[1],dLogProb[2],dLogProb[3]);
             
             normaliseLog4(dLogProb);
             
-            u = gsl_rng_uniform (r);
-            //printf("u=%f,p1=%f,p2=%f,p3=%f,p4 =%f\n",u,dLogProb[0],dLogProb[1],dLogProb[2],dLogProb[3]);
+            u = gsl_rng_uniform (ptGSLRNG);
+       //     printf("u=%f,p1=%f,p2=%f,p3=%f,p4 =%f\n",u,dLogProb[0],dLogProb[1],dLogProb[2],dLogProb[3]);
             t = sample4(dLogProb, u);
-            //printf("v=%d,g=%d,tnew=%d,told=%d\n",v,g,t,anTauIndex[v][g]);
+         //   printf("v=%d,g=%d,tnew=%d,told=%d\n",v,g,t,anTauIndex[v][g]);
             if(t != anTauIndex[v][g]){
                 int vIndex = v*4*nG + 4*g;
                 anTau[vIndex + anTauIndex[v][g]] = 0; 
@@ -173,7 +194,7 @@ int c_sample_tau (long *anTau, double* adPi, double *adEta, long* anVariants, in
     }
     free(anTauIndex);
  
-    gsl_rng_free (r);
+
     return nchange;
 
     memoryError:

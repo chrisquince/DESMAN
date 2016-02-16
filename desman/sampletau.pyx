@@ -12,6 +12,27 @@ cimport numpy as np
 # declare the interface to the C code
 cdef extern int c_sample_tau (long *anTau, double* adPi, double *adEta, long* anVariants, int nV, int nG, int nS)
 
+cdef extern void c_initRNG()
+
+cdef extern void c_setRNG(unsigned long int seed)
+
+cdef extern void c_freeRNG()
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+def initRNG():
+    c_initRNG()
+               
+@cython.boundscheck(False)
+@cython.wraparound(False)
+def setRNG(int seed):
+    c_setRNG(seed)
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+def freeRNG():
+    c_freeRNG()
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def sample_tau(np.ndarray[long, ndim=3, mode="c"] tau not None, np.ndarray[double, ndim=2, mode="c"] pi not None, 
