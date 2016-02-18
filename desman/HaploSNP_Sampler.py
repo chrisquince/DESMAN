@@ -48,7 +48,7 @@ class HaploSNP_Sampler():
         self.S = snps.shape[1]
 
         #set read counts per contig per sample
-        self.variants = snps 
+        self.variants = np.copy(snps,order='C') 
         
         self.epsilon = epsilon
         

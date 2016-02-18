@@ -16,6 +16,11 @@ from scipy.special import gammaln
 from scipy.optimize import minimize_scalar
 from numpy.random import RandomState
 
+def rchop(thestring, ending):
+  if thestring.endswith(ending):
+    return thestring[:-len(ending)]
+  return thestring
+
 
 class Output_Results():
 
@@ -65,6 +70,7 @@ class Output_Results():
         originalS = (len(varCols) - 1)/4
         idx = range(1,originalS*4,4)
         sampleNames = [varCols[i] for i in idx] 
+        sampleNames = [ rchop(x,'-A') for x in sampleNames ]
         sampleNames = [sampleNames[i] for i in self.variantFilter.sample_indices]
         
         gamma_df = p.DataFrame(gamma,index=sampleNames)

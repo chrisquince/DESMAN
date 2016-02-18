@@ -118,7 +118,7 @@ def main(argv):
     init_NMFT.factorize()
     
     haplo_SNP = hsnp.HaploSNP_Sampler(variant_Filter.snps_filter,genomes,prng,max_iter=no_iter)
-    
+    import ipdb; ipdb.set_trace()
     haplo_SNP.tau = np.copy(init_NMFT.get_tau(),order='C')
     haplo_SNP.updateTauIndices()
     haplo_SNP.gamma = np.copy(init_NMFT.get_gamma(),order='C')
