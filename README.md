@@ -1,6 +1,9 @@
 # DESMAN
 De novo Extraction of Strains from MetAgeNomes
 
+To compile Cython module run:
+    python setup.py build_ext --inplace
+
 First step is to identify variant positions. This is performed by the program Variant_Filter.py. 
 Start assuming you are in the DESMAN repo directory by making a test folder.
 
