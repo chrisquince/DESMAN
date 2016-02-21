@@ -189,7 +189,7 @@ def main(argv):
         collateTau = np.zeros((VS,haplo_SNP.G,4), dtype=np.int)
         collatePTau = np.zeros((VS,haplo_SNP.G,4))
         pTau_NS = haplo_SNP_NS.probabilisticTau()
-        pTau = haplo_SNP_NS.probabilisticTau()
+        pTau = haplo_SNP.probabilisticTau()
          
         g = 0
         h = 0
