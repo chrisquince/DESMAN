@@ -30,9 +30,15 @@ that have been prepared. The starting point for a Desman analysis is a csv file 
 
 [Strain mock community frequencies for COG0015](data/contig_6or16_genesL_scgCOG0015.freq)
 
-This has a simple format, a header line followed by one line for each position with format:
+This has a simple format, a header line with format:
 
-gene name, position, freq. of A in sample 1, freq. of C in 1,freq. of G in 1,freq. of T in 1,..., freq. of A in sample N, freq. of C in N,freq. of G in N,freq. of T in N 
+    Contig,Position,SampleName1-A,SampleName1-C,SampleName1-G,SampleName1-T,...,SampleNameN-A,SampleNameN-C,SampleNameN-G,SampleNameN-T
+
+followed by one line for each position with format:
+
+    gene name, position, freq. of A in sample 1, freq. of C in 1,freq. of G in 1,freq. of T in 1,..., freq. of A in sample N, freq. of C in N,freq. of G in N,freq. of T in N 
+
+
 
 ##Complete _de novo_ strain level analysis from metagenome data
 
