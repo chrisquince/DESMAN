@@ -1,6 +1,6 @@
 # DESMAN _De novo_ Extraction of Strains from MetAgeNomes
 
-![alt tag](https://github.com/chrisquince/DESMAN/desmans.jpg)
+![alt tag](desmans.jpg)
 
 ##Installation
 
