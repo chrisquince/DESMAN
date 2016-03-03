@@ -18,12 +18,14 @@ from scipy.optimize import minimize_scalar
 from numpy.random import RandomState
 
 #user defined modules
-import Variant_Filter as vf
-import Init_NMFT as inmft
-import Desman_Utils as du
-import HaploSNP_Sampler as hsnp
-import Output_Results as outr
-import sampletau
+import desman.Variant_Filter as vf
+import desman.Init_NMFT as inmft
+import desman.Desman_Utils as du
+import desman.HaploSNP_Sampler as hsnp
+import desman.Output_Results as outr
+
+#C code for tau sampling
+import sampletau 
 
 def main(argv):
     parser = argparse.ArgumentParser()
