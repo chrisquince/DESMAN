@@ -1,4 +1,5 @@
 setup.py
+bin/desman
 desman/Desman_Utils.py
 desman/HaploSNP_Sampler.py
 desman/Init_NMFT.py

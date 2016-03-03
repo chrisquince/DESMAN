@@ -1,7 +1,19 @@
-# DESMAN
-De novo Extraction of Strains from MetAgeNomes
+# DESMAN _De novo_ Extraction of Strains from MetAgeNomes
 
-To compile Cython module run:
+![alt tag](https://github.com/chrisquince/DESMAN/desmans.jpg)
+
+##Installation
+
+To install simply type:
+    python ./set
+    
+
+##Simple example
+
+##Complete _de novo_ strain level analysis from metagenome data
+
+
+compile Cython module run:
     python setup.py build_ext --inplace
 
 First step is to identify variant positions. This is performed by the program Variant_Filter.py. 
