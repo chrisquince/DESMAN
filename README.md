@@ -5,8 +5,23 @@
 ##Installation
 
 To install simply type:
-    python ./set
     
+    sudo python ./setup.py install
+    
+These items are prerequisities for the installation of desman:
+
+python v2.7.*
+gcc
+gsl
+
+The installation procedure varies on different systems, 
+and described in this README is only how to proceed with a linux (ubuntu) distribution.
+
+The first item, python v2.7.*, should be installed on a modern Ubuntu distribution. 
+A c-compiler, e.g. gcc, is needed to compile the c parts of concoct that uses the 
+GNU Scientific Library gsl. For linux (ubuntu) this is installed through:
+
+    sudo apt-get install build-essential libgsl0-dev
 
 ##Simple example
 
@@ -14,6 +29,7 @@ To install simply type:
 
 
 compile Cython module run:
+    
     python setup.py build_ext --inplace
 
 First step is to identify variant positions. This is performed by the program Variant_Filter.py. 
