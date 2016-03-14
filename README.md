@@ -25,19 +25,19 @@ GNU Scientific Library gsl. For linux (ubuntu) this is installed through:
 
 ##Simple example
 
-To illustrate the actual strain inference algorithm we will start with a sample example using base frequencies 
-that have been prepared. The starting point for a Desman analysis is a csv file with base frequencies e.g. 
+To illustrate the actual strain inference algorithm we will start with a simple example using base frequencies 
+that have been pre-prepared. The starting point for a Desman analysis is a csv file with base frequencies e.g. 
 
 [Strain mock community frequencies for COG0015](data/contig_6or16_genesL_scgCOG0015.freq)
 
-This has a simple format, a header line with format:
+This has the following format, a header line with the following format:
 
     Contig,Position,SampleName1-A,SampleName1-C,SampleName1-G,SampleName1-T,...,SampleNameN-A,SampleNameN-C,SampleNameN-G,SampleNameN-T
 
-followed by one line for each position with format:
+where SampleName1,...,SampleNameN gives the names of the different samples in the analysis. Followed 
+by one line for each position with format:
 
     gene name, position, freq. of A in sample 1, freq. of C in 1,freq. of G in 1,freq. of T in 1,..., freq. of A in sample N, freq. of C in N,freq. of G in N,freq. of T in N 
-
 
 
 ##Complete _de novo_ strain level analysis from metagenome data
