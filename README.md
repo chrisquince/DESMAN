@@ -64,15 +64,15 @@ the '-p' flag for one dimenisonal optimisition of individual base frequencies if
 too time consuming. The '-o' option is a file stub all output files will be generated with this prefix.
 A log file will be generated 'COG0015_out_log.txt' and output files: 
 
-1. COG0015_outp_df.csv
+1. COG0015_outp_df.csv: This gives p-values for each position.
 
-2. COG0015_outq_df.csv
+2. COG0015_outq_df.csv: This gives q-values for each position.
 
-3. COG0015_outr_df.csv
+3. COG0015_outr_df.csv: This gives log-ratio statistics for each position.
 
-4. COG0015_outsel_var.csv
+4. COG0015_outsel_var.csv: This is the file of selected variants.
 
-5. COG0015_outtran_df.csv
+5. COG0015_outtran_df.csv: A matrix of estimated error rates.
 
 
 #Complete example of _de novo_ strain level analysis from metagenome data
