@@ -41,10 +41,9 @@ by one line for each position with format:
     gene name, position, freq. of A in sample 1, freq. of C in 1,freq. of G in 1,freq. of T in 1,..., freq. of A in sample N, freq. of C in N,freq. of G in N,freq. of T in N 
 
 
-##Complete _de novo_ strain level analysis from metagenome data
+##Getting started with test data set
 
-
-First step is to identify variant positions. This is performed by the program Variant_Filter.py. 
+The first step is to identify variant positions. This is performed by the desman script Variant_Filter.py. 
 Start assuming you are in the DESMAN repo directory by making a test folder.
 
     mkdir test
@@ -56,12 +55,26 @@ folder. We run the variant filtering as follows:
 
     python ../desman/Variant_Filter.py data/contig_6or16_genesL_scgCOG0015.freq -o COG0015_out -p
 
-The '-p' flag uses one dimenisonal optimisition to find individual base frequencies.
+The variant filtering has a number of optional parameters to see them run:
 
-This version now uses Gibbs sampling for tau.
+    python ../desman/Variant_Filter.py -h
+    
+They should all be fairly self explanatory. We recommend always using the 
+the '-p' flag for one dimenisonal optimisition of individual base frequencies if it is not 
+too time consuming. The '-o' option is a file stub all output files will be generated with this prefix.
+A log file will be generated 'COG0015_out_log.txt' and output files: 
 
-This generates output files: 
+1. COG0015_outp_df.csv
 
-#Complete Example
+2. COG0015_outq_df.csv
+
+3. COG0015_outr_df.csv
+
+4. COG0015_outsel_var.csv
+
+5. COG0015_outtran_df.csv
+
+
+#Complete example of _de novo_ strain level analysis from metagenome data
 <a name="complete_example"></a>
 
