@@ -26,11 +26,12 @@ GNU Scientific Library gsl. For linux (ubuntu) this is installed through:
 ##Simple example
 
 To illustrate the actual strain inference algorithm we will start with a simple example using base frequencies 
-that have been pre-prepared. The starting point for a Desman analysis is a csv file with base frequencies e.g. 
+that have been pre-prepared. Below we also give [a complete example](#complete_example) including 
+pre-processing. The starting point for a Desman analysis is a csv file with base frequencies e.g.: 
 
 [Strain mock community frequencies for COG0015](data/contig_6or16_genesL_scgCOG0015.freq)
 
-This has the following format, a header line with the following format:
+This has the following format:
 
     Contig,Position,SampleName1-A,SampleName1-C,SampleName1-G,SampleName1-T,...,SampleNameN-A,SampleNameN-C,SampleNameN-G,SampleNameN-T
 
@@ -60,4 +61,7 @@ The '-p' flag uses one dimenisonal optimisition to find individual base frequenc
 This version now uses Gibbs sampling for tau.
 
 This generates output files: 
+
+#Complete Example
+<a name="complete_example"></a>
 
