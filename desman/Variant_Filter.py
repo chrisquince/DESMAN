@@ -8,6 +8,7 @@ import scipy.misc as spm
 import math
 import argparse
 import cPickle
+import logging
 
 from operator import mul, div, eq, ne, add, ge, le, itemgetter
 from itertools import izip
@@ -203,7 +204,7 @@ class Variant_Filter():
             
             lastSelect = Select
             Select = self.V - self.filtered.sum()
-            print str(iter) + " " + str(Select) + " " + str(self.eta)
+            logging.info("Variant filter iter: " + str(iter) + " " + str(Select) + " " + str(self.eta))
             sys.stdout.flush()
             iter = iter + 1
             
@@ -298,6 +299,20 @@ def main(argv):
     optimiseP = args.optimiseP
     random_seed = args.random_seed
 
+    #start logging
+    log_file_name = args.output_stub + 'log.txt'
+    
+    logging.basicConfig(
+            filename=log_file_name,
+            level=logging.INFO,
+            filemode='w', # Overwrites old log file
+            format='%(asctime)s:%(levelname)s:%(name)s:%(message)s'
+            )
+
+    logging.info("Results created at {0}".format(
+            os.path.abspath(log_file_name)))
+
+
     #create new random state
     prng = RandomState(args.random_seed)
     
@@ -320,8 +335,10 @@ def main(argv):
     variant_Filter =  Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, 
         min_coverage = min_coverage, qvalue_cutoff = max_qvalue, min_p = min_variant_freq)
     
+    logging.info('Begun filtering variants with parameters: optimise probability = %s, lr threshold = %s, min. coverage = %s, q-value threshold = %s, min. variant frequency = %s' % (optimiseP, filter_variants, min_coverage, 
+        max_qvalue, min_variant_freq))
     snps_filter = variant_Filter.get_filtered_VariantsLogRatio()
-        
+    logging.info("Completed variant filtering")       
     transition_matrix = variant_Filter.calc_Error_Matrix()
     
     contig_names = variants.index.tolist()
@@ -353,20 +370,25 @@ def main(argv):
     cols = cols[-1:] + cols[:-1]
     snps_reshape_df = snps_reshape_df[cols]
     
+    logging.info('Output selected variants to %s',output_stub+"sel_var.csv") 
     snps_reshape_df.to_csv(output_stub+"sel_var.csv")
-                
+          
+    logging.info('Output p-values to %s',output_stub+"p_df.csv")             
     p_df = p.DataFrame(variant_Filter.pvalue,index=contig_names)
     p_df = addPositions(p_df,position)   
     p_df.to_csv(output_stub+"p_df.csv")
-        
+    
+    logging.info('Output q-values to %s',output_stub+"q_df.csv")
     q_df = p.DataFrame(variant_Filter.qvalue,index=contig_names)
     q_df = addPositions(q_df,position)  
     q_df.to_csv(output_stub+"q_df.csv")
         
+    logging.info('Output log ratios to %s',output_stub+"r_df.csv")
     r_df = p.DataFrame(variant_Filter.ratioNLL,index=contig_names)
     r_df = addPositions(r_df,position)  
     r_df.to_csv(output_stub+"r_df.csv")
-        
+    
+    logging.info('Output estimated error matrix to %s',output_stub+"tran_df.csv")
     etahat_df = p.DataFrame(transition_matrix)
     etahat_df.to_csv(output_stub+"tran_df.csv")
     
