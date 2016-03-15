@@ -69,7 +69,7 @@ class Output_Results():
         
         fitFile = self.outputDir+"/fit.txt"
         with open(fitFile, "w") as text_file:
-            text_file.write("Fit,%d,%d,%f,%f"%(genomes,haplo_SNP.G,logLL,AIC))
+            text_file.write("Fit,%d,%d,%f,%f\n"%(genomes,haplo_SNP.G,logLL,AIC))
 
         logging.info("Wrote fit stats") 
         
