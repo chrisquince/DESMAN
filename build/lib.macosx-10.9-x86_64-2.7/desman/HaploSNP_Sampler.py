@@ -9,6 +9,7 @@ import math
 import argparse
 import cPickle
 import sampletau
+import logging 
 
 from operator import mul, div, eq, ne, add, ge, le, itemgetter
 from itertools import izip
@@ -348,10 +349,11 @@ class HaploSNP_Sampler():
             self.tau_store[iter,]=np.copy(self.tau)
             self.E_store[iter,]=np.copy(self.E)
             self.eta_store[iter,] = np.copy(self.eta)
-            self.gamma_store[iter,] = np.copy(self.gamma)    
+            self.gamma_store[iter,] = np.copy(self.gamma)
             
-            print str(iter) + "," + str(nchange) + "," + str(self.ll)
-            sys.stdout.flush()
+            if (iter % 10 == 0):    
+                logging.info('Gibbs Iter %d, no. changed = %d, nll = %f'%(iter,nchange,self.ll))
+            
             iter = iter + 1
 
         self.updateTauIndices()
@@ -388,8 +390,10 @@ class HaploSNP_Sampler():
                 self.ll_star = self.ll
             
             self.tau_store[iter,]=np.copy(self.tau)
-               
-            print str(iter) + "," + str(nchange) + "," + str(self.ll)
+            
+            if (iter % 10 == 0):    
+                logging.info('Gibbs Iter %d, no. changed = %d, nll = %f'%(iter,nchange,self.ll))
+
             sys.stdout.flush()
             iter = iter + 1
         self.updateTauIndices()

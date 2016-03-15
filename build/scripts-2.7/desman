@@ -83,6 +83,7 @@ def main(argv):
     no_iter = args.no_iter
     random_seed = args.random_seed
     
+    
     #create new random state with fixed seed 
     prng = RandomState(238329)
     
@@ -151,7 +152,7 @@ def main(argv):
     
     AIC = 2.0*haplo_SNP.calcK() - 2.0*logLL
     print "Fit" + "," + str(genomes) + "," + str(haplo_SNP.G) + "," + str(logLL) + "," + str(AIC) 
-    
+
     #output results to files
     output_Results = outr.Output_Results(variants,haplo_SNP,variant_Filter, output_dir)
     

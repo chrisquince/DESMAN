@@ -8,6 +8,7 @@ import scipy.misc as spm
 import math
 import argparse
 import cPickle
+import logging
 
 from operator import mul, div, eq, ne, add, ge, le, itemgetter
 from itertools import izip
@@ -90,8 +91,8 @@ class Init_NMFT:
                 divl = div
                 div = self.div_objective()
  
-                if iter % 100 == 0: 
-                    print str(iter) + "," + str(div)
+                if iter % 100 == 0:
+                    logging.info('NTF Iter %d, div = %f'%(iter,div)) 
 
                 iter += 1
                 
@@ -124,8 +125,8 @@ class Init_NMFT:
                 divl = div
                 div = self.div_objective()
  
-                if iter % 100 == 0: 
-                    print str(iter) + "," + str(div)
+                if iter % 100 == 0:
+                    logging.info('NTF Iter %d, div = %f'%(iter,div))
 
                 iter += 1
 

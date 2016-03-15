@@ -35,7 +35,7 @@ void c_initRNG()
 
 void c_setRNG(unsigned long int seed)
 {
-    printf("GSL RNG initialise %lu\n",seed);
+    //printf("GSL RNG initialise %lu\n",seed);
     gsl_rng_set (ptGSLRNG, seed);
 }
 

@@ -280,7 +280,7 @@ def main(argv):
         help=("specifies minimum variant frequency defaults 0.01"))
     
     parser.add_argument('-m','--min_coverage', type=float, default=5.0,
-        help=("minimum coverage for sample to be included"))
+        help=("minimum coverage for sample to be included defaults 5.0"))
     
     parser.add_argument('-o','--output_stub', type=str, default="output",
         help=("string specifying file stubs"))

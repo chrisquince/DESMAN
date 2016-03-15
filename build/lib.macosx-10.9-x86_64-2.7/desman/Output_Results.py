@@ -8,6 +8,7 @@ import scipy.misc as spm
 import math
 import argparse
 import cPickle
+import logging
 
 from operator import mul, div, eq, ne, add, ge, le, itemgetter
 from itertools import izip
@@ -24,23 +25,53 @@ def rchop(thestring, ending):
 
 class Output_Results():
 
-    def __init__(self,variants,haplo_SNP,variantFilter,outputDir):
-        self.variantFilter = variantFilter
+    def __init__(self,outputDir):
         self.outputDir = outputDir
-        self.variants = variants
         
         if not os.path.exists(outputDir):
             os.makedirs(outputDir)
         
+        self.log_file_name = self.outputDir+"/log_file.txt"
+        
+        logging.basicConfig(
+            filename=self.log_file_name,
+            level=logging.INFO,
+            filemode='w', # Overwrites old log file
+            format='%(asctime)s:%(levelname)s:%(name)s:%(message)s'
+            )
+        
+        logging.info("Results created in {0}".format(
+            os.path.abspath(self.outputDir)))
+
+        print >> sys.stderr, "Up and running. Check {0} for progress".format(
+            os.path.abspath(self.log_file_name))
+        
+        
+    def set_Variants(self,variants):
+        self.variants = variants
         self.contig_names = variants.index.tolist()
         self.position = variants['Position']
-        self.haplo_SNP = haplo_SNP
         
+    def set_Variant_Filter(self,variantFilter):
+        self.variantFilter = variantFilter
         self.filtered_contig_names = []
         self.filtered_position = []
         for i in self.variantFilter.selected_indices:
             self.filtered_contig_names.append(self.contig_names[i])
-            self.filtered_position.append(self.position[i]) 
+            self.filtered_position.append(self.position[i])
+        
+    def set_haplo_SNP(self,haplo_SNP,genomes):
+        self.haplo_SNP = haplo_SNP
+        
+        logLL = haplo_SNP.logLikelihood(haplo_SNP.gamma,haplo_SNP.tau,haplo_SNP.eta)
+    
+        AIC = 2.0*haplo_SNP.calcK() - 2.0*logLL
+        
+        fitFile = self.outputDir+"/fit.txt"
+        with open(fitFile, "w") as text_file:
+            text_file.write("Fit,%d,%d,%f,%f"%(genomes,haplo_SNP.G,logLL,AIC))
+
+        logging.info("Wrote fit stats") 
         
     def output_Filtered_Tau(self,tau):
         tau_res = np.reshape(tau,(self.haplo_SNP.V,self.haplo_SNP.G*4))
@@ -51,7 +82,7 @@ class Output_Results():
         cols = cols[-1:] + cols[:-1]
         tau_df = tau_df[cols]
         tau_df.to_csv(self.outputDir+"/Filtered_Tau_star.csv")
-    
+        logging.info("Wrote filtered tau star haplotype predictions")
     def output_Prob_Tau(self,tauProb):
         
         tau_res = np.reshape(tauProb,(self.haplo_SNP.V,self.haplo_SNP.G*4))
@@ -62,6 +93,57 @@ class Output_Results():
         cols = cols[-1:] + cols[:-1]
         tau_df = tau_df[cols]
         tau_df.to_csv(self.outputDir+"/Probabilistic_Tau.csv")
+        logging.info("Wrote probabilistic tau haplotype predictions")
+    
+    def output_collated_Tau(self,haplo_SNP_NS,full_variants):
+        VS = haplo_SNP_NS.V + self.haplo_SNP.V
+        collateTau = np.zeros((VS,self.haplo_SNP.G,4), dtype=np.int)
+        collatePTau = np.zeros((VS,self.haplo_SNP.G,4))
+        pTau_NS = haplo_SNP_NS.probabilisticTau()
+        pTau = self.haplo_SNP.probabilisticTau()
+         
+        g = 0
+        h = 0
+        for v in range(VS):
+        
+            if self.variantFilter.selected[v] != True:
+                collateTau[v,:] = haplo_SNP_NS.tau_star[g,:]
+                collatePTau[v,:] = pTau_NS[g,:]
+                g = g+1
+            else:
+                collateTau[v,:] = self.haplo_SNP.tau_star[h,:]
+                collatePTau[v,:] = pTau[h,:]
+                h = h + 1
+                
+        
+        full_contig_names = full_variants.index.tolist()
+        full_position = full_variants['Position']
+        
+        original_contig_names = []
+        original_position = []
+        for i in self.variantFilter.selected_indices_original:
+            original_contig_names.append(full_contig_names[i])
+            original_position.append(full_position[i])
+        
+        collateTau_res = np.reshape(collateTau,(VS,self.haplo_SNP.G*4))
+        collatePTau_res = np.reshape(collatePTau,(VS,self.haplo_SNP.G*4))
+        
+        collate_tau_df = p.DataFrame(collateTau_res,index=original_contig_names)
+        collate_tau_df['Position'] = original_position
+        
+        cols = collate_tau_df.columns.tolist()
+        cols = cols[-1:] + cols[:-1]
+        collate_tau_df = collate_tau_df[cols]
+        collate_tau_df.to_csv(self.outputDir+"/Collated_Tau_star.csv")
+        logging.info("Wrote all tau haplotype predictions")
+        collate_ptau_df = p.DataFrame(collatePTau_res,index=original_contig_names)
+        collate_ptau_df['Position'] = original_position
+        
+        cols = collate_ptau_df.columns.tolist()
+        cols = cols[-1:] + cols[:-1]
+        collate_ptau_df = collate_ptau_df[cols]
+        collate_ptau_df.to_csv(self.outputDir+"/Collated_PTau_star.csv")
+        logging.info("Wrote all probabilistic tau haplotype predictions")    
     
     def output_Gamma(self,gamma):
         #output max posterior relative frequencies gamma
@@ -75,18 +157,19 @@ class Output_Results():
         
         gamma_df = p.DataFrame(gamma,index=sampleNames)
         gamma_df.to_csv(self.outputDir+"/Gamma_star.csv")
-        
+        logging.info("Wrote gamma haplotype relative frequencies")
     def output_Eta(self,eta):
     
         eta_df = p.DataFrame(eta)
         eta_df.to_csv(self.outputDir+"/Eta_star.csv")
-    
+        logging.info("Wrote transition error matrix")
     def output_Selected_Variants(self):
         #write out selected variants really need to remove filtered samples here tooo...
         selected_Variants = self.variants[self.variantFilter.selected]
         selected_Variants.to_csv(self.outputDir+"/Selected_variants.csv")
-        
+        logging.info("Wrote selected variants")
     def output_Pickled_haploSNP(self):
         
         with open(self.outputDir+"/haplo_SNP.pickle", 'w') as f:
             cPickle.dump(self.haplo_SNP,f)
+        logging.info("Wrote pickled haplo_SNP object")

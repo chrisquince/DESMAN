@@ -41,7 +41,7 @@ by one line for each position with format:
     gene name, position, freq. of A in sample 1, freq. of C in 1,freq. of G in 1,freq. of T in 1,..., freq. of A in sample N, freq. of C in N,freq. of G in N,freq. of T in N 
 
 
-##Getting started with test data set
+###Finding variant positions for the test data set
 
 The first step is to identify variant positions. This is performed by the desman script Variant_Filter.py. 
 Start assuming you are in the DESMAN repo directory by making a test folder.
@@ -73,6 +73,8 @@ A log file will be generated 'COG0015_out_log.txt' and output files:
 4. COG0015_outsel_var.csv: This is the file of selected variants.
 
 5. COG0015_outtran_df.csv: A matrix of estimated error rates.
+
+###Inferring haplotypes and abundances for the test data set
 
 
 #Complete example of _de novo_ strain level analysis from metagenome data
