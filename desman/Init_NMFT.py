@@ -58,7 +58,7 @@ class Init_NMFT:
         if self.G > 1:
             temp =  self.randomState.dirichlet(self.alpha, size=self.S)
         else:
-            temp = np.ones(self.S)
+            temp = np.ones((self.S,self.G))
         self.gamma = np.transpose(temp)
                 
         for v in range(self.V):
