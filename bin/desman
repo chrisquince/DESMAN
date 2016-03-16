@@ -100,13 +100,16 @@ def main(argv):
 
     
 #    import ipdb; ipdb.set_trace()
-    logging.info('Running Desman with %d samples and %d variant positions finding %d genomes.' %(variant_Filter.S,variant_Filter.V,genomes))
     
     #construct variant filter to only select most likely SNPS
     variant_Filter = vf.Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, min_coverage = min_coverage, qvalue_cutoff = max_qvalue)
     if variant_Filter.S < 1 or variant_Filter.V < 1:
         logging.error('Not enough samples with minimum coverage %d or variant positions %d. Exiting!'%(variant_Filter.S,variant_Filter.V))
-        sys.exit(-1)    
+        sys.exit(-1)  
+    
+    logging.info('Running Desman with %d samples and %d variant positions finding %d genomes.' %(variant_Filter.S,variant_Filter.V,genomes))
+    
+      
     #perform variant filtering if -f selected
     if filter_variants is not None:   
         logging.info('Begun filtering variants with parameters: optimise probability = %s, lr threshold = %s, min. coverage = %s, q-value threshold = %s, min. variant frequency = %s'
