@@ -64,38 +64,75 @@ def main(argv):
     #import ipdb; ipdb.set_trace()
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("tau_file1", help="predicted variants")
+    
+    parser.add_argument("gamma_file", help="relative frequencies of haplotypes")
+    
+    parser.add_argument("tau_file", help="haplotypes to determine uncertainty of")
         
-    parser.add_argument("tau_file2", help="known variants")
+    parser.add_argument('comp_files', type=file, nargs='+', 
+                        help="tau_file2 ... tau_fileN replicates to compare to")
         
     args = parser.parse_args()
     
-    tau_file1 = args.tau_file1
-    tau_file2 = args.tau_file2
+    gamma_file = args.gamma_file
+    tau_file = args.tau_file
+    comp_files = args.comp_files
 
-    tau1 = p.read_csv(tau_file1, header=0, index_col=0)
+    gamma = p.read_csv(gamma_file, header=0, index_col=0)
+    gamma_mean = np.mean(gamma.as_matrix(),axis = 0) 
+
+    tau = p.read_csv(tau_file, header=0, index_col=0)
     
-    tau1_matrix = tau1.as_matrix()
-    tau1_matrix = np.delete(tau1_matrix,0,1)
+    tau_matrix = tau.as_matrix()
+    tau_matrix = np.delete(tau_matrix,0,1)
     
-    V1 = tau1_matrix.shape[0]
-    G1 = tau1_matrix.shape[1]/4
+    V = tau_matrix.shape[0]
+    G = tau_matrix.shape[1]/4
     
-    tau1_array = np.reshape(tau1_matrix,(V1, G1,4)) 
+    tau_array = np.reshape(tau_matrix,(V, G,4)) 
     
-    tau2 = p.read_csv(tau_file2, header=0, index_col=0)
-    tau2_matrix = tau2.as_matrix()
-    tau2_matrix = np.delete(tau2_matrix,0,1)
+    NC = len(comp_files)
+    all_acc = np.zeros((G,NC))
     
-    V2 = tau2_matrix.shape[0]
-    G2 = tau2_matrix.shape[1]/4
+    c = 0
+    for ctau_file in comp_files:
     
-    tau2_array = np.reshape(tau2_matrix,(V2, G2,4))
+        ctau = p.read_csv(ctau_file, header=0, index_col=0)
+        ctau_matrix = ctau.as_matrix()
+        ctau_matrix = np.delete(ctau_matrix,0,1)
     
-    comp = compSND(tau1_array,tau2_array)
+        V2 = ctau_matrix.shape[0]
+        G2 = ctau_matrix.shape[1]/4
     
-    validate = np.min(comp,axis=1)/float(V2)
+        if V2 != V or G2 != G:
+            print 'Haplotype files do not match V %d -> %d or G %d -> %d' % (V,V2,G,G2)
+            sys.exit(-1)
     
-    np.savetxt(sys.stdout,validate)
+        ctau_array = np.reshape(ctau_matrix,(V2, G2,4))
+    
+        comp = compSND(tau_array,ctau_array)/float(V)
+    
+        accuracies = np.zeros(G)
+        map = np.zeros(G,dtype=int)
+        acctotal = 0.0
+        ga = 0;
+        while (ga < G):
+            (mr,mcol) = np.unravel_index(np.argmin(comp),comp.shape)
+            curr_acc = np.min(comp)
+            acctotal += curr_acc 
+            comp[mr,:] = np.ones(G)
+            comp[:,mcol] = np.ones(G)
+            accuracies[mr] = curr_acc
+            map[mr] = mcol
+            ga += 1
+        
+        all_acc[:,c] = accuracies
+        c=c+1
+    
+    mean_acc = np.mean(all_acc, axis=1)
+
+    for g in range(G):
+        print "%d,%f,%f\n" %(g,gamma_mean[g],mean_acc[g])
+    
 if __name__ == "__main__":
     main(sys.argv[1:])
