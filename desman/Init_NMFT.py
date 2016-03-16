@@ -150,7 +150,7 @@ class Init_NMFT:
             gamma_sum = self.gamma.sum(axis = 0)
             self.gamma = self.gamma/gamma_sum[np.newaxis,:]
         else:
-            self.gamma = np.ones((self.S,self.G))
+            self.gamma = np.ones((self.G,self.S))
 
         tau1 = np.tile(self.gamma.sum(1)[np.newaxis,:],(self.N, 1))
         self.tau = np.multiply(
