@@ -53,7 +53,7 @@ Then run the example data file which corresponds to a single COG from the mock c
 described in the manuscript. This COG0015 has 933 variant positions. The input file is in the data 
 folder. We run the variant filtering as follows:
 
-    python ../desman/Variant_Filter.py data/contig_6or16_genesL_scgCOG0015.freq -o COG0015_out -p
+    python ../desman/Variant_Filter.py ../data/contig_6or16_genesL_scgCOG0015.freq -o COG0015_out -p
 
 The variant filtering has a number of optional parameters to see them run:
 
@@ -76,6 +76,36 @@ A log file will be generated 'COG0015_out_log.txt' and output files:
 
 ###Inferring haplotypes and abundances for the test data set
 
+Having found the variant positions we will now the run the program for inferring haplotypes and their abundance:
+
+    desman COG0015_outsel_var.csv -g 5 -e COG0015_outtran_df.csv -o COG0015_out_g5 -i 50 
+
+These parameters specify the variants file. Then number of haplotypes as five '-g 5', an initial 
+estimate for the error transition matrix taken from the variant detection '-e COG0015_outtran_df.csv', 
+an output directory '-o COG0015_out_g5' and the number of iterations, '-i 50'.
+The program takes the selected variants and infers haplotypes and their abundances using the Gibbs sampler given 
+the assumption that five strains are present. All output files will be generated in the directory COG0015_out_g5. 
+Once the program has finished running a few minutes on a typical computer it will generate the following 
+files inside the output directory:
+
+1. log_file.txt: This logs the progress of the program through the three stages: 
+NTF initialisation, 'burn-in' Gibbs sampler and the sampling itself. 
+
+2. Eta_star.csv: Prediction for error transition matrix (rows true bases, columns observed probabilities) 						
+
+3. Filtered_Tau_star.csv: Prediction for strain haplotypes. Each row of comma separated file contains:
+
+    gene name, position, haplotype1-A,  haplotype1-C,  haplotype1-G,  haplotype1-T,..., haplotypeG-A,  haplotypeG-C,  haplotypeG-G,  haplotypeG-T  
+
+where 1 indicates the base present in that haplotype at that position.
+
+4. Gamma_star.csv: This gives the relative frequency of each haplotye in each sample. One row for each sample.
+
+5. Probabilistic_Tau.csv: Prediction for strain haplotypes but now an estimate of the poseterior probability of asignments.
+
+6. Selected_variants.csv: Variants used for strain calling if filtering applied.
+
+7. fit.txt: Statistics evaluating fit as number of haplotypes, number of non-degenerate haplotypes inferred, log-Likelihood, Aikake information criterion
 
 #Complete example of _de novo_ strain level analysis from metagenome data
 <a name="complete_example"></a>
