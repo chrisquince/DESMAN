@@ -92,6 +92,9 @@ def main(argv):
     
     #read in snp variants
     variants    = p.read_csv(variant_file, header=0, index_col=0)
+    if variant_Filter.S < 1 or variant_Filter.V < 1:
+        logging.error('Not enough samples with minimum coverage %d or variant positions %d. Exiting!'%(variant_Filter.S,variant_Filter.V))
+        sys.exit(-1)
     
 #    import ipdb; ipdb.set_trace()
     
