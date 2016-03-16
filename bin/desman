@@ -126,9 +126,13 @@ def main(argv):
         variant_Filter.eta = eta_df.as_matrix()
      
     if random_select is not None:
-        logging.info('Selected %d random variant positions to infer haplotypes from' % random_select)   
-        variant_Filter.select_Random(random_select)
-    
+        if random_select < variant_Filter.V:
+            logging.info('Selected %d random variant positions to infer haplotypes from' % random_select)   
+            variant_Filter.select_Random(random_select)
+        else:
+            logging.info('Not enough variable positions for random selection %d >= %d using all' % (random_select,variant_Filter.V))   
+            random_select = None
+            
     logging.info('Set second adjustable random seed = %d',args.random_seed)
     prng = RandomState(args.random_seed)
     sampletau.initRNG()
