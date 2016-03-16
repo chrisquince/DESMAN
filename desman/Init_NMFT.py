@@ -144,10 +144,13 @@ class Init_NMFT:
         """Update basis and mixture matrix based on divergence multiplicative update rules."""
         H1 = np.tile(self.tau.sum(0)[:,np.newaxis],(1, self.S))
         
-        self.gamma = np.multiply(self.gamma, du.elop(np.dot(self.tau.T, du.elop(self.freq_matrix, np.dot(self.tau, self.gamma), div)), H1, div))
+        if self.G > 1:
+            self.gamma = np.multiply(self.gamma, du.elop(np.dot(self.tau.T, du.elop(self.freq_matrix, np.dot(self.tau, self.gamma), div)), H1, div))
 
-        gamma_sum = self.gamma.sum(axis = 0)
-        self.gamma = self.gamma/gamma_sum[np.newaxis,:]
+            gamma_sum = self.gamma.sum(axis = 0)
+            self.gamma = self.gamma/gamma_sum[np.newaxis,:]
+        else:
+            self.gamma = np.ones((self.S,self.G))
 
         tau1 = np.tile(self.gamma.sum(1)[np.newaxis,:],(self.N, 1))
         self.tau = np.multiply(
