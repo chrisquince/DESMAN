@@ -95,7 +95,9 @@ NTF initialisation, 'burn-in' Gibbs sampler and the sampling itself.
 
 3. Filtered_Tau_star.csv: Prediction for strain haplotypes. Each row of comma separated file contains:
 
+```
     gene name, position, haplotype1-A,  haplotype1-C,  haplotype1-G,  haplotype1-T,..., haplotypeG-A,  haplotypeG-C,  haplotypeG-G,  haplotypeG-T  
+```
 
 where 1 indicates the base present in that haplotype at that position.
 
