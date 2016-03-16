@@ -132,7 +132,7 @@ def main(argv):
     mean_acc = np.mean(all_acc, axis=1)
 
     for g in range(G):
-        print "%d,%f,%f\n" %(g,gamma_mean[g],mean_acc[g])
+        print "%d,%f,%f" %(g,gamma_mean[g],mean_acc[g])
     
 if __name__ == "__main__":
     main(sys.argv[1:])
