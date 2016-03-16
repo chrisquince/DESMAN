@@ -32,8 +32,8 @@ def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("variant_file", help="input SNP frequencies")
 
-    parser.add_argument('-g','--genomes', type=int, required=True,
-        help=("specify the genome number"))
+    parser.add_argument('-h','--haplotypes', type=int, required=True,
+        help=("specify the haplotype number"))
         
     parser.add_argument('-f','--filter_variants',nargs='?', const=3.84, type=float, 
         help=("filters variants by negative binomial loge likelihood defaults to 3.84"))
@@ -79,7 +79,12 @@ def main(argv):
     min_coverage = args.min_coverage
     optimiseP = args.optimiseP
     max_qvalue = args.max_qvalue
-    genomes = args.genomes
+    
+    haplotypes = args.haplotypes
+    if haplotypes < 0:
+        logging.error('Only positive haplotype number valid not  %d. Exiting!'%haplotypes)
+        sys.exit(-1)
+     
     no_iter = args.no_iter
     min_variant_freq = args.min_variant_freq
     
@@ -97,7 +102,7 @@ def main(argv):
         sys.exit(-1)
     
 #    import ipdb; ipdb.set_trace()
-    
+    logging.info('Running Desman with %d samples and %d variant positions finding %d haplotypes. %(variant_Filter.S,variant_Filter.V,haplotypes))
     
     #construct variant filter to only select most likely SNPS
     variant_Filter = vf.Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, min_coverage = min_coverage, qvalue_cutoff = max_qvalue)
@@ -126,11 +131,11 @@ def main(argv):
     sampletau.initRNG()
     sampletau.setRNG(args.random_seed)
     
-    init_NMFT = inmft.Init_NMFT(variant_Filter.snps_filter,genomes,prng)
+    init_NMFT = inmft.Init_NMFT(variant_Filter.snps_filter,haplotypes,prng)
     logging.info('Perform NTF initialisation')
     init_NMFT.factorize()
     
-    haplo_SNP = hsnp.HaploSNP_Sampler(variant_Filter.snps_filter,genomes,prng,max_iter=no_iter)
+    haplo_SNP = hsnp.HaploSNP_Sampler(variant_Filter.snps_filter,haplotypes,prng,max_iter=no_iter)
     
     haplo_SNP.tau = np.copy(init_NMFT.get_tau(),order='C') #Necessary to have C-order for passing to Cython 
     
@@ -152,7 +157,7 @@ def main(argv):
     
     output_Results.set_Variant_Filter(variant_Filter)
     
-    output_Results.set_haplo_SNP(haplo_SNP,genomes)
+    output_Results.set_haplo_SNP(haplo_SNP,haplotypes)
     
     output_Results.output_Filtered_Tau(haplo_SNP.tau_star)
 
