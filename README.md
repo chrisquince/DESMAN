@@ -10,9 +10,9 @@ To install simply type:
     
 These items are prerequisities for the installation of desman:
 
-*python v2.7.*
-*gcc
-*gsl
+1. *python v2.7.*
+2. *gcc
+3. *gsl
 
 The installation procedure varies on different systems, 
 and described in this README is only how to proceed with a linux (ubuntu) distribution.
@@ -21,7 +21,18 @@ The first item, python v2.7.*, should be installed on a modern Ubuntu distributi
 A c-compiler, e.g. gcc, is needed to compile the c parts of concoct that uses the 
 GNU Scientific Library gsl. For linux (ubuntu) this is installed through:
 
+```
     sudo apt-get install build-essential libgsl0-dev
+```
+
+For convenience we also recommend adding the scripts directory to your path:
+
+```
+export PATH=$HOME/myinstalldir/DESMAN/scripts:$PATH
+
+````
+
+Obviously replacing myinstalldir as appropriate and adding this to your .bash_profile file.
 
 ##Simple example
 
@@ -115,6 +126,18 @@ where 1 indicates the base present in that haplotype at that position.
 To provide an in depth illustration of how to use Deman we will give a complete worked example from a subset of the synthetic community 
 used in Quince et al. 2016. We have provided 16 samples, subsampled to 1 million reads from the 64 samples with 11.75 million reads used 
 originally. This example is therefore more tractable but the following analysis assumes you have access to a multi-core server. 
+We also assume that you have some standard and not so standard sequence analysis software installed:
+
+1. [megahit](https://github.com/voutcn/megahit): A highly efficient metagenomics assembler currently our default for most studies
+
+2. [bwa](https://github.com/lh3/bwa): Necessary for mapping reads onto contigs
+
+3. [bam-readcount](https://github.com/genome/bam-readcount): Used to get per sample base frequencies at each position
+
+4. [CONCOCT](https://github.com/BinPro/CONCOCT): Our own contig binning algorithm
+
+Click the link associated with each application.
+
 To begin obtain the reads from Dropbox:
 
 
