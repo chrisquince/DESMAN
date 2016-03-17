@@ -112,3 +112,12 @@ where 1 indicates the base present in that haplotype at that position.
 #Complete example of _de novo_ strain level analysis from metagenome data
 <a name="complete_example"></a>
 
+To provide an in depth illustration of how to use Deman we will give a complete worked example from a subset of the synthetic community 
+used in Quince et al. 2016. We have provided 16 samples, subsampled to 1 million reads from the 64 samples with 11.75 million reads used 
+originally. This example is therefore more tractable but the following analysis assumes you have access to a multi-core server. 
+To begin obtain the reads from Dropbox:
+
+
+```bash
+nohup megahit -1 $(<R1.csv) -2 $(<R2.csv) -t 36 -o Assembly --presets meta > megahit.out&
+```
