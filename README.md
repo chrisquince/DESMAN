@@ -134,37 +134,52 @@ We also assume that you have some standard and not so standard sequence analysis
 
 3. [bam-readcount](https://github.com/genome/bam-readcount): Used to get per sample base frequencies at each position
 
-4  [samtools] (http://www.htslib.org/download/): Utilities for processing mapped files
+4. [samtools] (http://www.htslib.org/download/): Utilities for processing mapped files
 
 5. [CONCOCT](https://github.com/BinPro/CONCOCT): Our own contig binning algorithm
 
-Click the link associated with each application.
+Click the link associated with each application for installation details. To begin obtain the reads from Dropbox:
 
-To begin obtain the reads from Dropbox:
+Untar and unzip the example directory and move into it:
 
+```bash
+tar -xvzf Example.tar.gz
+cd Example
+```
 
+Then assemble the reads. We recommend megahit for this:
 ```bash
 nohup megahit -1 $(<R1.csv) -2 $(<R2.csv) -t 36 -o Assembly --presets meta > megahit.out&
 ```
 
-```bash
-mkdir Map
-```
+We will now perform CONCOCT binning of these contigs. As explained in [Alneberg et al.](http://www.nature.com/nmeth/journal/v11/n11/full/nmeth.3103.html) 
+there are good reasons to cut up contigs prior to binning. We will use a script from CONCOCT to do this. So make sure the 
+CONCOCT scripts directory is in your path:
 
 ```bash
-export CONCOCT=~/Installed/CONCOCT
+export CONCOCT=$HOME/mypathtoConcoct/CONCOCT
 ```
 
+Then cut up contigs and place in new dir:
+
 ```bash
+mkdir contigs
 python $CONCOCT/scripts/cut_up_fasta.py -c 10000 -o 0 -m Assembly/final.contigs.fa > contigs/final_contigs_c10K.fa
 ```
+
+Having cut-up the contigs the next step is to map all the reads from each sample back onto them. First index the contigs with bwa:
 
 ```bash
 cd contigs
 bwa index final_contigs_c10K.fa
+cd ..
 ```
 
+Then perform actual mapping you may want to put this in a shell script:
+
 ```bash
+mkdir Map
+
 for file in *R1.fastq
 do 
    
