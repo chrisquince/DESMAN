@@ -1,0 +1,13 @@
+Metadata-Version: 1.0
+Name: desman
+Version: 0.1.dev0
+Summary: De novo Extraction of Strains from MetAgeNomes
+Home-page: https://github.com/chrisquince/DESMAN
+Author: Christopher Quince
+Author-email: c.quince@warwick.ac.uk
+License: FreeBSD
+Description: DESMAN is a pipeline that facilities the
+              completely de novo extraction of both strain haplotypes
+              and accessory genomes de novo from metagenome data
+Keywords: Metagenomics Python
+Platform: UNKNOWN

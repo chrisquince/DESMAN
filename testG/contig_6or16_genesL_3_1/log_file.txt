@@ -1,0 +1,31 @@
+2016-03-15 19:51:59,992:INFO:root:Results created in /Users/u1375038/Projects/DesmanFinal/DESMAN/testG/contig_6or16_genesL_3_1
+2016-03-15 19:51:59,992:INFO:root:Set fixed seed for random position selection = 238329
+2016-03-15 19:52:00,000:INFO:root:Set eta error transition matrix from = <open file 'contig_6or16_genesLtran_df.csv', mode 'r' at 0x1173f6e40>
+2016-03-15 19:52:00,001:INFO:root:Set second adjustable random seed = 1
+2016-03-15 19:52:00,001:INFO:root:Perform NTF initialisation
+2016-03-15 19:52:00,003:INFO:root:NTF Iter 0, div = 1302.239673
+2016-03-15 19:52:00,070:INFO:root:NTF Iter 100, div = 70.289013
+2016-03-15 19:52:00,134:INFO:root:NTF Iter 200, div = 65.270223
+2016-03-15 19:52:00,197:INFO:root:NTF Iter 300, div = 65.129468
+2016-03-15 19:52:00,261:INFO:root:NTF Iter 400, div = 65.105773
+2016-03-15 19:52:00,327:INFO:root:NTF Iter 500, div = 65.095256
+2016-03-15 19:52:00,391:INFO:root:NTF Iter 600, div = 65.088016
+2016-03-15 19:52:00,454:INFO:root:NTF Iter 700, div = 65.085810
+2016-03-15 19:52:00,519:INFO:root:Start Gibbs sampler burn-in phase
+2016-03-15 19:52:00,698:INFO:root:Gibbs Iter 0, no. changed = 6, nll = -36911.287120
+2016-03-15 19:52:01,960:INFO:root:Gibbs Iter 10, no. changed = 0, nll = -27263.048012
+2016-03-15 19:52:03,192:INFO:root:Gibbs Iter 20, no. changed = 0, nll = -27243.130417
+2016-03-15 19:52:04,437:INFO:root:Gibbs Iter 30, no. changed = 0, nll = -27239.058490
+2016-03-15 19:52:05,688:INFO:root:Gibbs Iter 40, no. changed = 0, nll = -27239.282684
+2016-03-15 19:52:06,783:INFO:root:Start Gibbs sampler sampling phase
+2016-03-15 19:52:06,931:INFO:root:Gibbs Iter 0, no. changed = 0, nll = -27224.623752
+2016-03-15 19:52:08,152:INFO:root:Gibbs Iter 10, no. changed = 0, nll = -27251.291795
+2016-03-15 19:52:09,382:INFO:root:Gibbs Iter 20, no. changed = 0, nll = -27237.694512
+2016-03-15 19:52:10,631:INFO:root:Gibbs Iter 30, no. changed = 0, nll = -27239.567087
+2016-03-15 19:52:11,882:INFO:root:Gibbs Iter 40, no. changed = 0, nll = -27243.154691
+2016-03-15 19:52:13,004:INFO:root:Wrote fit stats
+2016-03-15 19:52:13,007:INFO:root:Wrote filtered tau star haplotype predictions
+2016-03-15 19:52:13,009:INFO:root:Wrote probabilistic tau haplotype predictions
+2016-03-15 19:52:13,010:INFO:root:Wrote gamma haplotype relative frequencies
+2016-03-15 19:52:13,011:INFO:root:Wrote transition error matrix
+2016-03-15 19:52:13,013:INFO:root:Wrote selected variants

@@ -1,0 +1,73 @@
+2016-03-15 19:59:35,435:INFO:root:Results created in /Users/u1375038/Projects/DesmanFinal/DESMAN/testG/contig_6or16_genesL_8_3
+2016-03-15 19:59:35,435:INFO:root:Set fixed seed for random position selection = 238329
+2016-03-15 19:59:35,444:INFO:root:Set eta error transition matrix from = <open file 'contig_6or16_genesLtran_df.csv', mode 'r' at 0x1162bfe40>
+2016-03-15 19:59:35,444:INFO:root:Set second adjustable random seed = 3
+2016-03-15 19:59:35,445:INFO:root:Perform NTF initialisation
+2016-03-15 19:59:35,448:INFO:root:NTF Iter 0, div = 1688.492818
+2016-03-15 19:59:35,585:INFO:root:NTF Iter 100, div = 5.280797
+2016-03-15 19:59:35,706:INFO:root:NTF Iter 200, div = 4.347290
+2016-03-15 19:59:35,828:INFO:root:NTF Iter 300, div = 4.212918
+2016-03-15 19:59:35,951:INFO:root:NTF Iter 400, div = 4.110985
+2016-03-15 19:59:36,071:INFO:root:NTF Iter 500, div = 4.024938
+2016-03-15 19:59:36,190:INFO:root:NTF Iter 600, div = 3.947812
+2016-03-15 19:59:36,319:INFO:root:NTF Iter 700, div = 3.878657
+2016-03-15 19:59:36,453:INFO:root:NTF Iter 800, div = 3.828870
+2016-03-15 19:59:36,597:INFO:root:NTF Iter 900, div = 3.790980
+2016-03-15 19:59:36,719:INFO:root:NTF Iter 1000, div = 3.764704
+2016-03-15 19:59:36,841:INFO:root:NTF Iter 1100, div = 3.744503
+2016-03-15 19:59:36,967:INFO:root:NTF Iter 1200, div = 3.727701
+2016-03-15 19:59:37,091:INFO:root:NTF Iter 1300, div = 3.712313
+2016-03-15 19:59:37,213:INFO:root:NTF Iter 1400, div = 3.691654
+2016-03-15 19:59:37,337:INFO:root:NTF Iter 1500, div = 3.675290
+2016-03-15 19:59:37,468:INFO:root:NTF Iter 1600, div = 3.658962
+2016-03-15 19:59:37,612:INFO:root:NTF Iter 1700, div = 3.639366
+2016-03-15 19:59:37,731:INFO:root:NTF Iter 1800, div = 3.614087
+2016-03-15 19:59:37,856:INFO:root:NTF Iter 1900, div = 3.577950
+2016-03-15 19:59:37,981:INFO:root:NTF Iter 2000, div = 3.520046
+2016-03-15 19:59:38,140:INFO:root:NTF Iter 2100, div = 3.448304
+2016-03-15 19:59:38,275:INFO:root:NTF Iter 2200, div = 3.386634
+2016-03-15 19:59:38,399:INFO:root:NTF Iter 2300, div = 3.341875
+2016-03-15 19:59:38,524:INFO:root:NTF Iter 2400, div = 3.303681
+2016-03-15 19:59:38,674:INFO:root:NTF Iter 2500, div = 3.256441
+2016-03-15 19:59:38,804:INFO:root:NTF Iter 2600, div = 3.197411
+2016-03-15 19:59:38,932:INFO:root:NTF Iter 2700, div = 3.155851
+2016-03-15 19:59:39,053:INFO:root:NTF Iter 2800, div = 3.123880
+2016-03-15 19:59:39,186:INFO:root:NTF Iter 2900, div = 3.089805
+2016-03-15 19:59:39,309:INFO:root:NTF Iter 3000, div = 3.054608
+2016-03-15 19:59:39,438:INFO:root:NTF Iter 3100, div = 3.024635
+2016-03-15 19:59:39,588:INFO:root:NTF Iter 3200, div = 3.000628
+2016-03-15 19:59:39,734:INFO:root:NTF Iter 3300, div = 2.978175
+2016-03-15 19:59:39,855:INFO:root:NTF Iter 3400, div = 2.954868
+2016-03-15 19:59:39,978:INFO:root:NTF Iter 3500, div = 2.935006
+2016-03-15 19:59:40,097:INFO:root:NTF Iter 3600, div = 2.921298
+2016-03-15 19:59:40,216:INFO:root:NTF Iter 3700, div = 2.910503
+2016-03-15 19:59:40,340:INFO:root:NTF Iter 3800, div = 2.897755
+2016-03-15 19:59:40,465:INFO:root:NTF Iter 3900, div = 2.877498
+2016-03-15 19:59:40,613:INFO:root:NTF Iter 4000, div = 2.845603
+2016-03-15 19:59:40,735:INFO:root:NTF Iter 4100, div = 2.805601
+2016-03-15 19:59:40,858:INFO:root:NTF Iter 4200, div = 2.766876
+2016-03-15 19:59:40,977:INFO:root:NTF Iter 4300, div = 2.734510
+2016-03-15 19:59:41,098:INFO:root:NTF Iter 4400, div = 2.701900
+2016-03-15 19:59:41,218:INFO:root:NTF Iter 4500, div = 2.666947
+2016-03-15 19:59:41,346:INFO:root:NTF Iter 4600, div = 2.642628
+2016-03-15 19:59:41,472:INFO:root:NTF Iter 4700, div = 2.633080
+2016-03-15 19:59:41,610:INFO:root:NTF Iter 4800, div = 2.627127
+2016-03-15 19:59:41,735:INFO:root:NTF Iter 4900, div = 2.622605
+2016-03-15 19:59:42,098:INFO:root:Start Gibbs sampler burn-in phase
+2016-03-15 19:59:42,253:INFO:root:Gibbs Iter 0, no. changed = 0, nll = -5349.480295
+2016-03-15 19:59:43,536:INFO:root:Gibbs Iter 10, no. changed = 0, nll = -5261.750847
+2016-03-15 19:59:44,864:INFO:root:Gibbs Iter 20, no. changed = 0, nll = -5258.371449
+2016-03-15 19:59:46,138:INFO:root:Gibbs Iter 30, no. changed = 0, nll = -5264.605324
+2016-03-15 19:59:47,404:INFO:root:Gibbs Iter 40, no. changed = 0, nll = -5250.938777
+2016-03-15 19:59:48,582:INFO:root:Start Gibbs sampler sampling phase
+2016-03-15 19:59:48,735:INFO:root:Gibbs Iter 0, no. changed = 0, nll = -5266.486090
+2016-03-15 19:59:49,991:INFO:root:Gibbs Iter 10, no. changed = 0, nll = -5252.756916
+2016-03-15 19:59:51,214:INFO:root:Gibbs Iter 20, no. changed = 0, nll = -5266.044164
+2016-03-15 19:59:52,441:INFO:root:Gibbs Iter 30, no. changed = 0, nll = -5288.410358
+2016-03-15 19:59:53,685:INFO:root:Gibbs Iter 40, no. changed = 0, nll = -5257.357558
+2016-03-15 19:59:54,810:INFO:root:Wrote fit stats
+2016-03-15 19:59:54,814:INFO:root:Wrote filtered tau star haplotype predictions
+2016-03-15 19:59:54,816:INFO:root:Wrote probabilistic tau haplotype predictions
+2016-03-15 19:59:54,818:INFO:root:Wrote gamma haplotype relative frequencies
+2016-03-15 19:59:54,818:INFO:root:Wrote transition error matrix
+2016-03-15 19:59:54,821:INFO:root:Wrote selected variants

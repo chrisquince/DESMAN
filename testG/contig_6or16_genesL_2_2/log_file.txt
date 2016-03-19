@@ -1,0 +1,27 @@
+2016-03-15 19:51:07,021:INFO:root:Results created in /Users/u1375038/Projects/DesmanFinal/DESMAN/testG/contig_6or16_genesL_2_2
+2016-03-15 19:51:07,021:INFO:root:Set fixed seed for random position selection = 238329
+2016-03-15 19:51:07,029:INFO:root:Set eta error transition matrix from = <open file 'contig_6or16_genesLtran_df.csv', mode 'r' at 0x10b744e40>
+2016-03-15 19:51:07,030:INFO:root:Set second adjustable random seed = 2
+2016-03-15 19:51:07,030:INFO:root:Perform NTF initialisation
+2016-03-15 19:51:07,032:INFO:root:NTF Iter 0, div = 1263.695303
+2016-03-15 19:51:07,090:INFO:root:NTF Iter 100, div = 129.222545
+2016-03-15 19:51:07,146:INFO:root:NTF Iter 200, div = 128.394378
+2016-03-15 19:51:07,200:INFO:root:NTF Iter 300, div = 128.357134
+2016-03-15 19:51:07,237:INFO:root:Start Gibbs sampler burn-in phase
+2016-03-15 19:51:07,371:INFO:root:Gibbs Iter 0, no. changed = 8, nll = -68626.168840
+2016-03-15 19:51:08,687:INFO:root:Gibbs Iter 10, no. changed = 0, nll = -54409.103152
+2016-03-15 19:51:09,948:INFO:root:Gibbs Iter 20, no. changed = 0, nll = -54394.808764
+2016-03-15 19:51:11,178:INFO:root:Gibbs Iter 30, no. changed = 0, nll = -54401.327829
+2016-03-15 19:51:12,433:INFO:root:Gibbs Iter 40, no. changed = 0, nll = -54393.596742
+2016-03-15 19:51:13,544:INFO:root:Start Gibbs sampler sampling phase
+2016-03-15 19:51:13,727:INFO:root:Gibbs Iter 0, no. changed = 0, nll = -54395.861520
+2016-03-15 19:51:14,955:INFO:root:Gibbs Iter 10, no. changed = 0, nll = -54402.647657
+2016-03-15 19:51:16,164:INFO:root:Gibbs Iter 20, no. changed = 0, nll = -54409.285861
+2016-03-15 19:51:17,354:INFO:root:Gibbs Iter 30, no. changed = 0, nll = -54394.215414
+2016-03-15 19:51:18,541:INFO:root:Gibbs Iter 40, no. changed = 0, nll = -54401.436798
+2016-03-15 19:51:19,662:INFO:root:Wrote fit stats
+2016-03-15 19:51:19,666:INFO:root:Wrote filtered tau star haplotype predictions
+2016-03-15 19:51:19,667:INFO:root:Wrote probabilistic tau haplotype predictions
+2016-03-15 19:51:19,668:INFO:root:Wrote gamma haplotype relative frequencies
+2016-03-15 19:51:19,669:INFO:root:Wrote transition error matrix
+2016-03-15 19:51:19,671:INFO:root:Wrote selected variants

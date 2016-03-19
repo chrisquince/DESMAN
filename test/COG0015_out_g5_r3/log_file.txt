@@ -1,0 +1,35 @@
+2016-03-16 19:44:30,758:INFO:root:Results created in /Users/u1375038/Projects/DesmanFinal/DESMAN/test/COG0015_out_g5_r3
+2016-03-16 19:44:30,758:INFO:root:Set fixed seed for random position selection = 238329
+2016-03-16 19:44:30,774:INFO:root:Running Desman with 64 samples and 27 variant positions finding 5 genomes.
+2016-03-16 19:44:30,775:INFO:root:Set eta error transition matrix from = <open file 'COG0015_outtran_df.csv', mode 'r' at 0x11535ae40>
+2016-03-16 19:44:30,776:INFO:root:Set second adjustable random seed = 23243
+2016-03-16 19:44:30,778:INFO:root:Perform NTF initialisation
+2016-03-16 19:44:30,781:INFO:root:NTF Iter 0, div = 1481.381452
+2016-03-16 19:44:30,867:INFO:root:NTF Iter 100, div = 36.688810
+2016-03-16 19:44:30,952:INFO:root:NTF Iter 200, div = 28.274341
+2016-03-16 19:44:31,037:INFO:root:NTF Iter 300, div = 5.070481
+2016-03-16 19:44:31,122:INFO:root:NTF Iter 400, div = 4.405359
+2016-03-16 19:44:31,224:INFO:root:NTF Iter 500, div = 4.394326
+2016-03-16 19:44:31,310:INFO:root:NTF Iter 600, div = 4.391054
+2016-03-16 19:44:31,395:INFO:root:NTF Iter 700, div = 4.388604
+2016-03-16 19:44:31,479:INFO:root:NTF Iter 800, div = 4.382633
+2016-03-16 19:44:31,565:INFO:root:NTF Iter 900, div = 4.379806
+2016-03-16 19:44:31,650:INFO:root:NTF Iter 1000, div = 4.378056
+2016-03-16 19:44:31,699:INFO:root:Start Gibbs sampler burn-in phase
+2016-03-16 19:44:31,851:INFO:root:Gibbs Iter 0, no. changed = 0, nll = -5708.516111
+2016-03-16 19:44:33,048:INFO:root:Gibbs Iter 10, no. changed = 0, nll = -5275.097342
+2016-03-16 19:44:34,282:INFO:root:Gibbs Iter 20, no. changed = 0, nll = -5265.704496
+2016-03-16 19:44:35,490:INFO:root:Gibbs Iter 30, no. changed = 0, nll = -5249.406534
+2016-03-16 19:44:36,700:INFO:root:Gibbs Iter 40, no. changed = 0, nll = -5251.166291
+2016-03-16 19:44:37,786:INFO:root:Start Gibbs sampler sampling phase
+2016-03-16 19:44:37,928:INFO:root:Gibbs Iter 0, no. changed = 0, nll = -5257.639896
+2016-03-16 19:44:39,132:INFO:root:Gibbs Iter 10, no. changed = 0, nll = -5261.013660
+2016-03-16 19:44:40,405:INFO:root:Gibbs Iter 20, no. changed = 0, nll = -5263.419459
+2016-03-16 19:44:41,629:INFO:root:Gibbs Iter 30, no. changed = 0, nll = -5260.982524
+2016-03-16 19:44:42,822:INFO:root:Gibbs Iter 40, no. changed = 0, nll = -5266.482667
+2016-03-16 19:44:43,940:INFO:root:Wrote fit stats
+2016-03-16 19:44:43,953:INFO:root:Wrote filtered tau star haplotype predictions
+2016-03-16 19:44:43,956:INFO:root:Wrote probabilistic tau haplotype predictions
+2016-03-16 19:44:43,957:INFO:root:Wrote gamma haplotype relative frequencies
+2016-03-16 19:44:43,958:INFO:root:Wrote transition error matrix
+2016-03-16 19:44:43,961:INFO:root:Wrote selected variants

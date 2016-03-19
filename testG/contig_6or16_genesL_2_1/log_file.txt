@@ -1,0 +1,28 @@
+2016-03-15 19:50:53,619:INFO:root:Results created in /Users/u1375038/Projects/DesmanFinal/DESMAN/testG/contig_6or16_genesL_2_1
+2016-03-15 19:50:53,619:INFO:root:Set fixed seed for random position selection = 238329
+2016-03-15 19:50:53,630:INFO:root:Set eta error transition matrix from = <open file 'contig_6or16_genesLtran_df.csv', mode 'r' at 0x1147f7e40>
+2016-03-15 19:50:53,631:INFO:root:Set second adjustable random seed = 1
+2016-03-15 19:50:53,632:INFO:root:Perform NTF initialisation
+2016-03-15 19:50:53,633:INFO:root:NTF Iter 0, div = 1107.467859
+2016-03-15 19:50:53,698:INFO:root:NTF Iter 100, div = 143.923797
+2016-03-15 19:50:53,753:INFO:root:NTF Iter 200, div = 128.721348
+2016-03-15 19:50:53,808:INFO:root:NTF Iter 300, div = 128.437858
+2016-03-15 19:50:53,868:INFO:root:NTF Iter 400, div = 128.381925
+2016-03-15 19:50:53,908:INFO:root:Start Gibbs sampler burn-in phase
+2016-03-15 19:50:54,052:INFO:root:Gibbs Iter 0, no. changed = 8, nll = -68372.883715
+2016-03-15 19:50:55,422:INFO:root:Gibbs Iter 10, no. changed = 0, nll = -52390.554671
+2016-03-15 19:50:56,662:INFO:root:Gibbs Iter 20, no. changed = 0, nll = -52356.685489
+2016-03-15 19:50:57,941:INFO:root:Gibbs Iter 30, no. changed = 0, nll = -52355.882759
+2016-03-15 19:50:59,133:INFO:root:Gibbs Iter 40, no. changed = 0, nll = -52370.277373
+2016-03-15 19:51:00,259:INFO:root:Start Gibbs sampler sampling phase
+2016-03-15 19:51:00,403:INFO:root:Gibbs Iter 0, no. changed = 0, nll = -52360.481903
+2016-03-15 19:51:01,703:INFO:root:Gibbs Iter 10, no. changed = 0, nll = -52356.633752
+2016-03-15 19:51:02,909:INFO:root:Gibbs Iter 20, no. changed = 0, nll = -52361.269905
+2016-03-15 19:51:04,109:INFO:root:Gibbs Iter 30, no. changed = 0, nll = -52356.572424
+2016-03-15 19:51:05,356:INFO:root:Gibbs Iter 40, no. changed = 0, nll = -52368.906188
+2016-03-15 19:51:06,502:INFO:root:Wrote fit stats
+2016-03-15 19:51:06,505:INFO:root:Wrote filtered tau star haplotype predictions
+2016-03-15 19:51:06,507:INFO:root:Wrote probabilistic tau haplotype predictions
+2016-03-15 19:51:06,508:INFO:root:Wrote gamma haplotype relative frequencies
+2016-03-15 19:51:06,509:INFO:root:Wrote transition error matrix
+2016-03-15 19:51:06,511:INFO:root:Wrote selected variants

@@ -1,0 +1,2 @@
+2016-03-16 16:01:28,657:INFO:root:Results created in /Users/u1375038/Projects/DesmanFinal/DESMAN/testG/Debug
+2016-03-16 16:01:28,657:INFO:root:Set fixed seed for random position selection = 238329

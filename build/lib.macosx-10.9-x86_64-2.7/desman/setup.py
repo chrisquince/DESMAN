@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+
+from distutils.core import setup
+from distutils.extension import Extension
+from Cython.Distutils import build_ext
+
+import numpy
+
+setup(
+    cmdclass = {'build_ext': build_ext},
+    ext_modules = [Extension("sampletau",
+                             sources=["sampletau.pyx", "c_sample_tau.c"],
+                             extra_compile_args=['-O3', '-march=native'],
+                             libraries =['gsl',  'gslcblas'],
+                             include_dirs=[numpy.get_include(), '/opt/local/include/'])],
+)

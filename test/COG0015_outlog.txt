@@ -1,0 +1,16 @@
+2016-03-16 18:05:03,765:INFO:root:Results created at /Users/u1375038/Projects/DesmanFinal/DESMAN/test/COG0015_outlog.txt
+2016-03-16 18:05:03,821:INFO:root:Begun filtering variants with parameters: optimise probability = True, lr threshold = 3.84, min. coverage = 5.0, q-value threshold = 0.001, min. variant frequency = 0.01
+2016-03-16 18:05:04,392:INFO:root:Variant filter iter: 0 27 [[  9.97062018e-01   1.55210470e-03   9.99036663e-04   3.86840830e-04]
+ [  7.53076032e-04   9.97666682e-01   6.62147347e-04   9.18094756e-04]
+ [  8.39342705e-04   5.68115361e-04   9.97685765e-01   9.06776566e-04]
+ [  3.19720989e-04   9.11374390e-04   1.85758819e-03   9.96911316e-01]]
+2016-03-16 18:05:04,938:INFO:root:Variant filter iter: 1 27 [[  9.97062018e-01   1.55210470e-03   9.99036663e-04   3.86840830e-04]
+ [  7.53076032e-04   9.97666682e-01   6.62147347e-04   9.18094756e-04]
+ [  8.39342705e-04   5.68115361e-04   9.97685765e-01   9.06776566e-04]
+ [  3.19720989e-04   9.11374390e-04   1.85758819e-03   9.96911316e-01]]
+2016-03-16 18:05:04,944:INFO:root:Completed variant filtering
+2016-03-16 18:05:04,952:INFO:root:Output selected variants to COG0015_outsel_var.csv
+2016-03-16 18:05:04,957:INFO:root:Output p-values to COG0015_outp_df.csv
+2016-03-16 18:05:04,963:INFO:root:Output q-values to COG0015_outq_df.csv
+2016-03-16 18:05:04,966:INFO:root:Output log ratios to COG0015_outr_df.csv
+2016-03-16 18:05:04,972:INFO:root:Output estimated error matrix to COG0015_outtran_df.csv

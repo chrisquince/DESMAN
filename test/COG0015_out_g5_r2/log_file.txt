@@ -1,0 +1,58 @@
+2016-03-16 19:38:43,566:INFO:root:Results created in /Users/u1375038/Projects/DesmanFinal/DESMAN/test/COG0015_out_g5_r2
+2016-03-16 19:38:43,566:INFO:root:Set fixed seed for random position selection = 238329
+2016-03-16 19:38:43,590:INFO:root:Running Desman with 64 samples and 27 variant positions finding 5 genomes.
+2016-03-16 19:38:43,590:INFO:root:Set eta error transition matrix from = <open file 'COG0015_outtran_df.csv', mode 'r' at 0x114d74e40>
+2016-03-16 19:38:43,592:INFO:root:Set second adjustable random seed = 32487
+2016-03-16 19:38:43,594:INFO:root:Perform NTF initialisation
+2016-03-16 19:38:43,597:INFO:root:NTF Iter 0, div = 1552.502669
+2016-03-16 19:38:43,688:INFO:root:NTF Iter 100, div = 32.673275
+2016-03-16 19:38:43,778:INFO:root:NTF Iter 200, div = 27.618360
+2016-03-16 19:38:43,868:INFO:root:NTF Iter 300, div = 27.558099
+2016-03-16 19:38:43,957:INFO:root:NTF Iter 400, div = 27.540074
+2016-03-16 19:38:44,047:INFO:root:NTF Iter 500, div = 27.523684
+2016-03-16 19:38:44,135:INFO:root:NTF Iter 600, div = 27.504978
+2016-03-16 19:38:44,267:INFO:root:NTF Iter 700, div = 27.482280
+2016-03-16 19:38:44,363:INFO:root:NTF Iter 800, div = 27.451772
+2016-03-16 19:38:44,455:INFO:root:NTF Iter 900, div = 27.419455
+2016-03-16 19:38:44,552:INFO:root:NTF Iter 1000, div = 27.383623
+2016-03-16 19:38:44,645:INFO:root:NTF Iter 1100, div = 27.342795
+2016-03-16 19:38:44,734:INFO:root:NTF Iter 1200, div = 27.294492
+2016-03-16 19:38:44,834:INFO:root:NTF Iter 1300, div = 27.234586
+2016-03-16 19:38:44,926:INFO:root:NTF Iter 1400, div = 27.156882
+2016-03-16 19:38:45,019:INFO:root:NTF Iter 1500, div = 27.045831
+2016-03-16 19:38:45,116:INFO:root:NTF Iter 1600, div = 26.870862
+2016-03-16 19:38:45,242:INFO:root:NTF Iter 1700, div = 26.577774
+2016-03-16 19:38:45,331:INFO:root:NTF Iter 1800, div = 26.129494
+2016-03-16 19:38:45,423:INFO:root:NTF Iter 1900, div = 25.581919
+2016-03-16 19:38:45,516:INFO:root:NTF Iter 2000, div = 24.990779
+2016-03-16 19:38:45,608:INFO:root:NTF Iter 2100, div = 24.477985
+2016-03-16 19:38:45,698:INFO:root:NTF Iter 2200, div = 23.929949
+2016-03-16 19:38:45,795:INFO:root:NTF Iter 2300, div = 22.948094
+2016-03-16 19:38:45,884:INFO:root:NTF Iter 2400, div = 22.367179
+2016-03-16 19:38:45,974:INFO:root:NTF Iter 2500, div = 22.180478
+2016-03-16 19:38:46,067:INFO:root:NTF Iter 2600, div = 22.092933
+2016-03-16 19:38:46,239:INFO:root:NTF Iter 2700, div = 21.280067
+2016-03-16 19:38:46,344:INFO:root:NTF Iter 2800, div = 18.992026
+2016-03-16 19:38:46,435:INFO:root:NTF Iter 2900, div = 14.453851
+2016-03-16 19:38:46,529:INFO:root:NTF Iter 3000, div = 8.860677
+2016-03-16 19:38:46,618:INFO:root:NTF Iter 3100, div = 4.505949
+2016-03-16 19:38:46,711:INFO:root:NTF Iter 3200, div = 4.455255
+2016-03-16 19:38:46,809:INFO:root:NTF Iter 3300, div = 4.402388
+2016-03-16 19:38:46,848:INFO:root:Start Gibbs sampler burn-in phase
+2016-03-16 19:38:46,999:INFO:root:Gibbs Iter 0, no. changed = 0, nll = -5371.803870
+2016-03-16 19:38:48,282:INFO:root:Gibbs Iter 10, no. changed = 0, nll = -5272.316756
+2016-03-16 19:38:49,530:INFO:root:Gibbs Iter 20, no. changed = 0, nll = -5245.165014
+2016-03-16 19:38:50,757:INFO:root:Gibbs Iter 30, no. changed = 0, nll = -5247.213623
+2016-03-16 19:38:51,984:INFO:root:Gibbs Iter 40, no. changed = 0, nll = -5250.398753
+2016-03-16 19:38:53,097:INFO:root:Start Gibbs sampler sampling phase
+2016-03-16 19:38:53,257:INFO:root:Gibbs Iter 0, no. changed = 0, nll = -5256.558369
+2016-03-16 19:38:54,489:INFO:root:Gibbs Iter 10, no. changed = 0, nll = -5256.061107
+2016-03-16 19:38:55,724:INFO:root:Gibbs Iter 20, no. changed = 0, nll = -5247.586554
+2016-03-16 19:38:56,936:INFO:root:Gibbs Iter 30, no. changed = 0, nll = -5260.326538
+2016-03-16 19:38:58,199:INFO:root:Gibbs Iter 40, no. changed = 0, nll = -5275.864271
+2016-03-16 19:38:59,378:INFO:root:Wrote fit stats
+2016-03-16 19:38:59,391:INFO:root:Wrote filtered tau star haplotype predictions
+2016-03-16 19:38:59,394:INFO:root:Wrote probabilistic tau haplotype predictions
+2016-03-16 19:38:59,396:INFO:root:Wrote gamma haplotype relative frequencies
+2016-03-16 19:38:59,397:INFO:root:Wrote transition error matrix
+2016-03-16 19:38:59,398:INFO:root:Wrote selected variants

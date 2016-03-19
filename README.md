@@ -134,7 +134,9 @@ We also assume that you have some standard and not so standard sequence analysis
 
 3. [bam-readcount](https://github.com/genome/bam-readcount): Used to get per sample base frequencies at each position
 
-4. [CONCOCT](https://github.com/BinPro/CONCOCT): Our own contig binning algorithm
+4  [samtools] (http://www.htslib.org/download/): Utilities for processing mapped files
+
+5. [CONCOCT](https://github.com/BinPro/CONCOCT): Our own contig binning algorithm
 
 Click the link associated with each application.
 
@@ -143,4 +145,51 @@ To begin obtain the reads from Dropbox:
 
 ```bash
 nohup megahit -1 $(<R1.csv) -2 $(<R2.csv) -t 36 -o Assembly --presets meta > megahit.out&
+```
+
+```bash
+mkdir Map
+```
+
+```bash
+export CONCOCT=~/Installed/CONCOCT
+```
+
+```bash
+python $CONCOCT/scripts/cut_up_fasta.py -c 10000 -o 0 -m Assembly/final.contigs.fa > contigs/final_contigs_c10K.fa
+```
+
+```bash
+cd contigs
+bwa index final_contigs_c10K.fa
+```
+
+```bash
+for file in *R1.fastq
+do 
+   
+   stub=${file%_R1.fastq}
+
+   echo $stub
+
+   file2=${stub}_R2.fastq
+
+   bwa mem -t 32 contigs/final_contigs_c10K.fa $file $file2 > Map/${stub}.sam
+done
+```
+
+```bash
+python Lengths.py -i contigs/final_contigs_c10K.fa > contigs/final_contigs_c10K.len
+```
+
+
+```bash
+for file in Map/*.sam
+do
+    stub=${file%.sam}
+    stub2=${stub#Map\/}
+    echo $stub	
+    (samtools view -h -b -S $file > ${stub}.bam; samtools view -b -F 4 ${stub}.bam > ${stub}.mapped.bam; samtools sort -m 1000000000 ${stub}.mapped.bam ${stub}.mapped.sorted; bedtools genomecov -ibam ${stub}.mapped.sorted.bam -g contigs/final_contigs_c10K.len > ${stub}_cov.txt)&
+done
+
 ```
