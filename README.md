@@ -140,6 +140,10 @@ We also assume that you have some standard and not so standard sequence analysis
 
 Click the link associated with each application for installation details. To begin obtain the reads from Dropbox:
 
+```bash
+wget https://dl.dropboxusercontent.com/s/e3bpsdcnxlub70i/Example.tar.gz?dl=0
+```
+
 Untar and unzip the example directory and move into it:
 
 ```bash
@@ -175,7 +179,7 @@ bwa index final_contigs_c10K.fa
 cd ..
 ```
 
-Then perform actual mapping you may want to put this in a shell script:
+Then perform the actual mapping you may want to put this in a shell script:
 
 ```bash
 mkdir Map
@@ -192,6 +196,9 @@ do
    bwa mem -t 32 contigs/final_contigs_c10K.fa $file $file2 > Map/${stub}.sam
 done
 ```
+
+Here we are using 32 threads for bwa mem '-t 32' you can adjust this to whatever is suitable for your machine.
+
 
 ```bash
 python Lengths.py -i contigs/final_contigs_c10K.fa > contigs/final_contigs_c10K.len
