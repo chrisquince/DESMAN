@@ -244,6 +244,7 @@ and run CONCOCT:
 ```bash
 mkdir Concoct
 concoct --coverage_file Coverage.tsv --composition_file ../contigs/final_contigs_c10K.fa
+cd ..
 ```
 
 In this case we know which contig derives from which of the 20 genomes and so we can compare the assignment of 
@@ -260,4 +261,9 @@ could be used to determine clusters deriving from the same cluster.
 
 We now determine core genes single copy genes within these four clusters through annotation to COGs.
 
-
+```bash
+mkdir Split
+cd Split
+?/SplitClusters.pl ../contigs/final_contigs_gt1000_c10K.fa ../Concoct/clustering_gt1000.csv
+cd ..
+```
