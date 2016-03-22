@@ -198,12 +198,13 @@ done
 ```
 
 Here we are using 32 threads for bwa mem '-t 32' you can adjust this to whatever is suitable for your machine.
-
+Then we need to calculate our contig lengths using one of the Desman scripts.
 
 ```bash
 python Lengths.py -i contigs/final_contigs_c10K.fa > contigs/final_contigs_c10K.len
 ```
 
+Then we calculate coverages for each contig in each sample:
 
 ```bash
 for file in Map/*.sam
@@ -213,5 +214,31 @@ do
     echo $stub	
     (samtools view -h -b -S $file > ${stub}.bam; samtools view -b -F 4 ${stub}.bam > ${stub}.mapped.bam; samtools sort -m 1000000000 ${stub}.mapped.bam ${stub}.mapped.sorted; bedtools genomecov -ibam ${stub}.mapped.sorted.bam -g contigs/final_contigs_c10K.len > ${stub}_cov.txt)&
 done
-
 ```
+
+and use awk to aggregate the output of bedtools:
+
+```bash
+for i in Map/*_cov.txt 
+do 
+   echo $i
+   stub=${i%_cov.txt}
+   stub=${stub#Map\/}
+   echo $stub
+   awk -F"\t" '{l[$1]=l[$1]+($2 *$3);r[$1]=$4} END {for (i in l){print i","(l[i]/r[i])}}' $i > Map/${stub}_cov.csv
+done
+```
+
+and finally run the following perl script to collate the coverages across samples, where we have simply adjusted the format 
+from csv to tsv to be compatible with CONCOCT:
+
+```bash
+Collate.pl Map | tr "," "\t" > CoverageB.tsv
+```
+
+and run CONCOCT:
+```bash
+mkdir Concoct
+concoct --coverage_file Coverage.tsv --composition_file ../contigs/final_contigs_c10K.fa
+```
+
