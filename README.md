@@ -242,3 +242,5 @@ mkdir Concoct
 concoct --coverage_file Coverage.tsv --composition_file ../contigs/final_contigs_c10K.fa
 ```
 
+[CONCOCT clusters](complete_example/Conf.pdf)
+
