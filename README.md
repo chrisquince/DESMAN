@@ -120,8 +120,10 @@ where 1 indicates the base present in that haplotype at that position.
 
 7. fit.txt: Statistics evaluating fit as number of haplotypes, number of non-degenerate haplotypes inferred, log-Likelihood, Aikake information criterion
 
-#Complete example of _de novo_ strain level analysis from metagenome data
+#Complete example of _de novo_ strain level analysis from metagenome data#
 <a name="complete_example"></a>
+
+##Getting started##
 
 To provide an in depth illustration of how to use Deman we will give a complete worked example from a subset of the synthetic community 
 used in Quince et al. 2016. We have provided 16 samples, subsampled to 1 million reads from the 64 samples with 11.75 million reads used 
@@ -150,6 +152,8 @@ Untar and unzip the example directory and move into it:
 tar -xvzf Example.tar.gz
 cd Example
 ```
+
+##Read assembly, mapping and binning##
 
 Then assemble the reads. We recommend megahit for this:
 ```bash
@@ -242,5 +246,18 @@ mkdir Concoct
 concoct --coverage_file Coverage.tsv --composition_file ../contigs/final_contigs_c10K.fa
 ```
 
-[CONCOCT clusters](complete_example/Conf.pdf)
+In this case we know which contig derives from which of the 20 genomes and so we can compare the assignment of 
+contigs to clusters with those genome assignments 
+
+![CONCOCT clusters](complete_example/Conf.pdf)
+
+From this it is apparent that four clusters: DO, D12, D17, and D23 represent the *E. coli* pangenome. In general, 
+it will not be known *a priori* from which taxa a cluster derives and so not possible to link them in this way.
+However, in many analyses the pangenome will be contained in a single cluster or a contig taxonomic classifier 
+could be used to determine clusters deriving from the same cluster.
+
+##Identifying *E. coli* core genes
+
+We now determine core genes single copy genes within these four clusters through annotation to COGs.
+
 
