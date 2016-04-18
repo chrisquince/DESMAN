@@ -315,6 +315,8 @@ Now we just reformat the location of core cogs on contigs:
 cut -d"," -f2,3,4 ClusterEC_core.cogs | tr "," "\t" > ClusterEC_core_cogs.tsv
 ```
 
+##Determine variants on core COGs
+
 To input into bam-readcount:
 
 ```bash
@@ -330,7 +332,6 @@ samtools faidx contigs/final_contigs_c10K.fa
 
 then run bam-readcount:
 ```bash
-#!/bin/bash
 for file in Map/*sorted.bam
 do
 	stub=${file%.mapped.sorted.bam}
@@ -345,6 +346,8 @@ Next we collate the positions frequencies into a single file for Desman:
 ```bash
 $DESMAN/scripts/ExtractCountFreqP.pl Annotate/ClusterEC_core.cogs > Cluster_esc3_scgs.freq
 ```
+
+##Infer strains with Desman
 
 Now lets use Desman to find the variant positions on these core cogs:
 ```bash
@@ -363,5 +366,33 @@ for g in 2 3 4 5 6 7 8; do
     for r in 0 1 2 3 4; do             
         desman ../Variants/outputsel_var.csv -e ../Variants/outputtran_df.csv -o ClusterEC_${g}_${r} -r 1000 -i 100 -g $g -s $r > ClusterEC_${g}_${r}.out&                 
     done; 
+done
+cd ..
+```
+
+First lets have a look at the log-likelihood as a function of strain number:
+
+```bash
+cat */fit.txt > fit.csv
+
+```
+
+##Determine accessory genomes
+
+Now need variants frequencies on all contigs
+
+```bash
+$DESMAN/scripts/Lengths.py -i Annotate/ClusterEC.fa > Annotate/ClusterEC.len
+
+mkdir CountsAll
+
+$DESMAN/scripts/AddLengths.pl < Annotate/ClusterEC.len > Annotate/ClusterEC.tsv
+
+for file in Map/*sorted.bam
+do
+	stub=${file%.mapped.sorted.bam}
+	stub=${stub#Map\/}
+	echo $stub
+	(bam-readcount -q 20 -l Annotate/ClusterEC.tsv -f contigs/final_contigs_c10K.fa $file > CountsAll/${stub}.cnt)&
 done
 ```
