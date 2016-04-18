@@ -248,7 +248,7 @@ and finally run the following perl script to collate the coverages across sample
 from csv to tsv to be compatible with CONCOCT:
 
 ```bash
-Collate.pl Map | tr "," "\t" > Coverage.tsv
+$DESMAN/scripts/Collate.pl Map | tr "," "\t" > Coverage.tsv
 ```
 
 and run CONCOCT:
@@ -278,7 +278,7 @@ by their cluster and concatenate togethers those from DO, D12, D17, and D23 into
 ```bash
 mkdir Split
 cd Split
-SplitClusters.pl ../contigs/final_contigs_gt1000_c10K.fa ../Concoct/clustering_gt1000.csv
+$DESMAN/scripts/SplitClusters.pl ../contigs/final_contigs_gt1000_c10K.fa ../Concoct/clustering_gt1000.csv
 cat Cluster0/Cluster0.fa Cluster12/Cluster12.fa Cluster17/Cluster17.fa Cluster23/Cluster23.fa > ClusterEC.fa
 cd ..
 ```
@@ -297,16 +297,71 @@ Then run the CONCOCT script. This requires rpsblast and gnu parallel.
 
 ```bash
 export COGSDB_DIR=~/gpfs/Databases/rpsblast_db
-RPSBLAST.sh -f ClusterEC.faa -p -c 8 -r 1
+$CONCOCT/scripts/RPSBLAST.sh -f ClusterEC.faa -p -c 8 -r 1
 ```
 
 and extract out the annotated Cogs associated with called genes:
 ```bash
-ExtractCogs.py -g ClusterEC.gff -b ClusterEC.out --cdd_cog_file $CONCOCT/scgs/cdd_to_cog.tsv > ClusterEC.cogs
+$DESMAN/scripts/ExtractCogs.py -g ClusterEC.gff -b ClusterEC.out --cdd_cog_file $CONCOCT/scgs/cdd_to_cog.tsv > ClusterEC.cogs
 ```
 
-Then we determine those regions of the contigs with core COGs on in single copy:
+Then we determine those regions of the contigs with core COGs on in single copy using the 982 predetermined *E. coli* core COGs:
 ```bash
-./SelectContigsPos.pl $DESMAN/complete_example/EColi_core_ident95.txt < ClusterEC.cogs > ClusterEC_core.cogs
+$DESMAN/scripts/SelectContigsPos.pl $DESMAN/complete_example/EColi_core_ident95.txt < ClusterEC.cogs > ClusterEC_core.cogs
+```
+Now we just reformat the location of core cogs on contigs:
+
+```bash
+cut -d"," -f2,3,4 ClusterEC_core.cogs | tr "," "\t" > ClusterEC_core_cogs.tsv
 ```
 
+To input into bam-readcount:
+
+```bash
+cd ..
+mkdir Counts
+
+```
+
+Before doing so though we need to index the contigs fasta file
+```bash
+samtools faidx contigs/final_contigs_c10K.fa
+```
+
+then run bam-readcount:
+```bash
+#!/bin/bash
+for file in Map/*sorted.bam
+do
+	stub=${file%.mapped.sorted.bam}
+	stub=${stub#Map\/}
+	echo $stub
+	(bam-readcount -q 20 -l Annotate/ClusterEC_core_cogs.tsv -f contigs/final_contigs_c10K.fa $file > Counts/${stub}.cnt)&
+done
+```
+
+Next we collate the positions frequencies into a single file for Desman:
+
+```bash
+$DESMAN/scripts/ExtractCountFreqP.pl Annotate/ClusterEC_core.cogs > Cluster_esc3_scgs.freq
+```
+
+Now lets use Desman to find the variant positions on these core cogs:
+```bash
+mkdir Variants
+cd Variants/
+mv ../Cluster_esc3_scgs.freq .
+python $DESMAN/desman/Variant_Filter.py Cluster_esc3_scgs.freq
+```
+
+and run Desman:
+```bash
+mkdir RunDesman
+cd RunDesman
+
+for g in 2 3 4 5 6 7 8; do     
+    for r in 0 1 2 3 4; do             
+        desman ../Variants/outputsel_var.csv -e ../Variants/outputtran_df.csv -o ClusterEC_${g}_${r} -r 1000 -i 100 -g $g -s $r > ClusterEC_${g}_${r}.out&                 
+    done; 
+done
+```
