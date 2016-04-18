@@ -490,7 +490,7 @@ def main(argv):
         min_variant_freq = args.min_variant_freq
         
     #read in snp variants
-    import ipdb; ipdb.set_trace()
+    #import ipdb; ipdb.set_trace()
     variants    = p.read_csv(variant_file, header=0, index_col=0)
     
     variant_Filter =  Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, 
