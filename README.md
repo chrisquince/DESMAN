@@ -148,6 +148,8 @@ We also assume that you have some standard and not so standard sequence analysis
 
 9. COG RPS database: ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/ Cog databases
 
+10. [GFF python parser] (https://github.com/chapmanb/bcbb/tree/master/gff)
+
 Click the link associated with each application for installation details. To begin obtain the reads from Dropbox:
 
 ```bash
@@ -169,11 +171,12 @@ nohup megahit -1 $(<R1.csv) -2 $(<R2.csv) -t 36 -o Assembly --presets meta > meg
 ```
 
 We will now perform CONCOCT binning of these contigs. As explained in [Alneberg et al.](http://www.nature.com/nmeth/journal/v11/n11/full/nmeth.3103.html) 
-there are good reasons to cut up contigs prior to binning. We will use a script from CONCOCT to do this. So make sure the 
-CONCOCT scripts directory is in your path:
+there are good reasons to cut up contigs prior to binning. We will use a script from CONCOCT to do this. For convenience we 
+will create environmental variables points to the CONCOCT and DESMAN install directories:
 
 ```bash
 export CONCOCT=$HOME/mypathtoConcoct/CONCOCT
+export DESMAN=$HOME/mypathtoDesman/DESMAN
 ```
 
 Then cut up contigs and place in new dir:
@@ -213,7 +216,7 @@ Here we are using 32 threads for bwa mem '-t 32' you can adjust this to whatever
 Then we need to calculate our contig lengths using one of the Desman scripts.
 
 ```bash
-Lengths.py -i contigs/final_contigs_c10K.fa > contigs/final_contigs_c10K.len
+python $DESMAN/scripts/Lengths.py -i contigs/final_contigs_c10K.fa > contigs/final_contigs_c10K.len
 ```
 
 Then we calculate coverages for each contig in each sample:
@@ -297,7 +300,13 @@ export COGSDB_DIR=~/gpfs/Databases/rpsblast_db
 RPSBLAST.sh -f ClusterEC.faa -p -c 8 -r 1
 ```
 
-and extract out the annotated Cogs associated with called gene:
+and extract out the annotated Cogs associated with called genes:
 ```bash
 ExtractCogs.py -g ClusterEC.gff -b ClusterEC.out --cdd_cog_file $CONCOCT/scgs/cdd_to_cog.tsv > ClusterEC.cogs
 ```
+
+Then we determine those regions of the contigs with core COGs on in single copy:
+```bash
+./SelectContigsPos.pl $DESMAN/complete_example/EColi_core_ident95.txt < ClusterEC.cogs > ClusterEC_core.cogs
+```
+
