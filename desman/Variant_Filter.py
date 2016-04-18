@@ -12,11 +12,13 @@ import logging
 
 from operator import mul, div, eq, ne, add, ge, le, itemgetter
 from itertools import izip
+from itertools import compress
 from numpy import array, log, exp
 from scipy.special import gammaln
 from scipy.optimize import minimize_scalar
 from numpy.random import RandomState
 from scipy.stats import chi2
+from collections import defaultdict
 
 #class to perform simple variant filtering assuming fixed genome error rate
 
@@ -50,15 +52,23 @@ def benjamini_Hochberg(pvalues):
         new_pvalues[index] = new_values[i] 
         
     return new_pvalues
-    
+
+def reject_outliers(data, m = 2.):
+    d = np.abs(data - np.median(data))
+    mdev = np.median(d)
+    s = d/mdev if mdev else 0.
+    return s<m
+
 class Variant_Filter():
     """Filters variant position based on simple binomial 
     or log ratio of binomial to mixtures of binomials"""
 
-    def __init__(self,variants, randomState, optimise = True, threshold = 3.84, min_coverage = 5.0, qvalue_cutoff = 0.1,max_iter = 100, min_p = 0.01):
+    def __init__(self,variants, randomState, optimise = True, threshold = 3.84, min_coverage = 5.0, qvalue_cutoff = 0.1,max_iter = 100, min_p = 0.01, mCogFilter = 2.0):
         #first get array dimensions
         
         variants_matrix = variants.as_matrix()
+        self.genes = list(variants.index)
+        self.position = variants_matrix[:,0]
         variants_matrix = np.delete(variants_matrix, 0, 1)
     
         snps = np.reshape(variants_matrix, (variants_matrix.shape[0],variants_matrix.shape[1]/4,4))
@@ -87,7 +97,7 @@ class Variant_Filter():
         self.qvalue_cutoff = qvalue_cutoff
         self.optimise = optimise
         self.filtered = np.zeros((self.V), dtype=bool)
-        
+        self.mCogFilter = mCogFilter
         self.max_iter = max_iter
         
         self.eta = 0.96*np.identity((4)) + 0.01*np.ones((4,4))
@@ -100,6 +110,154 @@ class Variant_Filter():
     
         #denotes whether a random selection of significant positions has occured
         self.randomSelect = False
+    
+    def remove_outlier_cogs(self):
+        totals = np.sum(self.freq,axis=1)
+        
+        uniquegenes = set(self.genes)
+        
+        gene_coverages = defaultdict(lambda: 0.)
+        gene_freqs = defaultdict(lambda: 0.)
+        idx = 0
+        
+        for gene in self.genes:
+            gene_coverages[gene] += totals[idx]
+            gene_freqs[gene] += 1.0
+            idx = idx+1
+        
+        data = []
+        for gene in uniquegenes:
+            gene_coverages[gene] = gene_coverages[gene]/gene_freqs[gene]
+            data.append(gene_coverages[gene])
+        
+        d = np.abs(data - np.median(data))
+        mdev = np.median(d)
+        s = d/mdev if mdev else 0.
+        
+        filterGenes = s > self.mCogFilter
+    
+        self.filteredGenes = [i for (i, v) in zip(list(uniquegenes), filterGenes) if v]
+        
+        idx = 0
+        select = np.ones((self.V), dtype=bool)
+        for gene in self.genes:
+            if gene in self.filteredGenes:
+                select[idx] = False
+            
+            idx+=1
+    
+        #stores filtered snp array
+        self.snps_filter = self.snps_filter[select,:,:]
+        
+        self.V = self.snps_filter.shape[0] #number of variants
+        
+        #store base frequencies at each posn don't need sample info
+        self.freq = (self.snps_filter).sum(axis=1) 
+        self.ffreq = self.freq.astype(np.float)
+        
+        self.filtered = np.zeros((self.V), dtype=bool)
+
+        self.NS = self.V
+        self.genes = [i for (i, v) in zip(self.genes, select) if v]
+        self.selected = np.ones((self.V), dtype=bool)    
+        self.selected_indices  = list(np.where(self.selected))
+        self.selected_indices = self.selected_indices[0].tolist()
+        self.position = self.position[self.selected]
+    
+    
+    def remove_outlier_cogs_sample(self):
+        
+        totals_samples = self.snps_filter.sum(axis=2)
+        uniquegenes = list(set(self.genes))
+        
+        gene_sample_coverages = defaultdict(lambda: np.zeros(self.S))
+        gene_sample_freqs = defaultdict(lambda: np.zeros(self.S))
+
+        idx = 0
+        
+        for gene in self.genes:
+            for s in range(self.S):
+                gene_sample_coverages[gene][s] += totals_samples[idx][s]
+                gene_sample_freqs[gene][s] += 1.0
+            idx = idx+1
+        
+        nGenes = len(uniquegenes)
+        
+        g = 0
+        geneSampleCovArray = np.zeros((nGenes,self.S))
+        for gene in uniquegenes:
+            for s in range(self.S):
+                gene_sample_coverages[gene][s] = gene_sample_coverages[gene][s]/gene_sample_freqs[gene][s]
+                geneSampleCovArray[g,s] = gene_sample_coverages[gene][s]
+            g = g + 1    
+            
+        
+        outlierGeneSample = np.zeros((nGenes,self.S),dtype=bool)
+        for s in range(self.S):
+            outlierGeneSample[:,s] = reject_outliers(geneSampleCovArray[:,s], m = self.mCogFilter)
+    
+        filterGenes = outlierGeneSample.sum(axis=1) < (self.S*0.95)
+        self.filteredGenes = [i for (i, v) in zip(uniquegenes, filterGenes) if v]
+        
+        idx = 0
+        select = np.ones((self.V), dtype=bool)
+        for gene in self.genes:
+            if gene in self.filteredGenes:
+                select[idx] = False
+            
+            idx+=1
+    
+        #stores filtered snp array
+        self.snps_filter = self.snps_filter[select,:,:]
+        
+        self.V = self.snps_filter.shape[0] #number of variants
+        
+        #store base frequencies at each posn don't need sample info
+        self.freq = (self.snps_filter).sum(axis=1) 
+        self.ffreq = self.freq.astype(np.float)
+        
+        self.filtered = np.zeros((self.V), dtype=bool)
+
+        self.NS = self.V
+        self.genes = [i for (i, v) in zip(self.genes, select) if v]
+        self.selected = np.ones((self.V), dtype=bool)    
+        self.selected_indices  = list(np.where(self.selected))
+        self.selected_indices = self.selected_indices[0].tolist()
+        self.position = self.position[self.selected]
+    
+    def selected_variants_todf(self,variants):
+
+        contig_names = self.genes
+    
+        position = self.position
+    
+        snps_reshape = np.reshape(self.snps_filter,(self.NS,self.S*4))
+
+        filtered_position = position[self.selected]
+        selected_contig_names = [i for (i, v) in zip(contig_names, self.selected) if v]
+    
+        varCols = variants.columns.values.tolist()
+        originalS = (len(varCols) - 1)/4
+        sampleNames = list()
+    
+        j = 0
+        for i in range(originalS):
+            if j < self.S and i == self.sample_indices[j]:
+            
+                for a in range(4):
+                    sampleNames.append(varCols[i*4 + 1 + a])
+            
+                j = j + 1
+    
+        snps_reshape_df = p.DataFrame(snps_reshape,index=selected_contig_names,columns=sampleNames)
+    
+        snps_reshape_df['Position'] = p.Series(filtered_position, index=snps_reshape_df.index)
+        cols =  snps_reshape_df.columns.tolist()
+        cols = cols[-1:] + cols[:-1]
+        snps_reshape_df = snps_reshape_df[cols]
+        
+        return snps_reshape_df
+    
     def get_filtered_Variants(self):
         iter = 0
         
@@ -282,6 +440,9 @@ def main(argv):
     parser.add_argument('-m','--min_coverage', type=float, default=5.0,
         help=("minimum coverage for sample to be included defaults 5.0"))
     
+    parser.add_argument('-t','--outlier_thresh', type=float, default=2.0,
+        help=("threshold for COG filtering on median coverage outlier defaults to 2.0"))
+    
     parser.add_argument('-o','--output_stub', type=str, default="output",
         help=("string specifying file stubs"))
         
@@ -329,11 +490,15 @@ def main(argv):
         min_variant_freq = args.min_variant_freq
         
     #read in snp variants
-    #import ipdb; ipdb.set_trace()
+    import ipdb; ipdb.set_trace()
     variants    = p.read_csv(variant_file, header=0, index_col=0)
     
     variant_Filter =  Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, 
         min_coverage = min_coverage, qvalue_cutoff = max_qvalue, min_p = min_variant_freq)
+    
+    variant_Filter.remove_outlier_cogs_sample()
+    filteredCogs_df = variant_Filter.selected_variants_todf(variants)
+    filteredCogs_df.to_csv(output_stub+"cogf.csv")
     
     logging.info('Begun filtering variants with parameters: optimise probability = %s, lr threshold = %s, min. coverage = %s, q-value threshold = %s, min. variant frequency = %s' % (optimiseP, filter_variants, min_coverage, 
         max_qvalue, min_variant_freq))
@@ -341,34 +506,11 @@ def main(argv):
     logging.info("Completed variant filtering")       
     transition_matrix = variant_Filter.calc_Error_Matrix()
     
-    contig_names = variants.index.tolist()
-    position = variants['Position']
+    contig_names = variant_Filter.genes
     
-    snps_reshape = np.reshape(variant_Filter.snps_filter,(variant_Filter.NS,variant_Filter.S*4))
+    position = variant_Filter.position
     
-    selected_Variants = variants[variant_Filter.selected]
-    filtered_position = selected_Variants['Position']
-    selected_contig_names = selected_Variants.index
-    
-    varCols = variants.columns.values.tolist()
-    originalS = (len(varCols) - 1)/4
-    sampleNames = list()
-    
-    j = 0
-    for i in range(originalS):
-        if j < variant_Filter.S and i == variant_Filter.sample_indices[j]:
-            
-            for a in range(4):
-                sampleNames.append(varCols[i*4 + 1 + a])
-            
-            j = j + 1
-    
-    snps_reshape_df = p.DataFrame(snps_reshape,index=selected_contig_names,columns=sampleNames)
-    
-    snps_reshape_df['Position'] = filtered_position
-    cols =  snps_reshape_df.columns.tolist()
-    cols = cols[-1:] + cols[:-1]
-    snps_reshape_df = snps_reshape_df[cols]
+    snps_reshape_df = variant_Filter.selected_variants_todf(variants)
     
     logging.info('Output selected variants to %s',output_stub+"sel_var.csv") 
     snps_reshape_df.to_csv(output_stub+"sel_var.csv")
