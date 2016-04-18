@@ -257,15 +257,17 @@ contigs to clusters with those genome assignments
 From this it is apparent that four clusters: DO, D12, D17, and D23 represent the *E. coli* pangenome. In general, 
 it will not be known *a priori* from which taxa a cluster derives and so not possible to link them in this way.
 However, in many analyses the pangenome will be contained in a single cluster or a contig taxonomic classifier 
-could be used to determine clusters deriving from the same cluster.
+could be used to determine clusters deriving from the same species.
 
 ##Identifying *E. coli* core genes
 
-We now determine core genes single copy genes within these four clusters through annotation to COGs.
+We now determine core genes single copy genes within these four clusters through annotation to COGs. First lets split the contigs 
+by their cluster and concatenate togethers those from DO, D12, D17, and D23 into one file ClusterEC.fa.
 
 ```bash
 mkdir Split
 cd Split
-?/SplitClusters.pl ../contigs/final_contigs_gt1000_c10K.fa ../Concoct/clustering_gt1000.csv
+SplitClusters.pl ../contigs/final_contigs_gt1000_c10K.fa ../Concoct/clustering_gt1000.csv
+cat Cluster0/Cluster0.fa Cluster12/Cluster12.fa Cluster17/Cluster17.fa Cluster23/Cluster23.fa > ClusterEC.fa
 cd ..
 ```
