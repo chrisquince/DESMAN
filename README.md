@@ -140,6 +140,8 @@ We also assume that you have some standard and not so standard sequence analysis
 
 5. [CONCOCT](https://github.com/BinPro/CONCOCT): Our own contig binning algorithm
 
+6. [prodigal] (https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
+
 Click the link associated with each application for installation details. To begin obtain the reads from Dropbox:
 
 ```bash
@@ -270,4 +272,13 @@ cd Split
 SplitClusters.pl ../contigs/final_contigs_gt1000_c10K.fa ../Concoct/clustering_gt1000.csv
 cat Cluster0/Cluster0.fa Cluster12/Cluster12.fa Cluster17/Cluster17.fa Cluster23/Cluster23.fa > ClusterEC.fa
 cd ..
+```
+
+Now call genes on the *E. coli* contigs.
+
+```bash
+mkdir Annotate
+cd Annotate
+cp ../Split/ClusterEC.fa
+prodigal -i ClusterEC.fa -a ClusterEC.faa -d ClusterEC.fna  -f gff -p meta -o ClusterEC.gff
 ```
