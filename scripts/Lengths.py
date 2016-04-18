@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from Bio import SeqIO
 
 from optparse import OptionParser
