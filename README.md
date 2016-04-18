@@ -205,7 +205,7 @@ Here we are using 32 threads for bwa mem '-t 32' you can adjust this to whatever
 Then we need to calculate our contig lengths using one of the Desman scripts.
 
 ```bash
-python Lengths.py -i contigs/final_contigs_c10K.fa > contigs/final_contigs_c10K.len
+Lengths.py -i contigs/final_contigs_c10K.fa > contigs/final_contigs_c10K.len
 ```
 
 Then we calculate coverages for each contig in each sample:
@@ -237,12 +237,14 @@ and finally run the following perl script to collate the coverages across sample
 from csv to tsv to be compatible with CONCOCT:
 
 ```bash
-Collate.pl Map | tr "," "\t" > CoverageB.tsv
+Collate.pl Map | tr "," "\t" > Coverage.tsv
 ```
 
 and run CONCOCT:
 ```bash
 mkdir Concoct
+cd Concoct
+mv ../Coverage.tsv .
 concoct --coverage_file Coverage.tsv --composition_file ../contigs/final_contigs_c10K.fa
 cd ..
 ```
