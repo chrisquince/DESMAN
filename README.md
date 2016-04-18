@@ -146,7 +146,7 @@ We also assume that you have some standard and not so standard sequence analysis
 
 8. [standalone blast] (http://www.ncbi.nlm.nih.gov/books/NBK52640/): Need rps-blast
 
-9. [COG RPS database] (ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/): Cog databases
+9. COG RPS database: ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/ Cog databases
 
 Click the link associated with each application for installation details. To begin obtain the reads from Dropbox:
 
@@ -295,4 +295,9 @@ Then run the CONCOCT script. This requires rpsblast and gnu parallel.
 ```bash
 export COGSDB_DIR=~/gpfs/Databases/rpsblast_db
 RPSBLAST.sh -f ClusterEC.faa -p -c 8 -r 1
+```
+
+and extract out the annotated Cogs associated with called gene:
+```bash
+ExtractCogs.py -g ClusterEC.gff -b ClusterEC.out --cdd_cog_file $CONCOCT/scgs/cdd_to_cog.tsv > ClusterEC.cogs
 ```
