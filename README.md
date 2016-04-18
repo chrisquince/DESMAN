@@ -142,6 +142,12 @@ We also assume that you have some standard and not so standard sequence analysis
 
 6. [prodigal] (https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
 
+7. [gnu parallel] (http://www.gnu.org/software/parallel/): Used for parallelising rps-blast
+
+8. [standalone blast] (http://www.ncbi.nlm.nih.gov/books/NBK52640/): Need rps-blast
+
+9. [COG RPS database] (ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/): Cog databases
+
 Click the link associated with each application for installation details. To begin obtain the reads from Dropbox:
 
 ```bash
@@ -281,4 +287,12 @@ mkdir Annotate
 cd Annotate
 cp ../Split/ClusterEC.fa
 prodigal -i ClusterEC.fa -a ClusterEC.faa -d ClusterEC.fna  -f gff -p meta -o ClusterEC.gff
+```
+
+Next we assign COGs using the CONCOCT script RPSBLAST.sh. First set location of *your* COG rpsblast database. 
+Then run the CONCOCT script. This requires rpsblast and gnu parallel.
+
+```bash
+export COGSDB_DIR=~/gpfs/Databases/rpsblast_db
+RPSBLAST.sh -f ClusterEC.faa -p -c 8 -r 1
 ```
