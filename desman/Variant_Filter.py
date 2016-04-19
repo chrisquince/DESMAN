@@ -63,7 +63,8 @@ class Variant_Filter():
     """Filters variant position based on simple binomial 
     or log ratio of binomial to mixtures of binomials"""
 
-    def __init__(self,variants, randomState, optimise = True, threshold = 3.84, min_coverage = 5.0, qvalue_cutoff = 0.1,max_iter = 100, min_p = 0.01, mCogFilter = 2.0):
+    def __init__(self,variants, randomState, optimise = True, threshold = 3.84, min_coverage = 5.0, 
+                qvalue_cutoff = 0.1,max_iter = 100, min_p = 0.01, mCogFilter = 2.0,cogSampleFrac=0.95):
         #first get array dimensions
         
         variants_matrix = variants.as_matrix()
@@ -98,6 +99,7 @@ class Variant_Filter():
         self.optimise = optimise
         self.filtered = np.zeros((self.V), dtype=bool)
         self.mCogFilter = mCogFilter
+        self.cogSampleFrac = cogSampleFrac
         self.max_iter = max_iter
         
         self.eta = 0.96*np.identity((4)) + 0.01*np.ones((4,4))
@@ -196,7 +198,7 @@ class Variant_Filter():
         for s in range(self.S):
             outlierGeneSample[:,s] = reject_outliers(geneSampleCovArray[:,s], m = self.mCogFilter)
     
-        filterGenes = outlierGeneSample.sum(axis=1) < (self.S*0.95)
+        filterGenes = outlierGeneSample.sum(axis=1) < (self.S*self.cogSampleFrac)
         self.filteredGenes = [i for (i, v) in zip(uniquegenes, filterGenes) if v]
         
         idx = 0
@@ -331,6 +333,7 @@ class Variant_Filter():
         Select = self.V
         
         p = n/N
+        p[p > self.upperP] = self.upperP
         while iter < self.max_iter and lastSelect != Select:
             #filter based on current error rate
         
@@ -442,11 +445,16 @@ def main(argv):
     
     parser.add_argument('-t','--outlier_thresh', type=float, default=2.0,
         help=("threshold for COG filtering on median coverage outlier defaults to 2.0"))
+
+    parser.add_argument('-sf','--sample_frac', type=float, default=0.95,
+        help=("fraction of samples with COG coverage exceeding median outlier for removal"))
     
     parser.add_argument('-o','--output_stub', type=str, default="output",
         help=("string specifying file stubs"))
         
-    parser.add_argument('-p', '--optimiseP', action='store_true',help=("optimise proportions in likelihood ratio test"))
+    parser.add_argument('-p', '--optimiseP', action='store_true',help=("optimise proportions in likelihood ratio test default false"))
+    
+    parser.add_argument('-c', '--cog_filter', action='store_true',help=("whether to apply COG filtering default false"))
     
     parser.add_argument('-s','--random_seed',default=23724839, type=int, 
         help=("specifies seed for numpy random number generator defaults to 23724839"))
@@ -490,15 +498,17 @@ def main(argv):
         min_variant_freq = args.min_variant_freq
         
     #read in snp variants
-    #import ipdb; ipdb.set_trace()
+    import ipdb; ipdb.set_trace()
     variants    = p.read_csv(variant_file, header=0, index_col=0)
     
     variant_Filter =  Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, 
-        min_coverage = min_coverage, qvalue_cutoff = max_qvalue, min_p = min_variant_freq)
+        min_coverage = min_coverage, qvalue_cutoff = max_qvalue, min_p = min_variant_freq, 
+            mCogFilter = args.outlier_thresh,cogSampleFrac=args.sample_frac)
     
-    variant_Filter.remove_outlier_cogs_sample()
-    filteredCogs_df = variant_Filter.selected_variants_todf(variants)
-    filteredCogs_df.to_csv(output_stub+"cogf.csv")
+    if args.cog_filter:
+        variant_Filter.remove_outlier_cogs_sample()
+        filteredCogs_df = variant_Filter.selected_variants_todf(variants)
+        filteredCogs_df.to_csv(output_stub+"cogf.csv")
     
     logging.info('Begun filtering variants with parameters: optimise probability = %s, lr threshold = %s, min. coverage = %s, q-value threshold = %s, min. variant frequency = %s' % (optimiseP, filter_variants, min_coverage, 
         max_qvalue, min_variant_freq))
