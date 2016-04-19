@@ -348,7 +348,7 @@ class Variant_Filter():
             
             ratioNLL = 2.0*(BLL - MLL)
             
-            self.filtered = ratioNLL < self.threshold and N > self.Nthreshold
+            self.filtered = np.logical_or(N < self.Nthreshold,ratioNLL < self.threshold)
             
             ff = self.freq[self.filtered] 
             af = self.maxA[self.filtered]
@@ -371,7 +371,7 @@ class Variant_Filter():
         self.pvalue = 1.0 - chi2.cdf(ratioNLL,1)
         self.qvalue = benjamini_Hochberg(self.pvalue)
         self.ratioNLL = ratioNLL
-        self.filtered = self.qvalue > self.qvalue_cutoff
+        self.filtered = np.logical_or(N < self.Nthreshold,self.qvalue > self.qvalue_cutoff)
             
         self.snps_filter = self.snps_filter[self.filtered != True,:,:]
         self.selected_indices  = list(np.where(self.filtered != True))
@@ -497,7 +497,7 @@ def main(argv):
         min_variant_freq = args.min_variant_freq
         
     #read in snp variants
-    import ipdb; ipdb.set_trace()
+    #import ipdb; ipdb.set_trace()
     variants    = p.read_csv(variant_file, header=0, index_col=0)
     
     variant_Filter =  Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, 
