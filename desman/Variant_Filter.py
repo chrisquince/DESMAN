@@ -64,7 +64,7 @@ class Variant_Filter():
     or log ratio of binomial to mixtures of binomials"""
 
     def __init__(self,variants, randomState, optimise = True, threshold = 3.84, min_coverage = 5.0, 
-                qvalue_cutoff = 0.1,max_iter = 100, min_p = 0.01, mCogFilter = 2.0,cogSampleFrac=0.95):
+                qvalue_cutoff = 0.1,max_iter = 100, min_p = 0.01, mCogFilter = 2.0,cogSampleFrac=0.95,Nthreshold=10):
         #first get array dimensions
         
         variants_matrix = variants.as_matrix()
@@ -101,7 +101,7 @@ class Variant_Filter():
         self.mCogFilter = mCogFilter
         self.cogSampleFrac = cogSampleFrac
         self.max_iter = max_iter
-        
+        self.Nthreshold=Nthreshold
         self.eta = 0.96*np.identity((4)) + 0.01*np.ones((4,4))
         self.upperP = 1.0 - min_p
         #default select everything
@@ -337,7 +337,6 @@ class Variant_Filter():
         while iter < self.max_iter and lastSelect != Select:
             #filter based on current error rate
         
-            #NLL = NLComb - (log(self.eta[self.maxA,:])*self.freq).sum(axis=1)
             
             BLL = - (log(self.eta[self.maxA,:])*self.freq).sum(axis=1)
          
@@ -349,7 +348,7 @@ class Variant_Filter():
             
             ratioNLL = 2.0*(BLL - MLL)
             
-            self.filtered = ratioNLL < self.threshold
+            self.filtered = ratioNLL < self.threshold and N > self.Nthreshold
             
             ff = self.freq[self.filtered] 
             af = self.maxA[self.filtered]
