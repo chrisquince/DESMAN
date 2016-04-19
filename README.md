@@ -373,7 +373,7 @@ cd ..
 First lets have a look at the log-likelihood as a function of strain number:
 
 ```bash
-cat */fit.txt > fit.csv
+cat */fit.txt | cut -d"," -f2- > LLike.csv
 
 ```
 
