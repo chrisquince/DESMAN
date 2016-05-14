@@ -140,6 +140,16 @@ We also assume that you have some standard and not so standard sequence analysis
 
 5. [CONCOCT](https://github.com/BinPro/CONCOCT): Our own contig binning algorithm
 
+6. [prodigal] (https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
+
+7. [gnu parallel] (http://www.gnu.org/software/parallel/): Used for parallelising rps-blast
+
+8. [standalone blast] (http://www.ncbi.nlm.nih.gov/books/NBK52640/): Need rps-blast
+
+9. COG RPS database: ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/ Cog databases
+
+10. [GFF python parser] (https://github.com/chapmanb/bcbb/tree/master/gff)
+
 Click the link associated with each application for installation details. To begin obtain the reads from Dropbox:
 
 ```bash
@@ -161,11 +171,12 @@ nohup megahit -1 $(<R1.csv) -2 $(<R2.csv) -t 36 -o Assembly --presets meta > meg
 ```
 
 We will now perform CONCOCT binning of these contigs. As explained in [Alneberg et al.](http://www.nature.com/nmeth/journal/v11/n11/full/nmeth.3103.html) 
-there are good reasons to cut up contigs prior to binning. We will use a script from CONCOCT to do this. So make sure the 
-CONCOCT scripts directory is in your path:
+there are good reasons to cut up contigs prior to binning. We will use a script from CONCOCT to do this. For convenience we 
+will create environmental variables points to the CONCOCT and DESMAN install directories:
 
 ```bash
 export CONCOCT=$HOME/mypathtoConcoct/CONCOCT
+export DESMAN=$HOME/mypathtoDesman/DESMAN
 ```
 
 Then cut up contigs and place in new dir:
@@ -205,7 +216,7 @@ Here we are using 32 threads for bwa mem '-t 32' you can adjust this to whatever
 Then we need to calculate our contig lengths using one of the Desman scripts.
 
 ```bash
-python Lengths.py -i contigs/final_contigs_c10K.fa > contigs/final_contigs_c10K.len
+python $DESMAN/scripts/Lengths.py -i contigs/final_contigs_c10K.fa > contigs/final_contigs_c10K.len
 ```
 
 Then we calculate coverages for each contig in each sample:
@@ -216,7 +227,7 @@ do
     stub=${file%.sam}
     stub2=${stub#Map\/}
     echo $stub	
-    (samtools view -h -b -S $file > ${stub}.bam; samtools view -b -F 4 ${stub}.bam > ${stub}.mapped.bam; samtools sort -m 1000000000 ${stub}.mapped.bam ${stub}.mapped.sorted; bedtools genomecov -ibam ${stub}.mapped.sorted.bam -g contigs/final_contigs_c10K.len > ${stub}_cov.txt)&
+    (samtools view -h -b -S $file > ${stub}.bam; samtools view -b -F 4 ${stub}.bam > ${stub}.mapped.bam; samtools sort -m 1000000000 ${stub}.mapped.bam -o ${stub}.mapped.sorted.bam; bedtools genomecov -ibam ${stub}.mapped.sorted.bam -g contigs/final_contigs_c10K.len > ${stub}_cov.txt)&
 done
 ```
 
@@ -237,12 +248,14 @@ and finally run the following perl script to collate the coverages across sample
 from csv to tsv to be compatible with CONCOCT:
 
 ```bash
-Collate.pl Map | tr "," "\t" > CoverageB.tsv
+$DESMAN/scripts/Collate.pl Map | tr "," "\t" > Coverage.tsv
 ```
 
 and run CONCOCT:
 ```bash
 mkdir Concoct
+cd Concoct
+mv ../Coverage.tsv .
 concoct --coverage_file Coverage.tsv --composition_file ../contigs/final_contigs_c10K.fa
 cd ..
 ```
@@ -255,15 +268,131 @@ contigs to clusters with those genome assignments
 From this it is apparent that four clusters: DO, D12, D17, and D23 represent the *E. coli* pangenome. In general, 
 it will not be known *a priori* from which taxa a cluster derives and so not possible to link them in this way.
 However, in many analyses the pangenome will be contained in a single cluster or a contig taxonomic classifier 
-could be used to determine clusters deriving from the same cluster.
+could be used to determine clusters deriving from the same species.
 
 ##Identifying *E. coli* core genes
 
-We now determine core genes single copy genes within these four clusters through annotation to COGs.
+We now determine core genes single copy genes within these four clusters through annotation to COGs. First lets split the contigs 
+by their cluster and concatenate togethers those from DO, D12, D17, and D23 into one file ClusterEC.fa.
 
 ```bash
 mkdir Split
 cd Split
-?/SplitClusters.pl ../contigs/final_contigs_gt1000_c10K.fa ../Concoct/clustering_gt1000.csv
+$DESMAN/scripts/SplitClusters.pl ../contigs/final_contigs_gt1000_c10K.fa ../Concoct/clustering_gt1000.csv
+cat Cluster0/Cluster0.fa Cluster12/Cluster12.fa Cluster17/Cluster17.fa Cluster23/Cluster23.fa > ClusterEC.fa
 cd ..
+```
+
+Now call genes on the *E. coli* contigs.
+
+```bash
+mkdir Annotate
+cd Annotate
+cp ../Split/ClusterEC.fa
+prodigal -i ClusterEC.fa -a ClusterEC.faa -d ClusterEC.fna  -f gff -p meta -o ClusterEC.gff
+```
+
+Next we assign COGs using the CONCOCT script RPSBLAST.sh. First set location of *your* COG rpsblast database. 
+Then run the CONCOCT script. This requires rpsblast and gnu parallel.
+
+```bash
+export COGSDB_DIR=~/gpfs/Databases/rpsblast_db
+$CONCOCT/scripts/RPSBLAST.sh -f ClusterEC.faa -p -c 8 -r 1
+```
+
+and extract out the annotated Cogs associated with called genes:
+```bash
+$DESMAN/scripts/ExtractCogs.py -g ClusterEC.gff -b ClusterEC.out --cdd_cog_file $CONCOCT/scgs/cdd_to_cog.tsv > ClusterEC.cogs
+```
+
+Then we determine those regions of the contigs with core COGs on in single copy using the 982 predetermined *E. coli* core COGs:
+```bash
+$DESMAN/scripts/SelectContigsPos.pl $DESMAN/complete_example/EColi_core_ident95.txt < ClusterEC.cogs > ClusterEC_core.cogs
+```
+Now we just reformat the location of core cogs on contigs:
+
+```bash
+cut -d"," -f2,3,4 ClusterEC_core.cogs | tr "," "\t" > ClusterEC_core_cogs.tsv
+```
+
+##Determine variants on core COGs
+
+To input into bam-readcount:
+
+```bash
+cd ..
+mkdir Counts
+
+```
+
+Before doing so though we need to index the contigs fasta file
+```bash
+samtools faidx contigs/final_contigs_c10K.fa
+```
+
+then run bam-readcount:
+```bash
+for file in Map/*sorted.bam
+do
+	stub=${file%.mapped.sorted.bam}
+	stub=${stub#Map\/}
+	echo $stub
+	(bam-readcount -q 20 -l Annotate/ClusterEC_core_cogs.tsv -f contigs/final_contigs_c10K.fa $file > Counts/${stub}.cnt)&
+done
+```
+
+Next we collate the positions frequencies into a single file for Desman:
+
+```bash
+$DESMAN/scripts/ExtractCountFreqP.pl Annotate/ClusterEC_core.cogs > Cluster_esc3_scgs.freq
+```
+
+##Infer strains with Desman
+
+Now lets use Desman to find the variant positions on these core cogs:
+```bash
+mkdir Variants
+cd Variants/
+mv ../Cluster_esc3_scgs.freq .
+python $DESMAN/desman/Variant_Filter.py Cluster_esc3_scgs.freq
+```
+
+and run Desman:
+```bash
+mkdir RunDesman
+cd RunDesman
+
+for g in 2 3 4 5 6 7 8; do     
+    for r in 0 1 2 3 4; do             
+        desman ../Variants/outputsel_var.csv -e ../Variants/outputtran_df.csv -o ClusterEC_${g}_${r} -r 1000 -i 100 -g $g -s $r > ClusterEC_${g}_${r}.out&                 
+    done; 
+done
+cd ..
+```
+
+First lets have a look at the log-likelihood as a function of strain number:
+
+```bash
+cat */fit.txt | cut -d"," -f2- > LLike.csv
+
+```
+
+##Determine accessory genomes
+
+Now need variants frequencies on all contigs
+
+```bash
+$DESMAN/scripts/Lengths.py -i Annotate/ClusterEC.fa > Annotate/ClusterEC.len
+
+mkdir CountsAll
+
+$DESMAN/scripts/AddLengths.pl < Annotate/ClusterEC.len > Annotate/ClusterEC.tsv
+
+for file in Map/*sorted.bam
+do
+	stub=${file%.mapped.sorted.bam}
+	stub=${stub#Map\/}
+	echo $stub
+	(bam-readcount -q 20 -l Annotate/ClusterEC.tsv -f contigs/final_contigs_c10K.fa $file > CountsAll/${stub}.cnt)&
+done
 ```
