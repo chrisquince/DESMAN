@@ -36,7 +36,7 @@ def log_Poisson(cov,cov_exp):
 
 class Eta_Sampler2():
     
-    def __init__(self,randomState,variants,covs,gamma,delta,cov_sd,epsilon,init_eta,max_iter=None,max_eta=10,eta_scale=0.01,max_var=None):
+    def __init__(self,randomState,variants,covs,gamma,delta,cov_sd,epsilon,init_eta,max_iter=None,max_eta=2,eta_scale=0.01,max_var=None):
     
         #calc G
         self.randomState = randomState
@@ -104,8 +104,10 @@ class Eta_Sampler2():
         else:
             self.max_iter = max_iter
             
-        
+        self.max_eta = max_eta 
         self.eta = np.copy(init_eta)
+        self.eta[self.eta > self.max_eta - 1.0] = self.max_eta - 1.0
+
         self.eta_star = np.copy(init_eta)
         self.eta_store = np.zeros((self.max_iter,self.C,self.G))
         
@@ -120,7 +122,7 @@ class Eta_Sampler2():
                 self.sampleTauC(self.gene_tau[gene],self.gene_variants[gene],self.eta[c,:])    
     
     
-        self.max_eta = max_eta 
+
         self.eta_scale = eta_scale
         self.eta_log_prior = np.zeros(self.max_eta)
         for s in range(self.max_eta):
@@ -188,7 +190,9 @@ class Eta_Sampler2():
             
             if self.gene_V[gene] > 0:
                 self.gene_ll[c] += self.logLikelihoodGene(self.gene_variants[gene],self.gene_tau[gene],self.gamma,self.eta[c,:],self.epsilon)    
-    
+            
+            #print str(c) + "," + str(self.gene_ll[c])  
+            
             sumLogLL += self.gene_ll[c]
         return sumLogLL
     

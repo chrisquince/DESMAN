@@ -128,8 +128,10 @@ def compGenes(etaPred, etaG):
     acc = np.zeros((NG,G))
     for g in range(NG):
         for h in range(G):
+            acc[g,h] = np.sum(etaG[:,g] == etaPred[:,h])
+            
             acc[g,h] =acc[g,h]/float(NC)
-                
+    accR = np.copy(acc)            
     accuracies = np.zeros(NG)
     map = np.zeros(NG,dtype=int)
     acctotal = 0.0
@@ -145,7 +147,7 @@ def compGenes(etaPred, etaG):
         ga += 1
     
     acctotal = acctotal/float(NG)
-    return (acctotal,accuracies,acc)
+    return (acctotal,accuracies,accR)
 
 
 def main(argv):
@@ -191,7 +193,9 @@ def main(argv):
 
     gamma_names = gamma_star.index.values
     scg_names = scg_cov.index.values
-    intersect_names = sorted(intersect(gamma_names,scg_names))
+
+    intersect_names1 = sorted(intersect(gamma_names,scg_names))
+    intersect_names = sorted(intersect(cov.columns.values,intersect_names1))
     
     scg_cov = scg_cov.reindex(intersect_names)
     gamma_star = gamma_star.reindex(intersect_names)
@@ -217,16 +221,15 @@ def main(argv):
     #var_sample_names_new = [ rchop(x,'-A') for x in var_sample_names ]
     #variants_cols = variants.columns.values
     
-    expanded_names = expand_sample_names(gamma_names)
+    expanded_names = expand_sample_names(intersect_names)
     
     variants = variants[expanded_names]
-    
     
     #now apply Gaussian Gibbs sampler
     #import ipdb; ipdb.set_trace()
     etaD = np.rint(klassign.eta)
  
-    etaSampler = es.Eta_Sampler2(prng,variants,cov,gamma_star_matrix,delta,total_sd,epsilon_matrix,etaD,max_var=10)
+    etaSampler = es.Eta_Sampler2(prng,variants,cov,gamma_star_matrix,delta,total_sd,epsilon_matrix,etaD,max_var=20)
     etaSampler.update()
     contig_names = cov.index.tolist()
     
@@ -241,11 +244,15 @@ def main(argv):
 
     if args.genomes:
         genomes    = p.read_csv(args.genomes, header=0, index_col=0)
+        genomes = genomes.loc[contig_names]
         genomes_M   = genomes.as_matrix()
         genomes_D = np.copy(genomes_M)
         
         genomes_D[genomes_D < 0.5] = 0.
         genomes_D[genomes_D >= 0.5] = 1.0
+        
+        etaD[etaD < 0.5] = 0.
+        etaD[etaD >= 0.5] = 1.0
         
         (dtotal, dacc,dacc_array) = compGenes(etaD, genomes_D)
         (stotal, sacc,sacc_array) = compGenes(etaSampler.eta_star, genomes_D)
