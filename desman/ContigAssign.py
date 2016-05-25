@@ -6,8 +6,9 @@ import scipy.stats as ss
 from scipy.stats import norm
 import argparse
 import math
-import Eta_Sampler2 as es
+import Eta_Sampler as es
 import sampletau
+import logging
 
 from operator import mul, div, eq, ne, add, ge, le, itemgetter
 from numpy.random import RandomState
@@ -95,7 +96,8 @@ class KLAssign():
                 divl = div
                 div = self.div_objective()
  
-                print str(iter) + "," + str(div)
+                if(iter % 100 == 0):
+                    logging.info('KL iter %d divergence = %f' %(iter,div))
 
                 iter += 1
     
@@ -157,40 +159,68 @@ def main(argv):
 
     parser.add_argument("gamma_star_file", help="input MAP estimate frequencies")
 
-    parser.add_argument("cov_file", help="mean contig coverages")
-
-    parser.add_argument("variants_file", help="variants called on contigs to be assigned")
+    parser.add_argument("cov_file", help="mean contig/genes coverages")
 
     parser.add_argument("epsilon_file", help="predicted transition matrix")
 
     parser.add_argument('-s','--random_seed',default=23724839, type=int, 
         help=("specifies seed for numpy random number generator defaults to 23724839 applied after random filtering"))
 
+    parser.add_argument('-e','--eta_max',default=2, type=int, 
+        help=("maximum contig contig count for sampler defaults to 2"))
+
+    parser.add_argument('-i','--iter_max',default=20, type=int, 
+        help=("number of Gibbs sampling iterations"))
+
+    parser.add_argument('-m','--var_max',default=1e10, type=int, 
+        help=("maximum number of variants to user per contig defaults to all (1e10) if unset"))
+
     parser.add_argument('-o','--output_stub', type=str, default="output",
         help=("string specifying output file stubs"))
-
+        
     parser.add_argument('-g','--genomes', 
-        help=("specify validation file of known genome composition."))
+        help=("specify validation file of known genome composition"))
+
+    parser.add_argument('-v','--variant_file', 
+        help=("specify file of called variants on genes if available"))
 
     args = parser.parse_args()
 
     #import ipdb; ipdb.set_trace()
 
-    prng = RandomState(args.random_seed)
-
-    sampletau.initRNG()
-    sampletau.setRNG(args.random_seed)
     output_stub = args.output_stub
     
+    log_file_name = output_stub+"_log_file.txt"
+        
+    logging.basicConfig(
+            filename=log_file_name,
+            level=logging.INFO,
+            filemode='w', # Overwrites old log file
+            format='%(asctime)s:%(levelname)s:%(name)s:%(message)s'
+            )
+
+    #seed random number generators
+    logging.info('Seed random number generators = %d' %(args.random_seed))
+    prng = RandomState(args.random_seed)
+    sampletau.initRNG()
+    sampletau.setRNG(args.random_seed)
+
     #read in data
+    logging.info('Read in SCG coverages from %s' %(args.scg_cov_file))
     scg_cov    = p.read_csv(args.scg_cov_file, header=0, index_col=0)
+    logging.info('Read gamma from %s' %(args.gamma_star_file))
     gamma_star = p.read_csv(args.gamma_star_file, header=0, index_col=0)
+    logging.info('Read gene coverages from %s' %(args.cov_file))
     cov = p.read_csv(args.cov_file, header=0, index_col=0)
+    logging.info('Read epsilon from %s' %(args.epsilon_file))
     epsilon = p.read_csv(args.epsilon_file, header=0, index_col=0)
     epsilon_matrix = epsilon.as_matrix()
     
-    variants = p.read_csv(args.variants_file, header=0, index_col=0)
-
+    if args.variant_file is not None:
+        logging.info('Read variants from %s' %(args.variant_file))
+        variants = p.read_csv(args.variant_file, header=0, index_col=0)
+    else:
+        variants = None
     gamma_names = gamma_star.index.values
     scg_names = scg_cov.index.values
 
@@ -213,23 +243,20 @@ def main(argv):
     #reorder coverage matrix
     cov = cov[intersect_names]
     cov_matrix = cov.as_matrix()
+    logging.info('Perform KL estimation of contig counts')
     klassign = KLAssign(prng,cov_matrix,delta)
     klassign.factorize()
     
-    #reorder variants matrix
-    #var_sample_names = get_sample_names(variants)
-    #var_sample_names_new = [ rchop(x,'-A') for x in var_sample_names ]
-    #variants_cols = variants.columns.values
-    
-    expanded_names = expand_sample_names(intersect_names)
-    
-    variants = variants[expanded_names]
-    
-    #now apply Gaussian Gibbs sampler
+    if variants is not None:
+        expanded_names = expand_sample_names(intersect_names)
+        variants = variants[expanded_names]
+        #now apply Gaussian Gibbs sampler
     #import ipdb; ipdb.set_trace()
     etaD = np.rint(klassign.eta)
  
-    etaSampler = es.Eta_Sampler2(prng,variants,cov,gamma_star_matrix,delta,total_sd,epsilon_matrix,etaD,max_var=20)
+    etaSampler = es.Eta_Sampler(prng,variants,cov,gamma_star_matrix,delta,total_sd,epsilon_matrix,etaD,
+        max_iter=args.iter_max,max_eta=args.eta_max, max_var=args.var_max)
+    
     etaSampler.update()
     contig_names = cov.index.tolist()
     
@@ -248,22 +275,20 @@ def main(argv):
         genomes_M   = genomes.as_matrix()
         genomes_D = np.copy(genomes_M)
         
-        genomes_D[genomes_D < 0.5] = 0.
-        genomes_D[genomes_D >= 0.5] = 1.0
+        #genomes_D[genomes_D < 0.5] = 0.
+        #genomes_D[genomes_D >= 0.5] = 1.0
         
-        etaD[etaD < 0.5] = 0.
-        etaD[etaD >= 0.5] = 1.0
+        #etaD[etaD < 0.5] = 0.
+        #etaD[etaD >= 0.5] = 1.0
         
         (dtotal, dacc,dacc_array) = compGenes(etaD, genomes_D)
         (stotal, sacc,sacc_array) = compGenes(etaSampler.eta_star, genomes_D)
-       
-                
-        np.savetxt(sys.stdout, dacc, fmt='%.4f')
-        np.savetxt(sys.stdout, sacc, fmt='%.4f')
+                    
+        #np.savetxt(sys.stdout, dacc, fmt='%.4f')
+        #np.savetxt(sys.stdout, sacc, fmt='%.4f')
         
-        print "KL: " + str(dtotal) + "\n"
-        print "GS: " + str(stotal) + "\n"    
-    
-    
+        logging.info('KL accurracy = %f' %(dtotal))
+        logging.info('Gibbs sampler accurracy = %f' %(stotal))
+       
 if __name__ == "__main__":
     main(sys.argv[1:])

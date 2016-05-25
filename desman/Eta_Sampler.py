@@ -11,6 +11,8 @@ import sampletau
 from scipy.special import gammaln
 from numpy import array, log, exp
 import Init_NMFT as inmft
+import logging
+
 MIN_DELTA = 1.0e-10
 ETA_PENALTY=-1.0e3
 
@@ -34,7 +36,7 @@ def log_Poisson(cov,cov_exp):
         
     return res;
 
-class Eta_Sampler2():
+class Eta_Sampler():
     
     def __init__(self,randomState,variants,covs,gamma,delta,cov_sd,epsilon,init_eta,max_iter=None,max_eta=2,eta_scale=0.01,max_var=None):
     
@@ -66,9 +68,12 @@ class Eta_Sampler2():
         for gene in self.genes:
             
             try:
+                if variants is None:
+                    raise KeyError()
+                
                 gene_variants = variants.loc[gene]
                 
-                print gene + " " + str(gene_variants.shape[0])
+                #print gene + " " + str(gene_variants.shape[0])
                 if len(gene_variants.shape) == 1:
                     gene_variants = gene_variants.to_frame()
                     gene_variants = gene_variants.transpose()
@@ -84,7 +89,7 @@ class Eta_Sampler2():
                     
                 self.gene_variants[gene] = np.copy(gene_snps,order='C')
                 self.gene_V[gene] = gene_snps.shape[0]
-        
+                
                 self.gene_tau[gene] = np.zeros((self.gene_V[gene],self.G,4), dtype=np.int,order='C')
                 
                 pass
@@ -131,7 +136,6 @@ class Eta_Sampler2():
         tempnorm = np.sum(np.exp(self.eta_log_prior))
         self.eta_log_prior -= np.log(tempnorm)
 
-    
     def maskGamma(self,gamma,eta):
         gammaR = np.copy(gamma)
         
@@ -144,16 +148,6 @@ class Eta_Sampler2():
     
         return gammaR
         
-    def maskGamma2(self,gamma,eta):
-        gammaR = np.copy(gamma)
-        
-        for g in range(self.G):
-            gammaR[:,g] = float(eta[g])*gammaR[:,g]
-        
-        row_sums = gammaR.sum(axis=1)
-        gammaR = gammaR / row_sums[:, np.newaxis]
-    
-        return gammaR
         
     def logLikelihoodGene(self,variants,cTau,cGamma,eta,cEpsilon):
         """Computes data log likelihood given parameter states"""
@@ -262,10 +256,68 @@ class Eta_Sampler2():
                 
                     eta_sample = self.sampleLogProb(state_logprob)
                     self.eta[c,g] = eta_sample
-                    if eta_sample == 0 and V > 0:
-                        self.gene_tau[gene] = newTau0
-                    else:
-                        self.gene_tau[gene] = newTau1
+                    
+                    if V > 0:
+                        if eta_sample == 0:
+                            self.gene_tau[gene] = newTau0
+                        else:
+                            self.gene_tau[gene] = newTau1
+                        
+            self.ll = self.logLikelihood()
+   
+            logging.info('Gibbs Iter %d, nll = %f'%(iter,self.ll))
+            
+            self.storeStarState(iter)
+            self.eta_store[iter,]=np.copy(self.eta)
+
+            iter = iter + 1
+    
+    def update2(self): #perform max_iter Gibbs updates
+        iter = 0
+        self.ll = self.logLikelihood()
+        for c in xrange(self.C):
+            self.eta_star[c,:] = np.copy(self.eta[c,:])
+            self.gene_llstar[c] = self.gene_ll[c]
+        
+        while (iter < self.max_iter):
+
+                
+            for gene in self.genes:
+                c = self.gene_map[gene]
+                V = self.gene_V[gene]
+                variants = self.gene_variants[gene]
+                
+                for g in range(self.G):
+                    
+                    #first add coverages
+                    state_logprob = np.copy(self.eta_log_prior)
+                    
+                    tempEta = np.copy(self.eta[c,:])
+                    newTaus = np.zeros((self.max_eta,V,self.G,4), dtype=np.int,order='C')
+                    for s in xrange(0,self.max_eta):
+                        tempEta[g] = s
+                        
+                        logVar = 0.0
+                        
+                        if V > 0:
+                            newTaus[s,:] = self.gene_tau[gene]
+                            if tempEta.sum() > 0:
+                                (logVar, newTaus[s,:]) = self.computeVarLLContrib(tempEta,self.gene_tau[gene],variants)
+                            else:
+                                logVar = -1.0e20;
+                        
+                        cov_expminus = np.dot(tempEta,self.delta)
+                        
+                        temp = log_Poisson(self.cov[c,:],cov_expminus)
+                            
+                        state_logprob[s] += temp.sum() + logVar
+                
+                    eta_sample = self.sampleLogProb(state_logprob)
+                    
+                    self.eta[c,g] = eta_sample
+                    
+                    if V > 0:
+                        self.gene_tau[gene] = newTaus[s]
                         
             self.ll = self.logLikelihood()
             print "Iter = %d: ll = %f\n" %(iter,self.ll)
