@@ -362,7 +362,7 @@ class Eta_Sampler():
         return nchange
     
     def restoreFullVariants(self):
-        for gene_full in self.gene_variants_full:
+        for gene in self.gene_variants_full:
             self.gene_variants[gene] = self.gene_variants_full[gene]
 
             self.gene_V[gene] = self.gene_variants[gene].shape[0]
