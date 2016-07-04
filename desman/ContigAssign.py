@@ -184,9 +184,11 @@ def main(argv):
     parser.add_argument('-v','--variant_file', 
         help=("specify file of called variants on genes if available"))
 
+    parser.add_argument('--assign_tau', dest='assign_tau', action='store_true')
+    parser.set_defaults(assign_tau=False)
     args = parser.parse_args()
 
-    #import ipdb; ipdb.set_trace()
+    import ipdb; ipdb.set_trace()
 
     output_stub = args.output_stub
     
@@ -249,16 +251,40 @@ def main(argv):
     
     if variants is not None:
         expanded_names = expand_sample_names(intersect_names)
-        variants = variants[expanded_names]
+        variants_intersect = variants[expanded_names]
+        
         #now apply Gaussian Gibbs sampler
     #import ipdb; ipdb.set_trace()
     etaD = np.rint(klassign.eta)
  
-    etaSampler = es.Eta_Sampler(prng,variants,cov,gamma_star_matrix,delta,total_sd,epsilon_matrix,etaD,
+    etaSampler = es.Eta_Sampler(prng,variants_intersect,cov,gamma_star_matrix,delta,total_sd,epsilon_matrix,etaD,
         max_iter=args.iter_max,max_eta=args.eta_max, max_var=args.var_max)
     
     etaSampler.update()
+    
+    #Now assign tau given eta_star
     contig_names = cov.index.tolist()
+    
+    if args.assign_tau is True:
+    
+        etaSampler.restoreFullVariants()
+        
+        etaSampler.calcTauStar(etaSampler.eta_star)
+    
+        (tau_star,pos,contig_index) = etaSampler.getTauStar(variants)
+        V = tau_star.shape[0]
+        tau_res = np.reshape(tau_star,(V,etaSampler.G*4))
+        
+        
+        tau_df = p.DataFrame(tau_res,index=contig_index)
+    
+        tau_df['Position'] = pos
+        cols = tau_df.columns.tolist()
+        cols = cols[-1:] + cols[:-1]
+        tau_df = tau_df[cols]
+        tau_df.to_csv(output_stub+"_tau_star.csv")
+        logging.info("Wrote tau star haplotype predictions")
+    
     
     etaD_df = p.DataFrame(etaD,index=contig_names)
     etaD_df.to_csv(output_stub+"etaD_df.csv")

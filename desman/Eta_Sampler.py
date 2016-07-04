@@ -60,6 +60,7 @@ class Eta_Sampler():
         self.genes = covs.index.tolist()
         
         self.gene_variants = {}
+        self.gene_variants_full = {}
         self.gene_V = {}
         self.gene_tau = {}
         self.gene_map = {}
@@ -84,10 +85,10 @@ class Eta_Sampler():
                 NV = gene_snps.shape[0]
                 if max_var is not None and NV > max_var:
                     select = np.sort(self.randomState.choice(NV,max_var, replace=False))
-                    
+                    self.gene_variants_full[gene] = gene_snps.astype(int,order='C')
                     gene_snps = gene_snps[select,:,:]
                     
-                self.gene_variants[gene] = np.copy(gene_snps,order='C')
+                self.gene_variants[gene] = gene_snps.astype(int,order='C')
                 self.gene_V[gene] = gene_snps.shape[0]
                 
                 self.gene_tau[gene] = np.zeros((self.gene_V[gene],self.G,4), dtype=np.int,order='C')
@@ -359,7 +360,78 @@ class Eta_Sampler():
         nchange = sampletau.sample_tau(tau, gammaR, epsilon, variants)
 
         return nchange
+    
+    def restoreFullVariants(self):
+        for gene_full in self.gene_variants_full:
+            self.gene_variants[gene] = self.gene_variants_full[gene]
+
+            self.gene_V[gene] = self.gene_variants[gene].shape[0]
+                
+            self.gene_tau[gene] = np.zeros((self.gene_V[gene],self.G,4), dtype=np.int,order='C')
+    
+    def tauLikelihoodGene(self,variants,cTau,cGamma,eta,cEpsilon):
+        """Computes data log likelihood given parameter states"""
+
+        V = variants.shape[0]
+        logLL = np.zeros(V)
+        if eta.sum() > 0:
+            gammaR = self.maskGamma(cGamma,eta)
         
+            probVS = np.einsum('ijk,lj,km->ilm',cTau,gammaR,cEpsilon)
+        
+            #loop each variant
+
+            for v in range(V):
+                for s in range(self.S):                    
+                    logLL[v] += log_multinomial_pdf(variants[v,s,:], probVS[v,s,:])
+        
+        return logLL
+    
+    def calcTauStar(self,eta,gamma=None,epsilon=None):
+        if gamma is None:
+            gamma = self.gamma
+        
+        if epsilon is None:
+            epsilon = self.epsilon
+
+        iter = 0
+        
+        self.gene_tau_star = {}
+        self.gene_ll_tau_star = {}
+        
+        for gene in self.genes:
+            V = self.gene_V[gene]
+            self.gene_ll_tau_star[gene] = np.zeros(V)
+            self.gene_ll_tau_star[gene].fill(np.finfo(np.float).min)
+            self.gene_tau_star[gene] = np.zeros((V,self.G,4), dtype=np.int,order='C')
+         
+        while (iter < self.max_iter):
+            lltausum = 0.0
+            for gene in self.genes:
+                c = self.gene_map[gene]
+                V = self.gene_V[gene]
+                etaSum = eta[c,:].sum()
+                
+                if V > 0:
+                    if etaSum > 0:
+                        nchange = self.sampleTauC(self.gene_tau[gene],self.gene_variants[gene],eta[c,:],gamma,epsilon)
+                        tauLL = self.tauLikelihoodGene(self.gene_variants[gene],self.gene_tau[gene],gamma,eta[c,:],epsilon)
+                        
+                        for v in range(V):
+                            if tauLL[v] > self.gene_ll_tau_star[gene][v]:
+                                self.gene_ll_tau_star[gene][v] = tauLL[v]
+                                self.gene_tau_star[gene][v,:] = np.copy(self.gene_tau[gene][v,:],order='C')
+                        
+                        lltausum += self.gene_ll_tau_star[gene].sum()
+                    else:
+                        nchange = -1
+                    logging.info('Tau star Iter %d, nll = %f'%(iter,lltausum))
+                    #print "c = " + str(c) + ", change = " + str(nchange) 
+            
+            
+            iter = iter + 1
+            #print "Iter = " + str(iter) + ", ll = " + str(lltausum) 
+            
     def sampleTau(self,tau,variants,eta,gamma=None,epsilon=None):
 
         if gamma is None:
@@ -397,8 +469,57 @@ class Eta_Sampler():
                         nchange+=1
                     
         return nchange
-        
     
+    def getTauStar(self,variants):
+        C = len(self.genes)
+        Varray = np.zeros(C,dtype=np.int,order='C')  
+        Vtotal = 0
+        #vstart = {};
+        
+        for gene in self.genes:
+            c = self.gene_map[gene]
+            Varray[c] = self.gene_V[gene]    
+            Vtotal += Varray[c]
+        
+        Vcum_array = np.zeros(C,dtype=np.int,order='C')
+        for c in range(1,C):
+            Vcum_array[c] = Vcum_array[c - 1] + Varray[c - 1]
+        
+        tauStar =  np.zeros((Vtotal,self.G,4), dtype=np.int,order='C')   
+    
+        for gene in self.genes:
+            c = self.gene_map[gene]
+            V = self.gene_V[gene]
+            start = Vcum_array[c]
+            end = start + V
+            tauStar[start:end,:] = self.gene_tau_star[gene]
+    
+        positions = np.zeros(Vtotal,dtype=np.int,order='C')
+        contig_index = ["" for x in range(Vtotal)]
+        
+        for gene in self.genes:
+            c = self.gene_map[gene]
+            V = self.gene_V[gene]
+        
+        
+            try:
+                gene_variants = variants.loc[gene]
+                
+                #print gene + " " + str(gene_variants.shape[0])
+                if len(gene_variants.shape) == 1:
+                    gene_variants = gene_variants.to_frame()
+                    gene_variants = gene_variants.transpose()
+            
+                gene_pos = gene_variants['Position']
+                        
+                start = Vcum_array[c]
+                end = start + V
+                contig_index[start:end] = [gene]*V
+                positions[start:end] = gene_pos.as_matrix()        
+            except KeyError:
+                pass
+        return (tauStar,positions,contig_index)
+        
     def storeStarState(self,iter):
     
         for c in xrange(self.C):
