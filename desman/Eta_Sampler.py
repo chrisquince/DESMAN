@@ -419,7 +419,7 @@ class Eta_Sampler():
                 init_NMFT.gamma = np.transpose(gammaR)
                 init_NMFT.factorize_tau()
                 self.gene_tau_star[gene] = np.copy(init_NMFT.get_tau(),order='C')
-                logging.info('Tau star NTF %d'%(iter))
+                logging.info('Tau star NTF %d'%(c))
                 
         while (iter < self.tau_iter):
             lltausum = 0.0
@@ -441,10 +441,10 @@ class Eta_Sampler():
                         lltausum += self.gene_ll_tau_star[gene].sum()
                     else:
                         nchange = -1
-                    logging.info('Tau star Iter %d, nll = %f'%(iter,lltausum))
+                    
                     #print "c = " + str(c) + ", change = " + str(nchange) 
             
-            
+            logging.info('Tau star Iter %d, nll = %f'%(iter,lltausum))
             iter = iter + 1
             #print "Iter = " + str(iter) + ", ll = " + str(lltausum) 
             
