@@ -38,7 +38,7 @@ def log_Poisson(cov,cov_exp):
 
 class Eta_Sampler():
     
-    def __init__(self,randomState,variants,covs,gamma,delta,cov_sd,epsilon,init_eta,max_iter=None,max_eta=2,eta_scale=0.01,max_var=None):
+    def __init__(self,randomState,variants,covs,gamma,delta,cov_sd,epsilon,init_eta,max_iter=None,tau_iter=None,max_eta=2,eta_scale=0.01,max_var=None):
     
         #calc G
         self.randomState = randomState
@@ -109,7 +109,12 @@ class Eta_Sampler():
             self.max_iter = 20
         else:
             self.max_iter = max_iter
-            
+        
+        if tau_iter is None:
+            self.tau_iter = 5
+        else:
+            self.tau_iter = tau_iter
+        
         self.max_eta = max_eta 
         self.eta = np.copy(init_eta)
         self.eta[self.eta > self.max_eta - 1.0] = self.max_eta - 1.0
@@ -404,8 +409,19 @@ class Eta_Sampler():
             self.gene_ll_tau_star[gene] = np.zeros(V)
             self.gene_ll_tau_star[gene].fill(np.finfo(np.float).min)
             self.gene_tau_star[gene] = np.zeros((V,self.G,4), dtype=np.int,order='C')
-         
-        while (iter < self.max_iter):
+            
+            c = self.gene_map[gene]
+            etaSum = eta[c,:].sum()
+            
+            if V > 0 and etaSum > 0:
+                init_NMFT = inmft.Init_NMFT(self.gene_variants[gene],self.G,self.randomState)
+                gammaR = self.maskGamma(self.gamma,self.eta[c,:])
+                init_NMFT.gamma = np.transpose(gammaR)
+                init_NMFT.factorize_tau()
+                self.gene_tau_star[gene] = np.copy(init_NMFT.get_tau(),order='C')
+                logging.info('Tau star NTF %d'%(iter))
+                
+        while (iter < self.tau_iter):
             lltausum = 0.0
             for gene in self.genes:
                 c = self.gene_map[gene]
