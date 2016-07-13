@@ -153,7 +153,7 @@ We also assume that you have some standard and not so standard sequence analysis
 Click the link associated with each application for installation details. To begin obtain the reads from Dropbox:
 
 ```bash
-wget https://dl.dropboxusercontent.com/s/e3bpsdcnxlub70i/Example.tar.gz?dl=0
+wget https://www.dropbox.com/s/l6g3culvibym8g7/Example.tar.gz?dl=0
 ```
 
 Untar and unzip the example directory and move into it:
@@ -265,7 +265,7 @@ contigs to clusters with those genome assignments
 
 ![CONCOCT clusters](complete_example/Conf.pdf)
 
-From this it is apparent that four clusters: DO, D12, D17, and D23 represent the *E. coli* pangenome. In general, 
+From this it is apparent that four clusters: D5,D10,D11,D22 and D23 represent the *E. coli* pangenome. In general, 
 it will not be known *a priori* from which taxa a cluster derives and so not possible to link them in this way.
 However, in many analyses the pangenome will be contained in a single cluster or a contig taxonomic classifier 
 could be used to determine clusters deriving from the same species.
@@ -273,13 +273,13 @@ could be used to determine clusters deriving from the same species.
 ##Identifying *E. coli* core genes
 
 We now determine core genes single copy genes within these four clusters through annotation to COGs. First lets split the contigs 
-by their cluster and concatenate togethers those from DO, D12, D17, and D23 into one file ClusterEC.fa.
+by their cluster and concatenate togethers those from D5, D10, D11, D22 and D23 into one file ClusterEC.fa.
 
 ```bash
 mkdir Split
 cd Split
-$DESMAN/scripts/SplitClusters.pl ../contigs/final_contigs_gt1000_c10K.fa ../Concoct/clustering_gt1000.csv
-cat Cluster0/Cluster0.fa Cluster12/Cluster12.fa Cluster17/Cluster17.fa Cluster23/Cluster23.fa > ClusterEC.fa
+$DESMAN/scripts/SplitClusters.pl ../contigs/final_contigs_c10K.fa ../Concoct/clustering_gt1000.csv
+cat Cluster5/Cluster5.fa Cluster10/Cluster10.fa Cluster11/Cluster11.fa Cluster22/Cluster22.fa > ClusterEC.fa
 cd ..
 ```
 
@@ -288,7 +288,7 @@ Now call genes on the *E. coli* contigs.
 ```bash
 mkdir Annotate
 cd Annotate
-cp ../Split/ClusterEC.fa
+cp ../Split/ClusterEC.fa .
 prodigal -i ClusterEC.fa -a ClusterEC.faa -d ClusterEC.fna  -f gff -p meta -o ClusterEC.gff
 ```
 
