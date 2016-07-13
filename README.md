@@ -274,11 +274,17 @@ could be used to determine clusters deriving from the same species. We illustrat
 
 There are many ways to taxonomically classify assembled sequence. We suggest a gene based approach. The first step is 
 to call genes on all contigs that are greater than 1,000 bp. Shorter sequences are unlikely to contain complete 
-coding sequences:
+coding sequences. The following requires that you have a Diamond formatted version of the NCBI NR on your system. 
+With environment variable NR_DMD set as appropriate:
+```
+export NR_DMD=$HOME/native/Databases/nr/FASTA/nr.dmnd
+```
+
 
 ```
-mkdir TaxaAssign
-
+mkdir AssignTaxa
+cd AssignTaxa
+nohup diamond blastp -p 32 -d  -q final_contigs_gt1000_c10K.faa -a final_contigs_gt1000_c10K > d.out&
 ```
 
 ##Identifying *E. coli* core genes
@@ -348,7 +354,7 @@ do
 	stub=${file%.mapped.sorted.bam}
 	stub=${stub#Map\/}
 	echo $stub
-	(bam-readcount -q 20 -l Annotate/ClusterEC_core_cogs.tsv -f contigs/final_contigs_c10K.fa $file > Counts/${stub}.cnt)&
+	(bam-readcount -q 20 -l Annotate/ClusterEC_core_cogs.tsv -f contigs/final_contigs_c10K.fa $file 2> Counts/${stub}.err > Counts/${stub}.cnt)&
 done
 ```
 
