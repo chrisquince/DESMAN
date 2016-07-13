@@ -268,7 +268,18 @@ contigs to clusters with those genome assignments
 From this it is apparent that four clusters: D5,D10,D11,D22 and D23 represent the *E. coli* pangenome. In general, 
 it will not be known *a priori* from which taxa a cluster derives and so not possible to link them in this way.
 However, in many analyses the pangenome will be contained in a single cluster or a contig taxonomic classifier 
-could be used to determine clusters deriving from the same species.
+could be used to determine clusters deriving from the same species. We illustrate how to do this below.
+
+##Taxonomic classification of contigs
+
+There are many ways to taxonomically classify assembled sequence. We suggest a gene based approach. The first step is 
+to call genes on all contigs that are greater than 1,000 bp. Shorter sequences are unlikely to contain complete 
+coding sequences:
+
+```
+mkdir TaxaAssign
+
+```
 
 ##Identifying *E. coli* core genes
 
