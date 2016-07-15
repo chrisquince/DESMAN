@@ -287,13 +287,31 @@ nohup diamond blastp -p 32 -d  -q final_contigs_gt1000_c10K.faa -a final_contigs
 diamond view -a final_contigs_gt1000_c10K.daa -o final_contigs_gt1000_c10K_nr.m8
 ```
 
-To classify the contigs we need the following gid to taxid mapping file:
+To classify the contigs we need two files a gid to taxid mapping file and a mapping of taxaid to full lineage:
 
-```
-gi_taxid_prot.dmp
+1. gi_taxid_prot.dmp
+
+2. all_taxa_lineage_notnone.tsv
+
+These can also be downloaded from the Dropbox:
+``` 
+wget xxxx
+wget xxxx
 ```
 
-This can be downloaded from the Dropbox as can 
+The path to these files are hard coded in the ClassifyContigNR.py script as the variables:
+```
+DEF_DMP_FILE = "/home/chris/native/Databases/nr/FASTA/gi_taxid_prot.dmp"
+
+DEF_LINE_FILE = "/home/chris/native/Databases/nr/FASTA/all_taxa_lineage_notnone.tsv"
+```
+
+Those need to be changed to the location of the files on your system.
+
+Then we can assign the contigs and genes called on them:
+```
+python $DESMAN/scripts/ClassifyContigNR.py final_contigs_gt1000_c10K_nr.m8 final_contigs_gt1000_c10K.len -o final_contigs_gt1000_c10K_nr
+```
 
 
 ##Identifying *E. coli* core genes
