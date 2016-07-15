@@ -280,12 +280,21 @@ With environment variable NR_DMD set as appropriate:
 export NR_DMD=$HOME/native/Databases/nr/FASTA/nr.dmnd
 ```
 
-
 ```
 mkdir AssignTaxa
 cd AssignTaxa
-nohup diamond blastp -p 32 -d  -q final_contigs_gt1000_c10K.faa -a final_contigs_gt1000_c10K > d.out&
+nohup diamond blastp -p 32 -d  -q final_contigs_gt1000_c10K.faa -a final_contigs_gt1000_c10K > d.out
+diamond view -a final_contigs_gt1000_c10K.daa -o final_contigs_gt1000_c10K_nr.m8
 ```
+
+To classify the contigs we need the following gid to taxid mapping file:
+
+```
+gi_taxid_prot.dmp
+```
+
+This can be downloaded from the Dropbox as can 
+
 
 ##Identifying *E. coli* core genes
 
