@@ -295,8 +295,8 @@ To classify the contigs we need two files a gid to taxid mapping file and a mapp
 
 These can also be downloaded from the Dropbox:
 ``` 
-wget xxxx
-wget xxxx
+wget https://www.dropbox.com/s/x4s50f813ok4tqt/gi_taxid_prot.dmp.gz?dl=0
+wget https://www.dropbox.com/s/honc1j5g7wli3zv/all_taxa_lineage_notnone.tsv.gz?dl=0
 ```
 
 The path to these files are hard coded in the ClassifyContigNR.py script as the variables:
@@ -313,6 +313,22 @@ Then we can assign the contigs and genes called on them:
 python $DESMAN/scripts/ClassifyContigNR.py final_contigs_gt1000_c10K_nr.m8 final_contigs_gt1000_c10K.len -o final_contigs_gt1000_c10K_nr
 ```
 
+Then we extract species out:
+```
+$DESMAN/scripts/Filter.pl 8 < final_contigs_gt1000_c10K_nr_contigs.csv | grep -v "_6" | grep -v "None" > final_contigs_gt1000_c10K_nr_species.csv
+```
+
+These can then be used for the cluster confusion plot:
+```
+$CONCOCT/scripts/Validate.pl --cfile=../Concoct/clustering_gt1000.csv --sfile=final_contigs_gt1000_c10K_nr_species.csv --ffile=../contigs/final_contigs_c10K.fa
+```
+
+and to plot the out Conf.csv which contains species proportions in each cluster:
+```
+$CONCOCT/scripts/ConfPlot.R -c Conf.csv -o Conf.pdf 
+```
+
+![CONCOCT clusters](complete_example/Conf_NR.pdf)
 
 ##Identifying *E. coli* core genes
 
