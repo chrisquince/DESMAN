@@ -58,7 +58,6 @@ foreach my $countFile(@countFiles){
 	
 	my $sample = $1;
 	push(@samples,$sample);
-    print "$sample\n";	
 	while(my $line = <FILE>){
 		chomp($line);
 
