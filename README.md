@@ -328,12 +328,15 @@ and to plot the out Conf.csv which contains species proportions in each cluster:
 $CONCOCT/scripts/ConfPlot.R -c Conf.csv -o Conf.pdf 
 ```
 
-![CONCOCT clusters](complete_example/Conf_NR.pdf)
+![CONCOCT clusters against taxa](complete_example/Conf_NR.pdf)
+
+This confirms from a *de novo* approach that D5,D10,D11,D22 and D23 represent the *E. coli* pangenome.
 
 ##Identifying *E. coli* core genes
 
 We now determine core genes single copy genes within these four clusters through annotation to COGs. First lets split the contigs 
-by their cluster and concatenate togethers those from D5, D10, D11, D22 and D23 into one file ClusterEC.fa.
+by their cluster and concatenate togethers those from D5, D10, D11, D22 and D23 into one file ClusterEC.fa. Go back to 
+the top level example directory and then:
 
 ```bash
 mkdir Split
@@ -415,6 +418,7 @@ mkdir Variants
 cd Variants/
 mv ../Cluster_esc3_scgs.freq .
 python $DESMAN/desman/Variant_Filter.py Cluster_esc3_scgs.freq
+cd ..
 ```
 
 and run Desman:
@@ -434,12 +438,11 @@ First lets have a look at the log-likelihood as a function of strain number:
 
 ```bash
 cat */fit.txt | cut -d"," -f2- > LLike.csv
-
 ```
 
 ##Determine accessory genomes
 
-Now need variants frequencies on all contigs
+Now we need variants frequencies on all contigs
 
 ```bash
 $DESMAN/scripts/Lengths.py -i Annotate/ClusterEC.fa > Annotate/ClusterEC.len
