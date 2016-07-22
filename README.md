@@ -446,7 +446,7 @@ which we can plot with a simple R script included in the Desman distribution:
 cd $DESMAN_EXAMPLE
 $DESMAN/scripts/PlotLL.R -l RunDesman/LLike.csv -o RunDesman/LLike.pdf
 ```
-![CONCOCT clusters against taxa](complete_example/LLike.pdf)
+![Negative log-likelihood vs. strain number](complete_example/LLike.pdf)
 
 ##Determine accessory genomes
 
