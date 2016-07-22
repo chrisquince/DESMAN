@@ -4,6 +4,9 @@ use strict;
 
 my $posFile = $ARGV[0];
 my $inputDir = $ARGV[1];
+
+my $minLength = 0;
+
 my %hashStart = ();
 my %hashEnd = ();
 my %hashCogs = ();
@@ -18,8 +21,11 @@ while(my $line = <FILE>){
     my $contig = $tokens[1];
     my $cog = $tokens[0];
     my $start = $tokens[2];
-    $hashCogStart{$cog} = $start;
     my $end = $tokens[3];
+
+    if($end - $start > $minLength){
+    $hashCogStart{$cog} = $start;
+    
     $hashCogEnd{$cog} = $end;	    
 
     if($hashStart{$contig} eq undef){
@@ -35,6 +41,7 @@ while(my $line = <FILE>){
     }
     
     $hashCogs{$contig}{$start} = $cog;
+    }
 }
 
 foreach my $contig(sort keys %hashStart){
@@ -54,7 +61,7 @@ my %hashCogPosSample = ();
 foreach my $countFile(@countFiles){
 	open(FILE,$countFile) or die "Can't open $countFile\n";
 
-	$countFile =~ /Counts\/(.*).cnt/;
+	$countFile =~ /${inputDir}\/(.*).cnt/;
 	
 	my $sample = $1;
 	push(@samples,$sample);
