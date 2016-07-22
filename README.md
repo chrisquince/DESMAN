@@ -177,6 +177,7 @@ will create environmental variables points to the CONCOCT and DESMAN install dir
 ```bash
 export CONCOCT=$HOME/mypathtoConcoct/CONCOCT
 export DESMAN=$HOME/mypathtoDesman/DESMAN
+export DESMAN_EXAMPLE=$HOME/mypathtoDesmanExample/Example
 ```
 
 Then cut up contigs and place in new dir:
@@ -435,16 +436,24 @@ cd ..
 ```
 
 First lets have a look at the log-likelihood as a function of strain number:
-
 ```bash
 cat */fit.txt | cut -d"," -f2- > LLike.csv
+sed -i '1iH,G,LL,AIC' LLike.csv 
 ```
+
+which we can plot with a simple R script included in the Desman distribution:
+```bash
+cd $DESMAN_EXAMPLE
+$DESMAN/scripts/PlotLL.R -l RunDesman/LLike.csv -o RunDesman/LLike.pdf
+```
+![Negative log-likelihood vs. strain number](complete_example/LLike.pdf)
 
 ##Determine accessory genomes
 
-Now we need variants frequencies on all contigs
+Now we need variants frequencies on all contigs:
 
 ```bash
+cd $DESMAN_EXAMPLE
 $DESMAN/scripts/Lengths.py -i Annotate/ClusterEC.fa > Annotate/ClusterEC.len
 
 mkdir CountsAll
@@ -456,6 +465,6 @@ do
 	stub=${file%.mapped.sorted.bam}
 	stub=${stub#Map\/}
 	echo $stub
-	(bam-readcount -q 20 -l Annotate/ClusterEC.tsv -f contigs/final_contigs_c10K.fa $file > CountsAll/${stub}.cnt)&
+	(bam-readcount -q 20 -l Annotate/ClusterEC.tsv -f contigs/final_contigs_c10K.fa $file > CountsAll/${stub}.cnt 2> CountsAll/${stub}.err)&
 done
 ```
