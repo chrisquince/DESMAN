@@ -405,10 +405,10 @@ do
 done
 ```
 
-Next we collate the positions frequencies into a single file for Desman:
+Next we collate the positions frequencies into a single file for Desman, here we use all genes regardless of length:
 
 ```bash
-$DESMAN/scripts/ExtractCountFreqP.pl Annotate/ClusterEC_core.cogs > Cluster_esc3_scgs.freq
+$DESMAN/scripts/ExtractCountFreqP.pl Annotate/ClusterEC_core.cogs Counts 0 > Cluster_esc3_scgs.freq
 ```
 
 ##Infer strains with Desman
@@ -448,6 +448,32 @@ $DESMAN/scripts/PlotLL.R -l RunDesman/LLike.csv -o RunDesman/LLike.pdf
 ```
 ![Negative log-likelihood vs. strain number](complete_example/LLike.pdf)
 
+From this it is clear that five strains are present. 
+
+```
+python ../DESMAN/scripts/taucomp.py RunDesman/ClusterEC_5_0/Gamma_star.csv RunDesman/ClusterEC_5_*/Collated_Tau_star.csv 
+```
+
+##Validation of strains
+
+```
+cd $DESMAN_EXAMPLE
+mkdir Validate
+cd Validate
+wget ...
+tar -xvzf Hits.tar.gz
+```
+
+Select core COGs that were included in our analysis...
+
+```
+mkdir Select
+$DESMAN/Select.sh
+$DESMAN/ReverseStrand.pl ../Annotate/ClusterEC_core.cogs
+```
+
+
+
 ##Determine accessory genomes
 
 Now we need variants frequencies on all contigs:
@@ -465,6 +491,44 @@ do
 	stub=${file%.mapped.sorted.bam}
 	stub=${stub#Map\/}
 	echo $stub
-	(bam-readcount -q 20 -l Annotate/ClusterEC.tsv -f contigs/final_contigs_c10K.fa $file > CountsAll/${stub}.cnt 2> CountsAll/${stub}.err)&
+	(bam-readcount -w 1 -q 20 -l Annotate/ClusterEC.tsv -f contigs/final_contigs_c10K.fa $file > CountsAll/${stub}.cnt 2> CountsAll/${stub}.err)&
 done
+```
+
+Then we collate the count files together filtering to genes greater than 500bp:
+```
+$DESMAN/scripts/ExtractCountFreqP.pl Annotate/ClusterEC.genes CountsAll 500 > Cluster_esc3.freq
+```
+
+and find variants this time insisting on a minimum frequency of 3% and not filtering on sample coverage:
+```
+mkdir VariantsAll
+cd VariantsAll
+mv ../Cluster_esc3.freq .
+python $DESMAN/desman/Variant_Filter.py Cluster_esc3.freq -m 0.0 -v 0.03
+cd ..
+```
+
+To assign contigs we also need individual gene coverages, for consistency we generate these from the 
+aggregated count files:
+
+```
+python $DESMAN/scripts/CalcGeneCov.py Cluster_esc3.freq > Cluster_esc3_gene_cov.csv
+```
+
+```
+cut -d"," -f5 ../Annotate/ClusterEC_core.cogs > ClusterEC_core_genes.txt
+```
+
+```
+python $DESMAN/scripts/CalcDelta.py Cluster_esc3_gene_cov.csv ClusterEC_core_genes.txt ClusterEC_core
+```
+
+```
+export SEL_RUN=$DESMAN_EXAMPLE/RunDesman/ClusterEC_5_1/
+```
+
+
+```
+python $DESMAN/desman/ContigAssign.py ClusterEC_coremean_sd_df.csv $SEL_RUN/Gamma_star.csv Cluster_esc3_gene_cov.csv $SEL_RUN/Eta_star.csv -m 20 -v outputsel_var.csv -o ClusterEC --assign_tau > ClusterEC.cout&
 ```
