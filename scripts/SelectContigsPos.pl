@@ -29,16 +29,16 @@ while(my $line = <STDIN>){
     my $contig = $1;
         
     my $cog = $tokens[1];
-        
+    #k99_40717_1,COG2207,1,370,9.0,116.0,1        
     if($hashSCGs{$cog} == 1){
         if($hashContigCogs{$cog} eq undef){
-            my @temp = ($contig,$tokens[2],$tokens[3],$tokens[0]);
+            my @temp = ($contig,$tokens[2],$tokens[3],$tokens[0],$tokens[6]);
             my @temp2 = ();
             push(@temp2,\@temp);
             $hashContigCogs{$cog} = \@temp2; 
         }
         else{
-            my @temp = ($contig,$tokens[2],$tokens[3]);
+            my @temp = ($contig,$tokens[2],$tokens[3],$tokens[0],$tokens[6]);
             push(@{$hashContigCogs{$cog}},\@temp);
         }
     }
