@@ -70,7 +70,7 @@ for my $alnFile(@alnFiles){
         $Seq[$count - 1] = $seq;
         my $seqTotal = $count;
     
-        my $revFile = ">Select/${cog}_R.gfa";
+        my $revFile = ">Select/${cog}_R.gfn";
     
         open(RFILE,$revFile) or die "Can't open $revFile\n";
         
