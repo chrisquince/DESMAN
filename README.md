@@ -156,9 +156,10 @@ Click the link associated with each application for installation details. To beg
 wget https://www.dropbox.com/s/l6g3culvibym8g7/Example.tar.gz?dl=0
 ```
 
-Untar and unzip the example directory and move into it:
+Rename, untar and unzip the example directory and move into it:
 
 ```bash
+mv Example.tar.gz?dl=0 Example.tar.gz
 tar -xvzf Example.tar.gz
 cd Example
 ```
@@ -169,6 +170,8 @@ Then assemble the reads. We recommend megahit for this:
 ```bash
 nohup megahit -1 $(<R1.csv) -2 $(<R2.csv) -t 36 -o Assembly --presets meta > megahit.out&
 ```
+This will take a while so we have set megahit running on 36 threads (adjust to your system) and 
+run in background with nohup.
 
 We will now perform CONCOCT binning of these contigs. As explained in [Alneberg et al.](http://www.nature.com/nmeth/journal/v11/n11/full/nmeth.3103.html) 
 there are good reasons to cut up contigs prior to binning. We will use a script from CONCOCT to do this. For convenience we 
@@ -262,7 +265,20 @@ cd ..
 ```
 
 In this case we know which contig derives from which of the 20 genomes and so we can compare the assignment of 
-contigs to clusters with those genome assignments 
+contigs to clusters with those genome assignments. To get the genome assignments we first need the 
+strain genomes:
+
+```
+wget https://www.dropbox.com/s/9ozp0vvk9kg2jf0/Mock1_20genomes.fasta?dl=0
+mv Mock1_20genomes.fasta?dl=0 Mock1_20genomes.fasta
+```
+
+```
+mkdir AssignGenome
+cd AssignGenome
+python $DESMAN/scripts/LengthFilter.py -m 1000 ../contigs/final_contigs_c10K.fa > final_contigs_gt1000_c10K.fa
+
+``` 
 
 ![CONCOCT clusters](complete_example/Conf.pdf)
 
