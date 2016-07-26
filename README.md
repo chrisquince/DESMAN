@@ -270,15 +270,25 @@ strain genomes:
 
 ```
 wget https://www.dropbox.com/s/9ozp0vvk9kg2jf0/Mock1_20genomes.fasta?dl=0
-mv Mock1_20genomes.fasta?dl=0 Mock1_20genomes.fasta
-```
-
-```
 mkdir AssignGenome
-cd AssignGenome
-python $DESMAN/scripts/LengthFilter.py -m 1000 ../contigs/final_contigs_c10K.fa > final_contigs_gt1000_c10K.fa
+mv Mock1_20genomes.fasta?dl=0 Mock1_20genomes.fasta AssignGenome
+```
 
+
+Then we run a script that extracts the mock genome ids out of the fastq ids of the simulated reads:
+```
+cd AssignGenome
+python $DESMAN/scripts/contig_read_count_per_genome.py final_contigs_c10K.fa Mock1_20genomes.fasta ../Map/*mapped.sorted.bam > final_contigs_c10K_genome_count.tsv
+cd ..
 ``` 
+This file contains counts of unambiguous and ambiguous reads mapping to each of the genomes for each of the 
+contigs. We simplify the genome names and filter these counts:
+
+```
+$DESMAN/scripts/MapGHeader.pl $DESMAN/complete_example/Map.txt < AssignGenome/final_contigs_c10K_genome_count.tsv > AssignGenome/final_contigs_c10K_genome_countR.tsv
+
+```
+
 
 ![CONCOCT clusters](complete_example/Conf.pdf)
 
