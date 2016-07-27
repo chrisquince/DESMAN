@@ -172,13 +172,12 @@ We also assume that you have some standard and not so standard sequence analysis
 Click the link associated with each application for installation details. To begin obtain the reads from Dropbox:
 
 ```bash
-wget https://www.dropbox.com/s/l6g3culvibym8g7/Example.tar.gz?dl=0
+wget https://www.dropbox.com/s/l6g3culvibym8g7/Example.tar.gz
 ```
 
 Rename, untar and unzip the example directory and move into it:
 
 ```bash
-mv Example.tar.gz?dl=0 Example.tar.gz
 tar -xvzf Example.tar.gz
 cd Example
 ```
@@ -291,9 +290,9 @@ contigs to clusters with those genome assignments. To get the genome assignments
 strain genomes:
 
 ```
-wget https://www.dropbox.com/s/9ozp0vvk9kg2jf0/Mock1_20genomes.fasta?dl=0
+wget https://www.dropbox.com/s/9ozp0vvk9kg2jf0/Mock1_20genomes.fasta
 mkdir AssignGenome
-mv Mock1_20genomes.fasta?dl=0 AssignGenome/Mock1_20genomes.fasta
+mv Mock1_20genomes.fasta AssignGenome/Mock1_20genomes.fasta
 ```
 
 We need to index our bam files:
@@ -384,8 +383,8 @@ To classify the contigs we need two files a gid to taxid mapping file and a mapp
 
 These can also be downloaded from the Dropbox:
 ``` 
-wget https://www.dropbox.com/s/x4s50f813ok4tqt/gi_taxid_prot.dmp.gz?dl=0
-wget https://www.dropbox.com/s/honc1j5g7wli3zv/all_taxa_lineage_notnone.tsv.gz?dl=0
+wget https://www.dropbox.com/s/x4s50f813ok4tqt/gi_taxid_prot.dmp.gz
+wget https://www.dropbox.com/s/honc1j5g7wli3zv/all_taxa_lineage_notnone.tsv.gz
 ```
 
 The path to these files are hard coded in the ClassifyContigNR.py script as the variables:
