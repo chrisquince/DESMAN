@@ -2,7 +2,7 @@
 
 ![alt tag](desmans.jpg)
 
-##### Table of Contents  
+## Table of Contents  
 [Installation](#installation)  
 
 [Taxonomic profiling](#simple_example)  
@@ -132,6 +132,16 @@ where 1 indicates the base present in that haplotype at that position.
 #Complete example of _de novo_ strain level analysis from metagenome data#
 <a name="complete_example"></a>
 
+## Table of Contents  
+[Getting started](#getting_started)  
+
+[Read assembly, mapping and binning](#assembly)   
+
+[Contig genome assignments](#genome_assignment)  
+
+[Contig taxonomic assignments](#taxa_assignment)
+
+<a name="getting_started"></a>
 ##Getting started##
 
 To provide an in depth illustration of how to use Deman we will give a complete worked example from a subset of the synthetic community 
@@ -172,7 +182,7 @@ mv Example.tar.gz?dl=0 Example.tar.gz
 tar -xvzf Example.tar.gz
 cd Example
 ```
-
+<a name="assembly"></a>
 ##Read assembly, mapping and binning##
 
 Then assemble the reads. We recommend megahit for this:
@@ -273,6 +283,9 @@ concoct --coverage_file Coverage.tsv --composition_file ../contigs/final_contigs
 cd ..
 ```
 
+<a name="genome_assignment"></a>
+##Contig genome assignemnts##
+
 In this case we know which contig derives from which of the 20 genomes and so we can compare the assignment of 
 contigs to clusters with those genome assignments. To get the genome assignments we first need the 
 strain genomes:
@@ -325,6 +338,7 @@ it will not be known *a priori* from which taxa a cluster derives and so not pos
 However, in many analyses the pangenome will be contained in a single cluster or a contig taxonomic classifier 
 could be used to determine clusters deriving from the same species. We illustrate how to do this below.
 
+<a name="taxa_assignment"></a>
 ##Taxonomic classification of contigs
 
 There are many ways to taxonomically classify assembled sequence. We suggest a gene based approach. The first step is 
