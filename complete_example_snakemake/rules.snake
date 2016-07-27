@@ -1,0 +1,225 @@
+####
+## MEGAHIT
+####
+rule megahit_coassemble:
+    input:
+        R1_reads = sorted(config["R1_reads"]),
+        R2_reads = sorted(config["R2_reads"])
+    output:
+        "Assembly/megahit_output/final.contigs.fa"
+    threads: config["megahit_threads"]
+    run:
+        outdir = "/".join(str(output).split("/")[:-1])
+        sorted_samples = sorted(input.R1_reads.keys())
+        R1_input_str = ",".join(input.R1_reads)
+        R2_input_str = ",".join(input.R2_reads)
+        shell("""rm -r {outdir} && megahit -1 {R1_input_str} -2 {R2_input_str} -t {threads} -o {outdir}""")
+
+
+rule cut_up_fasta:
+    input:
+        "Assembly/megahit_output/final.contigs.fa"
+    output:
+        "Contigs/final_contigs_c10K.fa"
+    params:
+        concoct_dir = config["concoct_dir"]
+    shell:
+        """python2 {params.concoct_dir}/scripts/cut_up_fasta.py -c 10000 -o 0 -m {input} > {output}"""
+
+####
+##BWA MAP
+####
+rule bwa_index:
+    input:
+        "Contigs/final_contigs_c10K.fa"
+    output:
+        expand("Contigs/final_contigs_c10K.fa.{ext}", ext=["amb", "ann", "bwt", "pac", "sa"])
+    shell:
+        """bwa index {input}"""
+
+rule bwa_map:
+    input:
+        contigs = "Contigs/final_contigs_c10K.fa",
+        index = expand("Contigs/final_contigs_c10K.fa.{ext}", ext=["amb", "ann", "bwt", "pac", "sa"]),
+        R1 = lambda wildcards: config["R1_reads_per_sample"][wildcards.sample],
+        R2 = lambda wildcards: config["R2_reads_per_sample"][wildcards.sample]
+    output:
+        "Map/{sample}.bam"
+    threads: config["bwa_map_threads"]
+    shell:
+        """bwa mem -t {threads} {input.contigs} {input.R1} {input.R2} | samtools view -bS - > {output}"""
+
+####
+##General
+####
+
+rule samtools_sort:
+    input:
+        "Map/{sample}.bam"
+    output:
+        "Map/{sample}.sorted.bam"
+    resources:
+        memory=config["samtools_sort_memory"]
+    shell:
+        """samtools sort -m {resources.memory} {input} -o {output}"""
+
+rule samtools_index:
+    input:
+        "{prefix}.bam"
+    output:
+        "{prefix}.bam.bai"
+    shell:
+        """samtools index {input}"""
+
+rule length_filter:
+    input:
+        "Contigs/{prefix}.fa"
+    output:
+        "Contigs/{prefix}_gt1000.fa"
+    params:
+        desman_dir=config["desman_dir"],
+        concoct_python_env=config["concoct_python_env"]
+    shell:
+        """set +u; source activate {params.concoct_python_env}; set -u; 
+           python {params.desman_dir}/scripts/LengthFilter.py {input} > {output}"""
+
+####
+## Coverage file generation
+####
+ 
+rule contig_lengths:
+    input:
+        "Contigs/final_contigs_c10K.fa"
+    output:
+        "Contigs/final_contigs_c10K.len"
+    params:
+        desman_dir=config["desman_dir"] 
+    shell:
+        "python2 {params.desman_dir}/scripts/Lengths.py -i {input} > {output}"
+
+rule bedtools_genomecov:
+    input:
+        bam = "Map/{sample}.sorted.bam",
+        contig_len = "Contigs/final_contigs_c10K.len"
+    output:
+        "Map/{sample}_cov.txt"
+    shell:
+        """bedtools genomecov -ibam {input.bam} -g {input.contig_len} > {output}"""
+
+rule aggregate_bedtools:
+    input:
+        "Map/{sample}_cov.txt"
+    output:
+        "Map/{sample}_cov.csv"
+    shell:
+        """awk -F"\t" '{{l[$1]=l[$1]+($2 *$3);r[$1]=$4}} END {{for (i in l){{print i","(l[i]/r[i])}}}}' {input} > {output}"""
+
+rule collate_coverage:
+    input:
+        expand("Map/{sample}_cov.csv",
+            sample=config["R1_reads_per_sample"])
+    output:
+        "Concoct/Input/Coverage.tsv"
+    params:
+        input_dir = "Map",
+        desman_dir = config["desman_dir"]
+    shell:
+        """{params.desman_dir}/scripts/Collate.pl {params.input_dir} | tr "," "\t" > {output}"""
+
+####
+## Run CONCOCT
+####
+
+rule run_concoct:
+    input:
+        coverage = "Concoct/Input/Coverage.tsv",
+        composition = "Contigs/final_contigs_c10K.fa"
+    output:
+        "Concoct/Output/clustering_gt1000.csv"
+    params:
+        concoct_python_env = config["concoct_python_env"]
+    threads: 10
+    shell:
+        """set +u; source activate {params.concoct_python_env}; set -u
+         concoct --coverage_file {input.coverage} --composition {input.composition} -b Concoct/Output/"""
+
+####
+## Taxonomic Assignment using reference genomes
+####
+
+rule contig_read_count_per_genome:
+    input:
+        contigs="Contigs/final_contigs_c10K.fa",
+        references="data/Mock1_20genomes.fasta",
+        bam_files = expand("Map/{sample}.sorted.bam",
+            sample=config["R1_reads_per_sample"]),
+        bam_indices = expand("Map/{sample}.sorted.bam.bai",
+            sample=config["R1_reads_per_sample"])
+    output:
+        "AssignTaxa/final_contigs_c10K_genome_count.tsv"
+    params:
+        desman_dir = config["desman_dir"],
+        concoct_python_env = config["concoct_python_env"]
+    shell:
+        """set +u; source activate {params.concoct_python_env}; set -u
+           {params.desman_dir}/scripts/contig_read_count_per_genome.py {input.contigs} {input.references} {input.bam_files} > {output}
+        """
+
+rule MapGHeader:
+    input:
+        "AssignTaxa/final_contigs_c10K_genome_count.tsv"
+    output:
+        "AssignGenome/final_contigs_c10K_genome_countR.tsv"
+    params:
+        desman_dir = config["desman_dir"]
+    shell:
+        """{params.desman_dir}/scripts/MapGHeader.pl {params.desman_dir}/complete_example/Map.txt < {input} > {output}"""
+
+####
+## Gene prediction
+####
+rule prodigal:
+    input:
+        "Contigs/{prefix}.fa"
+    output:
+        amino = "Genes/{prefix}.faa",
+        nucleotide = "Genes/{prefix}.fna",
+        gff = "Genes/{prefix}.gff",
+        log = "Genes/{prefix}.prodigal.log"
+    shell:
+        """prodigal -i {input} -a {output.amino} -d {output.nucleotide} -f gff -p meta -o {output.gff} 2> {output.log}"""
+
+####
+## Taxonomic Assignment using NR
+####
+rule diamond_blastp:
+    input:
+        "Genes/final_contigs_c10K_gt1000.faa"
+    output:
+        alignment = "AssignTaxa/final_contigs_c10K_gt1000.daa",
+        log = "AssignTaxa/final_contigs_c10K_gt1000.log"
+    params:
+        diamond_db = config["diamond_nr_db"]
+    threads: config["diamond_threads"]
+    shell:
+        """diamond blastp -p {threads} -d {params.diamond_db} -q {input} -a {output.alignment} > {output.log}"""
+
+rule diamond_view:
+    input:
+        "AssignTaxa/final_contigs_c10K_gt1000.daa"
+    output:
+        "AssignTaxa/final_contigs_c10K_gt1000_nr.m8"
+    shell:
+        """diamond view {input} {output}"""
+
+rule classify_contig_nr:
+    input:
+        diamond_result = "AssignTaxa/final_contigs_c10K_gt1000_nr.m8",
+        contig_len = "Contigs/final_contigs_c10K.len"
+    output:
+        "AssignTaxa/final_contigs_c10K_gt1000_nr_contigs.csv"
+    params:
+        desman_dir = config["desman_dir"],
+        output_base = "AssignTaxa/final_contigs_c10K_gt1000_nr"
+    shell:
+        """python {params.desman_dir}/scripts/ClassifyContigNR.py {input.diamond_result} {input.contig_len} -o {params.output_base}"""

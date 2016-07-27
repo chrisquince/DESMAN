@@ -1,0 +1,31 @@
+configfile: "config.json"
+import os
+
+file_ending = config['reads_file_ending']
+R1_reads = {}
+R2_reads = {}
+for reads_f in os.listdir(config["read_dir"]):
+    if reads_f.endswith(file_ending):
+        # Read 1
+        if reads_f.endswith("R1." + file_ending):
+            sample_name = reads_f.replace("R1." + file_ending, '')
+            if sample_name[-1] in ['.', '_', '-']:
+                sample_name = sample_name[:-2]
+            R1_reads[sample_name] = os.path.join(config["read_dir"], reads_f)
+        # Read 2
+        else:
+            sample_name = reads_f.replace("R2." + file_ending, '')
+            if sample_name[-1] in ['.', '_', '-']:
+                sample_name = sample_name[:-2]
+            R2_reads[sample_name] = os.path.join(config["read_dir"], reads_f)
+
+all_R1_samples = sorted(R1_reads.keys())
+all_samples = sorted(R2_reads.keys())
+
+assert all_R1_samples == all_samples
+
+config['R1_reads'] = R1_reads.values()
+config['R2_reads'] = R2_reads.values()
+config['R1_reads_per_sample'] = R1_reads
+config['R2_reads_per_sample'] = R2_reads
+include: "rules.snake"
