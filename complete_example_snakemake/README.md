@@ -80,3 +80,23 @@ Obviously replacing myinstalldir as appropriate and adding this to your .bash_pr
     snakemake --list-target-rules
 ```
 
+This will show a list of possible 'rules' to execute with snakemake.
+
+To show what rules will be executed when running the whole example, run:
+
+```
+    snakemake --dryrun classify_contig_nr
+```
+
+Make sure you edit the 'config.json' file to suit your system:
+
+```
+    less config.json
+```
+
+And to execute it run:
+
+```
+    snakemake --cores 16 classify_contig_nr --resources memory=128000000000
+```
+
