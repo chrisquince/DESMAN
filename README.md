@@ -286,9 +286,28 @@ contigs. We simplify the genome names and filter these counts:
 
 ```
 $DESMAN/scripts/MapGHeader.pl $DESMAN/complete_example/Map.txt < AssignGenome/final_contigs_c10K_genome_count.tsv > AssignGenome/final_contigs_c10K_genome_countR.tsv
-
 ```
 
+Then we get assignments of each contig to each genome:
+```
+$DESMAN/scripts/LabelSMap.pl Concoct/clustering_gt1000.csv AssignGenome/final_contigs_c10K_genome_countR.tsv > AssignGenome/clustering_gt1000_smap.csv
+```
+
+This enables to compare the CONCOCT clusterings with these assignments:
+```
+$CONCOCT/scripts/Validate.pl --cfile=Concoct/clustering_gt1000.csv --sfile=AssignGenome/clustering_gt1000_smap.csv --ffile=contigs/final_contigs_c10K.fa 
+```
+This should generate output similar too:
+
+```
+N	M	TL	S	K	Rec.	Prec.	NMI	Rand	AdjRand
+9159	9159	5.8184e+07	20	25	0.986690	0.992948	0.988403	0.998643	0.988182
+```
+
+We can also plot the resulting confusion matrix:
+```
+$CONCOCT/scripts/ConfPlot.R -c Conf.csv -o Conf.pdf
+```
 
 ![CONCOCT clusters](complete_example/Conf.pdf)
 
