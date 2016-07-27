@@ -129,8 +129,8 @@ where 1 indicates the base present in that haplotype at that position.
 
 7. fit.txt: Statistics evaluating fit as number of haplotypes, number of non-degenerate haplotypes inferred, log-Likelihood, Aikake information criterion
 
-#Complete example of _de novo_ strain level analysis from metagenome data#
 <a name="complete_example"></a>
+#Complete example of _de novo_ strain level analysis from metagenome data#
 
 ## Table of Contents  
 [Getting started](#getting_started)  
