@@ -78,9 +78,9 @@ rule length_filter:
         "Contigs/{prefix}_gt1000.fa"
     params:
         desman_dir=config["desman_dir"],
-        concoct_python_env=config["concoct_python_env"]
+        desman_python2_env=config["desman_python2_env"]
     shell:
-        """set +u; source activate {params.concoct_python_env}; set -u; 
+        """set +u; source activate {params.desman_python2_env}; set -u; 
            python {params.desman_dir}/scripts/LengthFilter.py {input} > {output}"""
 
 ####
@@ -137,10 +137,10 @@ rule run_concoct:
     output:
         "Concoct/Output/clustering_gt1000.csv"
     params:
-        concoct_python_env = config["concoct_python_env"]
+        desman_python2_env = config["desman_python2_env"]
     threads: 10
     shell:
-        """set +u; source activate {params.concoct_python_env}; set -u
+        """set +u; source activate {params.desman_python2_env}; set -u
          concoct --coverage_file {input.coverage} --composition {input.composition} -b Concoct/Output/"""
 
 ####
@@ -159,9 +159,9 @@ rule contig_read_count_per_genome:
         "AssignTaxa/final_contigs_c10K_genome_count.tsv"
     params:
         desman_dir = config["desman_dir"],
-        concoct_python_env = config["concoct_python_env"]
+        desman_python2_env = config["desman_python2_env"]
     shell:
-        """set +u; source activate {params.concoct_python_env}; set -u
+        """set +u; source activate {params.desman_python2_env}; set -u
            {params.desman_dir}/scripts/contig_read_count_per_genome.py {input.contigs} {input.references} {input.bam_files} > {output}
         """
 

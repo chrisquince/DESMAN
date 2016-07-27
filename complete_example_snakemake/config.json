@@ -6,7 +6,7 @@
     "samtools_sort_memory": 7000000000,
     "concoct_dir": "~/repos/CONCOCT",
     "desman_dir": "~/repos/DESMAN",
-    "concoct_python_env": "concoct",
+    "desman_python2_env": "desman_python2_env",
     "diamond_nr_db": "/sw/data/uppnex/diamond_databases/Blast/latest/nr.dmnd",
     "diamond_threads": 16
 }
