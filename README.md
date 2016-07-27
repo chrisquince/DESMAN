@@ -343,7 +343,7 @@ $CONCOCT/scripts/ConfPlot.R -c Conf.csv -o Conf.pdf
 
 ![CONCOCT clusters](complete_example/Conf.pdf)
 
-From this it is apparent that four clusters: D1, D6, D20, D22, and D23 represent the *E. coli* pangenome. In general, 
+From this it is apparent that four clusters: D1, D20, D22, and D23 represent the *E. coli* pangenome. In general, 
 it will not be known *a priori* from which taxa a cluster derives and so not possible to link them in this way.
 However, in many analyses the pangenome will be contained in a single cluster or a contig taxonomic classifier 
 could be used to determine clusters deriving from the same species. We illustrate how to do this below.
@@ -372,7 +372,7 @@ cd ..
 mkdir AssignTaxa
 cd AssignTaxa
 cp ../Annotate_gt1000/final_contigs_gt1000_c10K.faa .
-nohup diamond blastp -p 32 -d  -q final_contigs_gt1000_c10K.faa -a final_contigs_gt1000_c10K > d.out
+diamond blastp -p 32 -d $NR_DMD -q final_contigs_gt1000_c10K.faa -a final_contigs_gt1000_c10K > d.out
 diamond view -a final_contigs_gt1000_c10K.daa -o final_contigs_gt1000_c10K_nr.m8
 ```
 
@@ -419,27 +419,30 @@ $CONCOCT/scripts/ConfPlot.R -c Taxa_Conf.csv -o Taxa_Conf.pdf
 
 ![CONCOCT clusters against taxa](complete_example/Taxa_Conf.pdf)
 
-This confirms from a *de novo* approach that D5,D10,D11,D22 and D23 represent the *E. coli* pangenome.
+This confirms from a *de novo* approach that D1, D20, D22, and D23 represent the *E. coli* pangenome.
 
 ##Identifying *E. coli* core genes
 
 We now determine core genes single copy genes within these four clusters through annotation to COGs. First lets split the contigs 
-by their cluster and concatenate togethers those from D5, D10, D11, D22 and D23 into one file ClusterEC.fa. Go back to 
+by their cluster and concatenate togethers those from D1, D20, D22, and D23 into one file ClusterEC.fa. If your clustering 
+gave different bins associated with *E. coli* then change the files selected below as appropriate:
+
+Go back to 
 the top level example directory and then:
 
 ```bash
 mkdir Split
 cd Split
 $DESMAN/scripts/SplitClusters.pl ../contigs/final_contigs_c10K.fa ../Concoct/clustering_gt1000.csv
-cat Cluster5/Cluster5.fa Cluster10/Cluster10.fa Cluster11/Cluster11.fa Cluster22/Cluster22.fa > ClusterEC.fa
+cat Cluster1/Cluster1.fa Cluster20/Cluster20.fa Cluster22/Cluster22.fa Cluster23/Cluster23.fa > ClusterEC.fa
 cd ..
 ```
 
 Now call genes on the *E. coli* contigs.
 
 ```bash
-mkdir Annotate
-cd Annotate
+mkdir AnnotateEC
+cd AnnotateEC
 cp ../Split/ClusterEC.fa .
 prodigal -i ClusterEC.fa -a ClusterEC.faa -d ClusterEC.fna  -f gff -p meta -o ClusterEC.gff
 ```
