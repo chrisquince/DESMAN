@@ -192,6 +192,17 @@ rule prodigal:
 ####
 ## Taxonomic Assignment using NR
 ####
+
+rule gene_lengths:
+    input:
+        "Genes/final_contigs_c10K_gt1000.faa"
+    output:
+        "Genes/final_contigs_c10K_gt1000.len"
+    params:
+        desman_dir=config["desman_dir"]
+    shell:
+        "python2 {params.desman_dir}/scripts/Lengths.py -i {input} > {output}"
+
 rule diamond_blastp:
     input:
         "Genes/final_contigs_c10K_gt1000.faa"
@@ -215,11 +226,13 @@ rule diamond_view:
 rule classify_contig_nr:
     input:
         diamond_result = "AssignTaxa/final_contigs_c10K_gt1000_nr.m8",
-        contig_len = "Contigs/final_contigs_c10K.len"
+	gene_len = "Genes/final_contigs_c10K_gt1000.len"
     output:
         "AssignTaxa/final_contigs_c10K_gt1000_nr_contigs.csv"
     params:
         desman_dir = config["desman_dir"],
-        output_base = "AssignTaxa/final_contigs_c10K_gt1000_nr"
+        lineage_file = config["lineage_file"],
+	gid_taxaid_file = config["gid_taxaid_file"],
+	output_base = "AssignTaxa/final_contigs_c10K_gt1000_nr"
     shell:
-        """python {params.desman_dir}/scripts/ClassifyContigNR.py {input.diamond_result} {input.contig_len} -o {params.output_base} -l {params.lineage_file} -g {params.gid_taxaid_file}"""
+        """python2 {params.desman_dir}/scripts/ClassifyContigNR.py {input.diamond_result} {input.gene_len} -o {params.output_base} -l {params.lineage_file} -g {params.gid_taxaid_file}"""
