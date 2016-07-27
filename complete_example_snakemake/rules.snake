@@ -222,4 +222,4 @@ rule classify_contig_nr:
         desman_dir = config["desman_dir"],
         output_base = "AssignTaxa/final_contigs_c10K_gt1000_nr"
     shell:
-        """python {params.desman_dir}/scripts/ClassifyContigNR.py {input.diamond_result} {input.contig_len} -o {params.output_base}"""
+        """python {params.desman_dir}/scripts/ClassifyContigNR.py {input.diamond_result} {input.contig_len} -o {params.output_base} -l {params.lineage_file} -g {params.gid_taxaid_file}"""
