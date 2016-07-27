@@ -2,6 +2,14 @@
 
 ![alt tag](desmans.jpg)
 
+##### Table of Contents  
+[Installation](#installation)  
+
+[Taxonomic profiling](#simple_example)  
+
+[Complete example](#complete_example)  
+
+<a name="installation"/>
 ##Installation
 
 To install simply type:
@@ -34,6 +42,7 @@ export PATH=$HOME/myinstalldir/DESMAN/scripts:$PATH
 
 Obviously replacing myinstalldir as appropriate and adding this to your .bash_profile file.
 
+<a name="simple_example"/>
 ##Simple example
 
 To illustrate the actual strain inference algorithm we will start with a simple example using base frequencies 
