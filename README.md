@@ -349,9 +349,19 @@ With environment variable NR_DMD set as appropriate:
 export NR_DMD=$HOME/native/Databases/nr/FASTA/nr.dmnd
 ```
 
+Then we begin by calling genes on all contigs greater than 1000bp in length.
+```
+mkdir Annotate_gt1000
+cd Annotate_gt1000
+python $DESMAN/scripts/LengthFilter.py -m 1000 ../contigs/final_contigs_c10K.fa > final_contigs_gt1000_c10K.fa
+prodigal -i final_contigs_gt1000_c10K.fa -a final_contigs_gt1000_c10K.faa -d final_contigs_gt1000_c10K.fna  -f gff -p meta -o final_contigs_gt1000_c10K.gff
+cd ..
+```
+
 ```
 mkdir AssignTaxa
 cd AssignTaxa
+cp ../Annotate_gt1000/final_contigs_gt1000_c10K.faa .
 nohup diamond blastp -p 32 -d  -q final_contigs_gt1000_c10K.faa -a final_contigs_gt1000_c10K > d.out
 diamond view -a final_contigs_gt1000_c10K.daa -o final_contigs_gt1000_c10K_nr.m8
 ```
