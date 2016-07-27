@@ -333,7 +333,7 @@ This should generate output similar too:
 
 ```
 N	M	TL	S	K	Rec.	Prec.	NMI	Rand	AdjRand
-9159	9159	5.8184e+07	20	25	0.986690	0.992948	0.988403	0.998643	0.988182
+9159	9159	5.8184e+07	20	25	0.992137	0.985011	0.988406	0.998467	0.986681
 ```
 
 We can also plot the resulting confusion matrix:
@@ -343,7 +343,7 @@ $CONCOCT/scripts/ConfPlot.R -c Conf.csv -o Conf.pdf
 
 ![CONCOCT clusters](complete_example/Conf.pdf)
 
-From this it is apparent that four clusters: D5,D10,D11,D22 and D23 represent the *E. coli* pangenome. In general, 
+From this it is apparent that four clusters: D1, D6, D20, D22, and D23 represent the *E. coli* pangenome. In general, 
 it will not be known *a priori* from which taxa a cluster derives and so not possible to link them in this way.
 However, in many analyses the pangenome will be contained in a single cluster or a contig taxonomic classifier 
 could be used to determine clusters deriving from the same species. We illustrate how to do this below.
@@ -409,15 +409,15 @@ $DESMAN/scripts/Filter.pl 8 < final_contigs_gt1000_c10K_nr_contigs.csv | grep -v
 
 These can then be used for the cluster confusion plot:
 ```
-$CONCOCT/scripts/Validate.pl --cfile=../Concoct/clustering_gt1000.csv --sfile=final_contigs_gt1000_c10K_nr_species.csv --ffile=../contigs/final_contigs_c10K.fa
+$CONCOCT/scripts/Validate.pl --cfile=../Concoct/clustering_gt1000.csv --sfile=final_contigs_gt1000_c10K_nr_species.csv --ffile=../contigs/final_contigs_c10K.fa --ofile=Taxa_Conf.csv
 ```
 
 and to plot the out Conf.csv which contains species proportions in each cluster:
 ```
-$CONCOCT/scripts/ConfPlot.R -c Conf.csv -o Conf.pdf 
+$CONCOCT/scripts/ConfPlot.R -c Taxa_Conf.csv -o Taxa_Conf.pdf 
 ```
 
-![CONCOCT clusters against taxa](complete_example/Conf_NR.pdf)
+![CONCOCT clusters against taxa](complete_example/Taxa_Conf.pdf)
 
 This confirms from a *de novo* approach that D5,D10,D11,D22 and D23 represent the *E. coli* pangenome.
 
