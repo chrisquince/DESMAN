@@ -293,9 +293,19 @@ strain genomes:
 ```
 wget https://www.dropbox.com/s/9ozp0vvk9kg2jf0/Mock1_20genomes.fasta?dl=0
 mkdir AssignGenome
-mv Mock1_20genomes.fasta?dl=0 Mock1_20genomes.fasta AssignGenome
+mv Mock1_20genomes.fasta?dl=0 AssignGenome/Mock1_20genomes.fasta
 ```
 
+We need to index our bam files:
+```
+for file in Map/*mapped.sorted.bam
+do
+    stub=${file%.bam}
+    stub2=${stub#Map\/}
+    echo $stub	
+    samtools index $file
+done
+```
 
 Then we run a script that extracts the mock genome ids out of the fastq ids of the simulated reads:
 ```
