@@ -40,6 +40,13 @@ and the desman software:
     python setup.py install
 ```
 
+To install snakemake from the bioconda channel we'll switch to the desman_snakemake environment:
+
+```
+    source activate desman_snakemake
+    conda install -c bioconda snakemake
+```
+
 These items are prerequisities for the installation of desman:
 
 1. *python v2.7.*
