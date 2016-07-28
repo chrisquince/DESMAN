@@ -6,10 +6,10 @@ DESMAN requires some parts of it to be run with python 3 and some with python 2.
 
 ##Installation
 
-After installing Anaconda, create an new environment that will contain the python 2.7 installation called 'desman_2_env':
+After installing Anaconda, create an new environment that will contain the python 2.7 installation called 'desman_python2_env':
 
 ```
-    conda create -n desman_2_env python=2.7
+    conda create -n desman_python2_env python=2.7
 ```
 
 and one environment that will contain the python 3.5 installation called 'desman_snakemake':
@@ -19,10 +19,10 @@ and one environment that will contain the python 3.5 installation called 'desman
     conda create -n desman_snakemake python=3.5
 ```
 
-In the desman_2_env environment we'll install the concoct dependencies:
+In the desman_python2_env environment we'll install the concoct dependencies:
 
 ```
-    source activate desman_2_env
+    source activate desman_python2_env
     conda install cython numpy scipy biopython pandas pip scikit-learn
 ```
 
