@@ -221,18 +221,20 @@ rule diamond_view:
     output:
         "AssignTaxa/final_contigs_c10K_gt1000_nr.m8"
     shell:
-        """diamond view {input} {output}"""
+        """diamond view -a {input} -o {output}"""
 
 rule classify_contig_nr:
     input:
         diamond_result = "AssignTaxa/final_contigs_c10K_gt1000_nr.m8",
-	gene_len = "Genes/final_contigs_c10K_gt1000.len"
+        gene_len = "Genes/final_contigs_c10K_gt1000.len"
     output:
         "AssignTaxa/final_contigs_c10K_gt1000_nr_contigs.csv"
     params:
         desman_dir = config["desman_dir"],
+        desman_python2_env = config["desman_python2_env"],
         lineage_file = config["lineage_file"],
-	gid_taxaid_file = config["gid_taxaid_file"],
-	output_base = "AssignTaxa/final_contigs_c10K_gt1000_nr"
+        gid_taxaid_file = config["gid_taxaid_file"],
+        output_base = "AssignTaxa/final_contigs_c10K_gt1000_nr"
     shell:
-        """python2 {params.desman_dir}/scripts/ClassifyContigNR.py {input.diamond_result} {input.gene_len} -o {params.output_base} -l {params.lineage_file} -g {params.gid_taxaid_file}"""
+        """set +u; source activate {params.desman_python2_env}; set -u;
+           python {params.desman_dir}/scripts/ClassifyContigNR.py {input.diamond_result} {input.gene_len} -o {params.output_base} -l {params.lineage_file} -g {params.gid_taxaid_file}"""
