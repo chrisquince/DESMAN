@@ -238,3 +238,36 @@ rule classify_contig_nr:
     shell:
         """set +u; source activate {params.desman_python2_env}; set -u;
            python {params.desman_dir}/scripts/ClassifyContigNR.py {input.diamond_result} {input.gene_len} -o {params.output_base} -l {params.lineage_file} -g {params.gid_taxaid_file}"""
+
+rule filter_assignment:
+    input:
+        "AssignTaxa/final_contigs_c10K_gt1000_nr_contigs.csv"
+    output:
+        "AssignTaxa/final_contigs_c10K_gt1000_nr_species.csv"
+    params:
+        desman_dir = config["desman_dir"]
+    shell:
+        """{params.desman_dir}/scripts/Filter.pl 8 < {input} | grep -v "_6" | grep -v "None" > {output}"""
+
+rule confusion_matrix:
+    input:
+        clustering = "Concoct/Output/clustering_gt1000.csv",
+        tax_assign = "AssignTaxa/final_contigs_c10K_gt1000_nr_species.csv",
+        fasta = "Contigs/final_contigs_c10K.fa"
+    output:
+        "Validation/taxassign_conf.csv"
+    params:
+        concoct_dir = config["concoct_dir"]
+    shell:
+        """{params.concoct_dir}/scripts/Validate.pl --cfile={input.clustering} --sfile={input.tax_assign} --ffile={input.fasta} --ofile {output}""" 
+
+rule confusion_matrix_plot:
+    input:
+        "Validation/taxassign_conf.csv"
+    output:
+        "Validation/taxassign_conf.pdf"
+    params:
+        concoct_dir = config["concoct_dir"]
+    shell:
+        """{params.concoct_dir}/scripts/ConfPlot.R -c {input} -o {output}""" 
+
