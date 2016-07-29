@@ -271,3 +271,91 @@ rule confusion_matrix_plot:
     shell:
         """{params.concoct_dir}/scripts/ConfPlot.R -c {input} -o {output}""" 
 
+####
+## Locate core genes
+####
+
+# Assuming the clusters have been extracted, the chosen ones concatenated together
+
+rule rpsblast_run:
+    """
+    Uses GNU Parallel to run query sequence against given database with given
+    rpsblast parameters.
+    """
+    input:
+        aa = "Genes/{concat_cluster}.faa"
+    output:
+        rps_out="Annotation/{concat_cluster}.rpsblast.out"
+    params:
+        db= config["rpsblast_COG_db"],
+        rpsblast_params="-outfmt '6 qseqid sseqid evalue pident score qstart qend sstart send length slen' -max_target_seqs 1 -evalue 0.00001"
+    threads: config["rpsblast_threads"]
+    shell:
+        """
+        cat {input.aa} | \
+        parallel -N {threads} \
+            --pipe -k --block 100k --recstart '>' --no-notice rpsblast "{params.rpsblast_params}" -query - -db {params.db} \
+        > {output.rps_out}
+        """
+
+rule extract_cogs:
+    input:
+        gff = "Genes/{concat_cluster}.gff",
+        rpsblast = "Annotation/{concat_cluster}.rpsblast.out"
+    output:
+        "Genes/{concat_cluster}.cogs"
+    params:
+        desman_dir = config["desman_dir"],
+        desman_python2_env = config["desman_python2_env"],
+        concoct_dir = config["concoct_dir"]
+    shell:
+        """set +u; source activate {params.desman_python2_env}; set -u;
+           {params.desman_dir}/scripts/ExtractCogs.py -g {input.gff} -b {input.rpsblast} --cdd_cog_file {params.concoct_dir}/scgs/cdd_to_cog.tsv > {output}"""
+
+rule select_contigs_pos:
+    input:
+        "Genes/{concat_cluster}.cogs"
+    output:
+        "Genes/{concat_cluster}_core.cogs"
+    params:
+        desman_dir = config["desman_dir"]
+    shell:
+        """{params.desman_dir}/scripts/SelectContigsPos.pl {params.desman_dir}/complete_example/EColi_core_ident95.txt < {input} > {output}"""
+
+rule reformat_core_cogs:
+    input:
+        "Genes/{concat_cluster}_core.cogs"
+    output:
+        "Genes/{concat_cluster}_core_cogs.tsv"
+    shell:
+        """cut -d',' -f2,3,4 {input} | tr ',' '\t' > {output}"""
+
+####
+## Determine variants on core COGs
+####
+
+rule bam_readcount:
+    input:
+        core_gene_loc = "Genes/{concat_cluster}_core_cogs.tsv",
+        fasta = "Contigs/final_contigs_c10K.fa",
+        bam_file = "Map/{sample}.sorted.bam"
+    output:
+        log = "Counts/{concat_cluster}/{sample}.log",
+        counts = "Counts/{concat_cluster}/{sample}.cnt" 
+    shell:
+        "bam-readcount -q 20 -l {input.core_gene_loc} -f {input.fasta} {input.bam_file} 2> {output.log} > {output.counts}"
+
+rule collate_counts:
+    input:
+        all_counts = lambda wildcards: expand("Counts/{concat_cluster}/{sample}.cnt",
+                concat_cluster=wildcards.concat_cluster,
+                sample=config["R1_reads_per_sample"]),
+        core_cogs = "Genes/{concat_cluster}_core_cogs.tsv"
+    output:
+        "Variants/{concat_cluster}_core_cogs.freq"
+    params:
+        input_dir = lambda wildcards: "Counts/{}".format(wildcards.concat_cluster),
+        desman_dir = config["desman_dir"]
+    shell:
+        """{params.desman_dir}/scripts/ExtractCountFreqP.pl {input.core_cogs} {params.input_dir} 0 > {output}"""
+

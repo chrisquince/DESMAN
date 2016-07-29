@@ -75,6 +75,7 @@ Obviously replacing myinstalldir as appropriate and adding this to your .bash_pr
 
 ##Simple example using Snakemake
 
+###Setup
 ```
     source activate desman_snakemake
     conda install snakemake
@@ -84,15 +85,6 @@ Obviously replacing myinstalldir as appropriate and adding this to your .bash_pr
     wget https://www.dropbox.com/s/l6g3culvibym8g7/Example.tar.gz
     tar -xvzf Example.tar.gz
     cd ..
-    snakemake --list-target-rules
-```
-
-This will show a list of possible 'rules' to execute with snakemake.
-
-To show what rules will be executed when running the whole example, run:
-
-```
-    snakemake --dryrun classify_contig_nr
 ```
 
 Make sure you edit the 'config.json' file to suit your system:
@@ -101,9 +93,32 @@ Make sure you edit the 'config.json' file to suit your system:
     less config.json
 ```
 
-And to execute it run:
+To show what rules will be executed in order to create a certain file, run:
 
 ```
-    snakemake --cores 16 classify_contig_nr --resources memory=128000000000
+    snakemake --dryrun Concoct/Output/clustering_gt1000.csv
+```
+
+### Run up to CONCOCT confusion matrix plot
+
+In this step, we'll assemble the reads, run concoct including all the preprocessing of the data and taxonomically assign the contigs.
+
+```
+    snakemake --cores 16 confusion_matrix_plot --resources memory=128000000000
+```
+
+### Extract clusters associated with E. Coli
+
+In this dataset there is several E. Coli strains present, which CONCOCT is not able to resolve properly.
+So we'll use the taxonomic assignment of the contigs to select clusters to use as input for DESMAN. 
+
+Adapt these commands to the clusters that you see are associated with E. Coli in your taxassign_conf.pdf.
+ 
+```
+    mkdir Split
+    cd Split
+    $DESMAN/scripts/SplitClusters.pl ../contigs/final_contigs_c10K.fa ../Concoct/clustering_gt1000.csv
+    cat Cluster14/Cluster14.fa Cluster3/Cluster3.fa Cluster5/Cluster5.fa Cluster19/Cluster19.fa > ../Contigs/ClusterEC.fa 
+    cd ..
 ```
 

@@ -10,5 +10,7 @@
     "diamond_nr_db": "/sw/data/uppnex/diamond_databases/Blast/latest/nr.dmnd",
     "diamond_threads": 16,
     "lineage_file": "data/all_taxa_lineage_notnone.tsv",
-    "gid_taxaid_file": "data/gi_taxid_prot.dmp"
+    "gid_taxaid_file": "data/gi_taxid_prot.dmp",
+    "rpsblast_COG_db": "/proj/b2010008/nobackup/database/Cog_uppnex/Cog",
+    "rpsblast_threads": 16
 }
