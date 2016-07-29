@@ -222,10 +222,13 @@ class Variant_Filter():
 
         self.NS = self.V
         self.genes = [i for (i, v) in zip(self.genes, select) if v]
-        self.selected = np.ones((self.V), dtype=bool)    
-        self.selected_indices  = list(np.where(self.selected))
-        self.selected_indices = self.selected_indices[0].tolist()
-        self.position = self.position[self.selected]
+        self.selected = np.ones((self.V), dtype=bool)
+            
+        self.selected_indices  = range(1,self.V)
+        #list(np.where(select))
+        #self.selected_indices = self.selected_indices[0].tolist()
+        
+        self.position = self.position[select]
     
     def selected_variants_todf(self,variants):
 
