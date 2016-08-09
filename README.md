@@ -2,6 +2,14 @@
 
 ![alt tag](desmans.jpg)
 
+## Table of Contents  
+[Installation](#installation)  
+
+[Taxonomic profiling](#simple_example)  
+
+[Complete example](#complete_example)  
+
+<a name="installation"/>
 ##Installation
 
 To install simply type:
@@ -34,6 +42,7 @@ export PATH=$HOME/myinstalldir/DESMAN/scripts:$PATH
 
 Obviously replacing myinstalldir as appropriate and adding this to your .bash_profile file.
 
+<a name="simple_example"/>
 ##Simple example
 
 To illustrate the actual strain inference algorithm we will start with a simple example using base frequencies 
@@ -120,9 +129,19 @@ where 1 indicates the base present in that haplotype at that position.
 
 7. fit.txt: Statistics evaluating fit as number of haplotypes, number of non-degenerate haplotypes inferred, log-Likelihood, Aikake information criterion
 
-#Complete example of _de novo_ strain level analysis from metagenome data#
 <a name="complete_example"></a>
+#Complete example of _de novo_ strain level analysis from metagenome data#
 
+## Table of Contents  
+[Getting started](#getting_started)  
+
+[Read assembly, mapping and binning](#assembly)   
+
+[Contig genome assignments](#genome_assignment)  
+
+[Contig taxonomic assignments](#taxa_assignment)
+
+<a name="getting_started"></a>
 ##Getting started##
 
 To provide an in depth illustration of how to use Deman we will give a complete worked example from a subset of the synthetic community 
@@ -153,22 +172,24 @@ We also assume that you have some standard and not so standard sequence analysis
 Click the link associated with each application for installation details. To begin obtain the reads from Dropbox:
 
 ```bash
-wget https://www.dropbox.com/s/l6g3culvibym8g7/Example.tar.gz?dl=0
+wget https://www.dropbox.com/s/l6g3culvibym8g7/Example.tar.gz
 ```
 
-Untar and unzip the example directory and move into it:
+Rename, untar and unzip the example directory and move into it:
 
 ```bash
 tar -xvzf Example.tar.gz
 cd Example
 ```
-
+<a name="assembly"></a>
 ##Read assembly, mapping and binning##
 
 Then assemble the reads. We recommend megahit for this:
 ```bash
 nohup megahit -1 $(<R1.csv) -2 $(<R2.csv) -t 36 -o Assembly --presets meta > megahit.out&
 ```
+This will take a while so we have set megahit running on 36 threads (adjust to your system) and 
+run in background with nohup.
 
 We will now perform CONCOCT binning of these contigs. As explained in [Alneberg et al.](http://www.nature.com/nmeth/journal/v11/n11/full/nmeth.3103.html) 
 there are good reasons to cut up contigs prior to binning. We will use a script from CONCOCT to do this. For convenience we 
@@ -261,16 +282,72 @@ concoct --coverage_file Coverage.tsv --composition_file ../contigs/final_contigs
 cd ..
 ```
 
+<a name="genome_assignment"></a>
+##Contig genome assignemnts##
+
 In this case we know which contig derives from which of the 20 genomes and so we can compare the assignment of 
-contigs to clusters with those genome assignments 
+contigs to clusters with those genome assignments. To get the genome assignments we first need the 
+strain genomes:
+
+```
+wget https://www.dropbox.com/s/9ozp0vvk9kg2jf0/Mock1_20genomes.fasta
+mkdir AssignGenome
+mv Mock1_20genomes.fasta AssignGenome/Mock1_20genomes.fasta
+```
+
+We need to index our bam files:
+```
+for file in Map/*mapped.sorted.bam
+do
+    stub=${file%.bam}
+    stub2=${stub#Map\/}
+    echo $stub	
+    samtools index $file
+done
+```
+
+Then we run a script that extracts the mock genome ids out of the fastq ids of the simulated reads:
+```
+cd AssignGenome
+python $DESMAN/scripts/contig_read_count_per_genome.py final_contigs_c10K.fa Mock1_20genomes.fasta ../Map/*mapped.sorted.bam > final_contigs_c10K_genome_count.tsv
+cd ..
+``` 
+This file contains counts of unambiguous and ambiguous reads mapping to each of the genomes for each of the 
+contigs. We simplify the genome names and filter these counts:
+
+```
+$DESMAN/scripts/MapGHeader.pl $DESMAN/complete_example/Map.txt < AssignGenome/final_contigs_c10K_genome_count.tsv > AssignGenome/final_contigs_c10K_genome_countR.tsv
+```
+
+Then we get assignments of each contig to each genome:
+```
+$DESMAN/scripts/LabelSMap.pl Concoct/clustering_gt1000.csv AssignGenome/final_contigs_c10K_genome_countR.tsv > AssignGenome/clustering_gt1000_smap.csv
+```
+
+This enables to compare the CONCOCT clusterings with these assignments:
+```
+$CONCOCT/scripts/Validate.pl --cfile=Concoct/clustering_gt1000.csv --sfile=AssignGenome/clustering_gt1000_smap.csv --ffile=contigs/final_contigs_c10K.fa 
+```
+This should generate output similar too:
+
+```
+N	M	TL	S	K	Rec.	Prec.	NMI	Rand	AdjRand
+9159	9159	5.8184e+07	20	25	0.992137	0.985011	0.988406	0.998467	0.986681
+```
+
+We can also plot the resulting confusion matrix:
+```
+$CONCOCT/scripts/ConfPlot.R -c Conf.csv -o Conf.pdf
+```
 
 ![CONCOCT clusters](complete_example/Conf.pdf)
 
-From this it is apparent that four clusters: D5,D10,D11,D22 and D23 represent the *E. coli* pangenome. In general, 
+From this it is apparent that four clusters: D1, D20, D22, and D23 represent the *E. coli* pangenome. In general, 
 it will not be known *a priori* from which taxa a cluster derives and so not possible to link them in this way.
 However, in many analyses the pangenome will be contained in a single cluster or a contig taxonomic classifier 
 could be used to determine clusters deriving from the same species. We illustrate how to do this below.
 
+<a name="taxa_assignment"></a>
 ##Taxonomic classification of contigs
 
 There are many ways to taxonomically classify assembled sequence. We suggest a gene based approach. The first step is 
@@ -281,10 +358,20 @@ With environment variable NR_DMD set as appropriate:
 export NR_DMD=$HOME/native/Databases/nr/FASTA/nr.dmnd
 ```
 
+Then we begin by calling genes on all contigs greater than 1000bp in length.
+```
+mkdir Annotate_gt1000
+cd Annotate_gt1000
+python $DESMAN/scripts/LengthFilter.py -m 1000 ../contigs/final_contigs_c10K.fa > final_contigs_gt1000_c10K.fa
+prodigal -i final_contigs_gt1000_c10K.fa -a final_contigs_gt1000_c10K.faa -d final_contigs_gt1000_c10K.fna  -f gff -p meta -o final_contigs_gt1000_c10K.gff
+cd ..
+```
+
 ```
 mkdir AssignTaxa
 cd AssignTaxa
-nohup diamond blastp -p 32 -d  -q final_contigs_gt1000_c10K.faa -a final_contigs_gt1000_c10K > d.out
+cp ../Annotate_gt1000/final_contigs_gt1000_c10K.faa .
+diamond blastp -p 32 -d $NR_DMD -q final_contigs_gt1000_c10K.faa -a final_contigs_gt1000_c10K > d.out
 diamond view -a final_contigs_gt1000_c10K.daa -o final_contigs_gt1000_c10K_nr.m8
 ```
 
@@ -296,8 +383,8 @@ To classify the contigs we need two files a gid to taxid mapping file and a mapp
 
 These can also be downloaded from the Dropbox:
 ``` 
-wget https://www.dropbox.com/s/x4s50f813ok4tqt/gi_taxid_prot.dmp.gz?dl=0
-wget https://www.dropbox.com/s/honc1j5g7wli3zv/all_taxa_lineage_notnone.tsv.gz?dl=0
+wget https://www.dropbox.com/s/x4s50f813ok4tqt/gi_taxid_prot.dmp.gz
+wget https://www.dropbox.com/s/honc1j5g7wli3zv/all_taxa_lineage_notnone.tsv.gz
 ```
 
 The path to these files are hard coded in the ClassifyContigNR.py script as the variables:
@@ -307,11 +394,10 @@ DEF_DMP_FILE = "/home/chris/native/Databases/nr/FASTA/gi_taxid_prot.dmp"
 DEF_LINE_FILE = "/home/chris/native/Databases/nr/FASTA/all_taxa_lineage_notnone.tsv"
 ```
 
-Those need to be changed to the location of the files on your system.
-
+Those need to be changed to the location of the files on your system. Or those locations passed as arguments (perhaps easier).
 Then we can assign the contigs and genes called on them:
 ```
-python $DESMAN/scripts/ClassifyContigNR.py final_contigs_gt1000_c10K_nr.m8 final_contigs_gt1000_c10K.len -o final_contigs_gt1000_c10K_nr
+python $DESMAN/scripts/ClassifyContigNR.py final_contigs_gt1000_c10K_nr.m8 final_contigs_gt1000_c10K.len -o final_contigs_gt1000_c10K_nr -l /mypath/all_taxa_lineage_notnone.tsv -g /mypath/gi_taxid_prot.dmp
 ```
 
 Then we extract species out:
@@ -321,37 +407,40 @@ $DESMAN/scripts/Filter.pl 8 < final_contigs_gt1000_c10K_nr_contigs.csv | grep -v
 
 These can then be used for the cluster confusion plot:
 ```
-$CONCOCT/scripts/Validate.pl --cfile=../Concoct/clustering_gt1000.csv --sfile=final_contigs_gt1000_c10K_nr_species.csv --ffile=../contigs/final_contigs_c10K.fa
+$CONCOCT/scripts/Validate.pl --cfile=../Concoct/clustering_gt1000.csv --sfile=final_contigs_gt1000_c10K_nr_species.csv --ffile=../contigs/final_contigs_c10K.fa --ofile=Taxa_Conf.csv
 ```
 
 and to plot the out Conf.csv which contains species proportions in each cluster:
 ```
-$CONCOCT/scripts/ConfPlot.R -c Conf.csv -o Conf.pdf 
+$CONCOCT/scripts/ConfPlot.R -c Taxa_Conf.csv -o Taxa_Conf.pdf 
 ```
 
-![CONCOCT clusters against taxa](complete_example/Conf_NR.pdf)
+![CONCOCT clusters against taxa](complete_example/Taxa_Conf.pdf)
 
-This confirms from a *de novo* approach that D5,D10,D11,D22 and D23 represent the *E. coli* pangenome.
+This confirms from a *de novo* approach that D1, D20, D22, and D23 represent the *E. coli* pangenome.
 
 ##Identifying *E. coli* core genes
 
 We now determine core genes single copy genes within these four clusters through annotation to COGs. First lets split the contigs 
-by their cluster and concatenate togethers those from D5, D10, D11, D22 and D23 into one file ClusterEC.fa. Go back to 
+by their cluster and concatenate togethers those from D1, D20, D22, and D23 into one file ClusterEC.fa. If your clustering 
+gave different bins associated with *E. coli* then change the files selected below as appropriate:
+
+Go back to 
 the top level example directory and then:
 
 ```bash
 mkdir Split
 cd Split
 $DESMAN/scripts/SplitClusters.pl ../contigs/final_contigs_c10K.fa ../Concoct/clustering_gt1000.csv
-cat Cluster5/Cluster5.fa Cluster10/Cluster10.fa Cluster11/Cluster11.fa Cluster22/Cluster22.fa > ClusterEC.fa
+cat Cluster1/Cluster1.fa Cluster20/Cluster20.fa Cluster22/Cluster22.fa Cluster23/Cluster23.fa > ClusterEC.fa
 cd ..
 ```
 
 Now call genes on the *E. coli* contigs.
 
 ```bash
-mkdir Annotate
-cd Annotate
+mkdir AnnotateEC
+cd AnnotateEC
 cp ../Split/ClusterEC.fa .
 prodigal -i ClusterEC.fa -a ClusterEC.faa -d ClusterEC.fna  -f gff -p meta -o ClusterEC.gff
 ```
