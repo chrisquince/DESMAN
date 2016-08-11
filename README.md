@@ -141,6 +141,16 @@ where 1 indicates the base present in that haplotype at that position.
 
 [Contig taxonomic assignments](#taxa_assignment)
 
+[Determine core genes](#core_genes)
+
+[Determine variants](#determine_variants)
+
+[Infer strains](#infer_strains)
+
+[Validate strains](#validate_strains)
+
+[Assign accessory genomes](#assign_acessory)
+
 <a name="getting_started"></a>
 ##Getting started##
 
@@ -419,6 +429,7 @@ $CONCOCT/scripts/ConfPlot.R -c Taxa_Conf.csv -o Taxa_Conf.pdf
 
 This confirms from a *de novo* approach that D1, D20, D22, and D23 represent the *E. coli* pangenome.
 
+<a name="core_genes"></a>
 ##Identifying *E. coli* core genes
 
 We now determine core genes single copy genes within these four clusters through annotation to COGs. First lets split the contigs 
@@ -468,6 +479,7 @@ Now we just reformat the location of core cogs on contigs:
 cut -d"," -f2,3,4 ClusterEC_core.cogs | tr "," "\t" > ClusterEC_core_cogs.tsv
 ```
 
+<a name="determine_variants"></a>
 ##Determine variants on core COGs
 
 To input into bam-readcount:
@@ -490,16 +502,17 @@ do
 	stub=${file%.mapped.sorted.bam}
 	stub=${stub#Map\/}
 	echo $stub
-	(bam-readcount -q 20 -l Annotate/ClusterEC_core_cogs.tsv -f contigs/final_contigs_c10K.fa $file 2> Counts/${stub}.err > Counts/${stub}.cnt)&
+	(bam-readcount -q 20 -l AnnotateEC/ClusterEC_core_cogs.tsv -f contigs/final_contigs_c10K.fa $file 2> Counts/${stub}.err > Counts/${stub}.cnt)&
 done
 ```
 
 Next we collate the positions frequencies into a single file for Desman, here we use all genes regardless of length:
 
 ```bash
-$DESMAN/scripts/ExtractCountFreqP.pl Annotate/ClusterEC_core.cogs Counts 0 > Cluster_esc3_scgs.freq
+$DESMAN/scripts/ExtractCountFreqP.pl AnnotateEC/ClusterEC_core.cogs Counts 0 > Cluster_esc3_scgs.freq
 ```
 
+<a name="infer_strains"></a>
 ##Infer strains with Desman
 
 Now lets use Desman to find the variant positions on these core cogs:
@@ -543,6 +556,7 @@ From this it is clear that five strains are present.
 python ../DESMAN/scripts/taucomp.py RunDesman/ClusterEC_5_0/Gamma_star.csv RunDesman/ClusterEC_5_*/Collated_Tau_star.csv 
 ```
 
+<a name="validate_strains"></a>
 ##Validation of strains
 
 ```
@@ -561,7 +575,7 @@ $DESMAN/Select.sh
 $DESMAN/ReverseStrand.pl ../Annotate/ClusterEC_core.cogs
 ```
 
-
+<a name="assign_acessory"></a>
 
 ##Determine accessory genomes
 
