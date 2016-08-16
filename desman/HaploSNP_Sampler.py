@@ -389,10 +389,10 @@ class HaploSNP_Sampler():
         self.tau_store[iter,]=np.copy(self.tau)
         self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
         while (iter < self.max_iter):
-            nchange = sampletau.sample_tau(self.tau, self.gamma_star, self.eta_star, self.variants)        
+            nchange = sampletau.sample_tau(self.tau, self.gamma_store[iter,:], self.eta_store[iter,:], self.variants)        
             #nchange = self.sampleTau(self.gamma_star,self.eta_star)
-            self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
-            self.lp = self.logPosterior(self.gamma_star,self.tau,self.eta_star)
+            self.ll = self.logLikelihood(self.gamma_store[iter,:],self.tau,self.eta_store[iter,:])
+            self.lp = self.logPosterior(self.gamma_store[iter,:],self.tau,self.eta_store[iter,:])
             if (self.lp > self.lp_star):
                 self.tau_star = np.copy(self.tau)
                 self.lp_star = self.lp
