@@ -398,7 +398,7 @@ class HaploSNP_Sampler():
                 self.lp_star = self.lp
             
             self.tau_store[iter,]=np.copy(self.tau)
-            
+            self.ll_store[iter]=self.ll
             if (iter % 10 == 0):    
                 logging.info('Gibbs Iter %d, no. changed = %d, nll = %f'%(iter,nchange,self.lp))
 
