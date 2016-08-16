@@ -77,6 +77,16 @@ class Output_Results():
 
         logging.info("Wrote fit stats") 
         
+    def outPredFit(self,haplo_SNP):
+                
+        meanDev = haplo_SNP.meanDeviance()
+        
+        fitFile = self.outputDir+"/fitP.txt"
+        with open(fitFile, "w") as text_file:
+            text_file.write("Fit,%d,%f,%f\n"%(haplo_SNP.G,haplo_SNP.lp_star, meanDev))
+
+        logging.info("Wrote pred fit stats") 
+        
     def output_Filtered_Tau(self,tau):
         tau_res = np.reshape(tau,(self.haplo_SNP.V,self.haplo_SNP.G*4))
         tau_df = p.DataFrame(tau_res,index=self.filtered_contig_names)
