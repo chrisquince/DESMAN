@@ -367,12 +367,14 @@ class HaploSNP_Sampler():
     def burnTau(self):
         iter = 0
         self.lp = self.logPosterior(self.gamma_star,self.tau,self.eta_star)
+        self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
         
         while (iter < self.burn_iter):
             nchange = self.sampleTau()
             
-            self.lp = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
-               
+            self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
+            self.lp = self.logPosterior(self.gamma_star,self.tau,self.eta_star)
+            
             print str(iter) + "," + str(nchange) + "," + str(self.lp)
             sys.stdout.flush()
             iter = iter + 1
@@ -385,11 +387,11 @@ class HaploSNP_Sampler():
         
         self.lp_star = self.lp
         self.tau_store[iter,]=np.copy(self.tau)
-        
+        self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
         while (iter < self.max_iter):
             nchange = sampletau.sample_tau(self.tau, self.gamma_star, self.eta_star, self.variants)        
             #nchange = self.sampleTau(self.gamma_star,self.eta_star)
-            
+            self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
             self.lp = self.logPosterior(self.gamma_star,self.tau,self.eta_star)
             if (self.lp > self.lp_star):
                 self.tau_star = np.copy(self.tau)
