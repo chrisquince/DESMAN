@@ -206,8 +206,9 @@ def main(argv):
         haplo_SNP_NS.updateTau()
         logging.info('Start Gibbs sampler sampling phase')
         haplo_SNP_NS.updateTau()
-
+        output_Results.outPredFit(haplo_SNP_NS)
         output_Results.output_collated_Tau(haplo_SNP_NS,variants)
+        
     #assign if assignment file given
     if(assign_file != None):
         assigns    = p.read_csv(assign_file, header=0, index_col=0)    
