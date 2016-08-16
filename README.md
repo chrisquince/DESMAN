@@ -619,14 +619,17 @@ aggregated count files:
 python $DESMAN/scripts/CalcGeneCov.py Cluster_esc3.freq > Cluster_esc3_gene_cov.csv
 ```
 
+Get list of core COGs:
 ```
 cut -d"," -f5 ../Annotate/ClusterEC_core.cogs > ClusterEC_core_genes.txt
 ```
 
+Calculate coverage on core genes:
 ```
 python $DESMAN/scripts/CalcDelta.py Cluster_esc3_gene_cov.csv ClusterEC_core_genes.txt ClusterEC_core
 ```
 
+Select run with lowest MAP:
 ```
 export SEL_RUN=$DESMAN_EXAMPLE/RunDesman/ClusterEC_5_1/
 ```
