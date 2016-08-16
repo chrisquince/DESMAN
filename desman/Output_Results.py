@@ -63,17 +63,17 @@ class Output_Results():
     def set_haplo_SNP(self,haplo_SNP,genomes):
         self.haplo_SNP = haplo_SNP
         
-        logLL = haplo_SNP.logLikelihood(haplo_SNP.gamma,haplo_SNP.tau,haplo_SNP.eta)
+        #logLL = haplo_SNP.logLikelihood(haplo_SNP.gamma,haplo_SNP.tau,haplo_SNP.eta)
         
-        AIC = 2.0*haplo_SNP.calcK() - 2.0*logLL
+        #AIC = 2.0*haplo_SNP.calcK() - 2.0*logLL
         
-        DIC = haplo_SNP.DIC()
+        #DIC = haplo_SNP.DIC()
         
         meanDev = haplo_SNP.meanDeviance()
         
         fitFile = self.outputDir+"/fit.txt"
         with open(fitFile, "w") as text_file:
-            text_file.write("Fit,%d,%d,%f,%f,%f,%f,%f\n"%(genomes,haplo_SNP.G,haplo_SNP.lp_star,logLL,AIC,meanDev,DIC))
+            text_file.write("Fit,%d,%d,%f,%f\n"%(genomes,haplo_SNP.G,haplo_SNP.lp_star, meanDev))
 
         logging.info("Wrote fit stats") 
         
@@ -97,7 +97,7 @@ class Output_Results():
         cols = tau_df.columns.tolist()
         cols = cols[-1:] + cols[:-1]
         tau_df = tau_df[cols]
-        tau_df.to_csv(self.outputDir+"/Mean_Tau.csv")
+        tau_df.to_csv(self.outputDir+"/Tau_Mean.csv")
         logging.info("Wrote probabilistic tau haplotype predictions")
     
     def output_collated_Tau(self,haplo_SNP_NS,full_variants):
@@ -147,7 +147,7 @@ class Output_Results():
         cols = collate_ptau_df.columns.tolist()
         cols = cols[-1:] + cols[:-1]
         collate_ptau_df = collate_ptau_df[cols]
-        collate_ptau_df.to_csv(self.outputDir+"/Collated_Mean_Tau_star.csv")
+        collate_ptau_df.to_csv(self.outputDir+"/Collated_Tau_Mean.csv")
         logging.info("Wrote all probabilistic tau haplotype predictions")    
     
     def output_Gamma_Mean(self,gamma):
