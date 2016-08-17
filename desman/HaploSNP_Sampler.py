@@ -383,11 +383,11 @@ class HaploSNP_Sampler():
     def updateTau(self): #perform max_iter Gibbs updates
         
         iter = 0
-        self.lp = self.logPosterior(self.gamma_star,self.tau,self.eta_star)
-        
+        self.lp = self.logPosterior(self.gamma_store[0,:],self.tau,self.eta_store[0,:])
         self.lp_star = self.lp
+        self.tau_star = np.copy(self.tau)
         self.tau_store[iter,]=np.copy(self.tau)
-        self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
+        
         while (iter < self.max_iter):
             nchange = sampletau.sample_tau(self.tau, self.gamma_store[iter,:], self.eta_store[iter,:], self.variants)        
             #nchange = self.sampleTau(self.gamma_star,self.eta_star)
