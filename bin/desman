@@ -201,7 +201,9 @@ def main(argv):
         haplo_SNP_NS.updateTauIndices()
         haplo_SNP_NS.gamma_star = np.copy(haplo_SNP.gammaMean(),order='C')
         haplo_SNP_NS.eta_star = np.copy(haplo_SNP.etaMean(),order='C')  
-           
+        haplo_SNP_NS.gamma_store = np.copy(haplo_SNP.gamma_store,order='C')
+        haplo_SNP_NS.eta_store = np.copy(haplo_SNP.eta_store,order='C')  
+        
         logging.info('Start Gibbs sampler burn-in phase')
         haplo_SNP_NS.updateTau()
         logging.info('Start Gibbs sampler sampling phase')
