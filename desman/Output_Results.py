@@ -157,7 +157,7 @@ class Output_Results():
         cols = collate_ptau_df.columns.tolist()
         cols = cols[-1:] + cols[:-1]
         collate_ptau_df = collate_ptau_df[cols]
-        collate_ptau_df.to_csv(self.outputDir+"/Collated_Tau_Mean.csv")
+        collate_ptau_df.to_csv(self.outputDir+"/Collated_Tau_mean.csv")
         logging.info("Wrote all probabilistic tau haplotype predictions")    
     
     def output_Gamma_Mean(self,gamma):
