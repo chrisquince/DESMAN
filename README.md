@@ -111,9 +111,13 @@ files inside the output directory:
 1. log_file.txt: This logs the progress of the program through the three stages: 
 NTF initialisation, 'burn-in' Gibbs sampler and the sampling itself. 
 
-2. Eta_star.csv: Prediction for error transition matrix (rows true bases, columns observed probabilities) 						
+2. Eta_star.csv: Prediction for error transition matrix (rows true bases, columns observed probabilities) taken 
+from sample with largest log posterior.
 
-3. Filtered_Tau_star.csv: Prediction for strain haplotypes. Each row of comma separated file contains:
+3. Eta_mean.csv: Prediction for error transition matrix (rows true bases, columns observed probabilities) as the posterior mean 
+calculated over all samples.						
+
+4. Filtered_Tau_star.csv: Prediction for strain haplotypes. Each row of comma separated file contains:
 
 ```
     gene name, position, haplotype1-A,  haplotype1-C,  haplotype1-G,  haplotype1-T,..., haplotypeG-A,  haplotypeG-C,  haplotypeG-G,  haplotypeG-T  
@@ -121,13 +125,21 @@ NTF initialisation, 'burn-in' Gibbs sampler and the sampling itself.
 
 where 1 indicates the base present in that haplotype at that position.
 
-4. Gamma_star.csv: This gives the relative frequency of each haplotye in each sample. One row for each sample.
+5. Tau_mean.csv: As above but the posterior mean. This can lead to non-discrete haplotypes. This 
+can be viewed as posterior probability of assignments. Prior to analysis results 
+should be discretised.
 
-5. Probabilistic_Tau.csv: Prediction for strain haplotypes but now an estimate of the poseterior probability of asignments.
+6. Gamma_star.csv: This gives the relative frequency of each haplotye in each sample using the sample with 
+largest log posterior. One row for each sample.
 
-6. Selected_variants.csv: Variants used for strain calling if filtering applied.
+7. Gamma_mean.csv: As above but posterior mean.
 
-7. fit.txt: Statistics evaluating fit as number of haplotypes, number of non-degenerate haplotypes inferred, log-Likelihood, Aikake information criterion
+8. Selected_variants.csv: Variants used for strain calling if filtering applied.
+
+9. fit.txt: Statistics evaluating fit as number of haplotypes, number of non-degenerate haplotypes inferred, mean posterior deviance (-2.0*Log likelihood)
+
+10. fitF.txt: Statistics evaluating fit of assigned haplotypes (not in random subsample) as number of haplotypes, number of non-degenerate haplotypes inferred, mean posterior deviance (-2.0*Log likelihood)
+
 
 <a name="complete_example"></a>
 #Complete example of _de novo_ strain level analysis from metagenome data#

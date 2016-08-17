@@ -262,6 +262,8 @@ def main(argv):
     
     etaSampler.update()
     
+    etaSampler.update()
+    
     #Now assign tau given eta_star
     contig_names = cov.index.tolist()
     
@@ -291,6 +293,9 @@ def main(argv):
 
     etaS_df = p.DataFrame(etaSampler.eta_star,index=contig_names)
     etaS_df.to_csv(output_stub+"etaS_df.csv")
+
+    etaM_df = p.DataFrame(np.mean(etaSampler.eta_store,index=0),index=contig_names)
+    etaM_df.to_csv(output_stub+"etaM_df.csv")
 
     eta_df = p.DataFrame(klassign.eta,index=contig_names)
     eta_df.to_csv(output_stub+"eta_df.csv")   
