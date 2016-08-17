@@ -77,13 +77,13 @@ class Output_Results():
 
         logging.info("Wrote fit stats") 
         
-    def outPredFit(self,haplo_SNP):
+    def outPredFit(self,haplo_SNP,genomes):
                 
         meanDev = haplo_SNP.meanDeviance()
         
         fitFile = self.outputDir+"/fitP.txt"
         with open(fitFile, "w") as text_file:
-            text_file.write("Fit,%d,%f,%f\n"%(haplo_SNP.G,haplo_SNP.lp_star, meanDev))
+            text_file.write("Fit,%d,%d,%f,%f\n"%(genomes,haplo_SNP.G,haplo_SNP.lp_star, meanDev))
 
         logging.info("Wrote pred fit stats") 
         
