@@ -136,9 +136,9 @@ largest log posterior. One row for each sample.
 
 8. Selected_variants.csv: Variants used for strain calling if filtering applied.
 
-9. fit.txt: Statistics evaluating fit as number of haplotypes, number of non-degenerate haplotypes inferred, mean posterior deviance (-2.0*Log likelihood)
+9. fit.txt: Statistics evaluating fit as number of haplotypes, number of non-degenerate haplotypes inferred, log maximum posterior probability, mean posterior deviance (-2.0*Log likelihood)
 
-10. fitF.txt: Statistics evaluating fit of assigned haplotypes (not in random subsample) as number of haplotypes, number of non-degenerate haplotypes inferred, mean posterior deviance (-2.0*Log likelihood)
+10. fitF.txt: Statistics evaluating fit of assigned haplotypes (not in random subsample) as number of haplotypes, number of non-degenerate haplotypes inferred, log maximum posterior probability, mean posterior deviance (-2.0*Log likelihood). Only generated if -r option used.
 
 
 <a name="complete_example"></a>
@@ -354,9 +354,10 @@ This should generate output similar too:
 
 ```
 N	M	TL	S	K	Rec.	Prec.	NMI	Rand	AdjRand
-9159	9159	5.8184e+07	20	25	0.992137	0.985011	0.988406	0.998467	0.986681
+9159	9159	5.8184e+07	20	25	0.986561	0.992898	0.988337	0.998623	0.988009
 ```
 
+The exact results may vary but the overall accuracy should be similar.
 We can also plot the resulting confusion matrix:
 ```
 $CONCOCT/scripts/ConfPlot.R -c Conf.csv -o Conf.pdf
@@ -364,10 +365,12 @@ $CONCOCT/scripts/ConfPlot.R -c Conf.csv -o Conf.pdf
 
 ![CONCOCT clusters](complete_example/Conf.pdf)
 
-From this it is apparent that four clusters: D1, D20, D22, and D23 represent the *E. coli* pangenome. In general, 
+From this it is apparent that four clusters: D1, D9, D15, and D18 represent the *E. coli* pangenome. In general, 
 it will not be known *a priori* from which taxa a cluster derives and so not possible to link them in this way.
 However, in many analyses the pangenome will be contained in a single cluster or a contig taxonomic classifier 
 could be used to determine clusters deriving from the same species. We illustrate how to do this below.
+In your particular run these assignments may vary and the code below must be **changed** accordingly.
+
 
 <a name="taxa_assignment"></a>
 ##Taxonomic classification of contigs
