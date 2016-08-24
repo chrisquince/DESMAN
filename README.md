@@ -419,7 +419,6 @@ DEF_DMP_FILE = "/home/chris/native/Databases/nr/FASTA/gi_taxid_prot.dmp"
 DEF_LINE_FILE = "/home/chris/native/Databases/nr/FASTA/all_taxa_lineage_notnone.tsv"
 ```
 
-Those need to be changed to the location of the files on your system after gunzipping. Or those locations passed as arguments (perhaps easier).
 We calculate the gene length in amino acids before running this.
 Then we can assign the contigs and genes called on them:
 ```
