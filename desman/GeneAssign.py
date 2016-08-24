@@ -188,7 +188,7 @@ def main(argv):
     parser.set_defaults(assign_tau=False)
     args = parser.parse_args()
 
-    import ipdb; ipdb.set_trace()
+    #import ipdb; ipdb.set_trace()
 
     output_stub = args.output_stub
     
