@@ -365,7 +365,7 @@ $CONCOCT/scripts/ConfPlot.R -c Conf.csv -o Conf.pdf
 
 ![CONCOCT clusters](complete_example/Conf.pdf)
 
-From this it is apparent that four clusters: D1, D9, D15, and D18 represent the *E. coli* pangenome. In general, 
+From this it is apparent that five clusters: D1, D9, D11, D15, and D18 represent the *E. coli* pangenome. In general, 
 it will not be known *a priori* from which taxa a cluster derives and so not possible to link them in this way.
 However, in many analyses the pangenome will be contained in a single cluster or a contig taxonomic classifier 
 could be used to determine clusters deriving from the same species. We illustrate how to do this below.
@@ -419,9 +419,11 @@ DEF_DMP_FILE = "/home/chris/native/Databases/nr/FASTA/gi_taxid_prot.dmp"
 DEF_LINE_FILE = "/home/chris/native/Databases/nr/FASTA/all_taxa_lineage_notnone.tsv"
 ```
 
-Those need to be changed to the location of the files on your system. Or those locations passed as arguments (perhaps easier).
+Those need to be changed to the location of the files on your system after gunzipping. Or those locations passed as arguments (perhaps easier).
+We calculate the gene length in amino acids before running this.
 Then we can assign the contigs and genes called on them:
 ```
+python $DESMAN/scripts/Lengths.py -i final_contigs_gt1000_c10K.faa > final_contigs_gt1000_c10K.len
 python $DESMAN/scripts/ClassifyContigNR.py final_contigs_gt1000_c10K_nr.m8 final_contigs_gt1000_c10K.len -o final_contigs_gt1000_c10K_nr -l /mypath/all_taxa_lineage_notnone.tsv -g /mypath/gi_taxid_prot.dmp
 ```
 
@@ -434,8 +436,13 @@ These can then be used for the cluster confusion plot:
 ```
 $CONCOCT/scripts/Validate.pl --cfile=../Concoct/clustering_gt1000.csv --sfile=final_contigs_gt1000_c10K_nr_species.csv --ffile=../contigs/final_contigs_c10K.fa --ofile=Taxa_Conf.csv
 ```
-
-and to plot the out Conf.csv which contains species proportions in each cluster:
+Now the results will be somewhat different...
+```
+N	M	TL	S	K	Rec.	Prec.	NMI	Rand	AdjRand
+9159	6926	4.8270e+07	56	25	0.940151	0.994404	0.969259	0.994666	0.955695
+```
+With a decrease in recall because the taxonomically classification is overestimating the diversity of organisms present.
+We then plot the out Conf.csv which contains species proportions in each cluster:
 ```
 $CONCOCT/scripts/ConfPlot.R -c Taxa_Conf.csv -o Taxa_Conf.pdf 
 ```
