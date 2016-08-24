@@ -449,7 +449,7 @@ $CONCOCT/scripts/ConfPlot.R -c Taxa_Conf.csv -o Taxa_Conf.pdf
 
 ![CONCOCT clusters against taxa](complete_example/Taxa_Conf.pdf)
 
-This confirms from a *de novo* approach that D1, D20, D22, and D23 represent the *E. coli* pangenome.
+This confirms from a *de novo* approach that D1, D9, D11, D15 and D18 represent the *E. coli* pangenome.
 
 <a name="core_genes"></a>
 ##Identifying *E. coli* core genes
@@ -465,7 +465,7 @@ the top level example directory and then:
 mkdir Split
 cd Split
 $DESMAN/scripts/SplitClusters.pl ../contigs/final_contigs_c10K.fa ../Concoct/clustering_gt1000.csv
-cat Cluster1/Cluster1.fa Cluster20/Cluster20.fa Cluster22/Cluster22.fa Cluster23/Cluster23.fa > ClusterEC.fa
+cat Cluster1/Cluster1.fa Cluster9/Cluster9.fa Cluster11/Cluster11.fa Cluster15/Cluster15.fa Cluster18/Cluster18.fa > ClusterEC.fa
 cd ..
 ```
 
