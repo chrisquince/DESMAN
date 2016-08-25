@@ -559,10 +559,10 @@ done
 cd ..
 ```
 
-First lets have a look at the log-likelihood as a function of strain number:
+First lets have a look at the mean posterior deviance as a function of strain number:
 ```bash
-cat */fit.txt | cut -d"," -f2- > LLike.csv
-sed -i '1iH,G,LL,AIC' LLike.csv 
+cat */fit.txt | cut -d"," -f2- > Dev.csv
+sed -i '1iH,G,LP,Dev' Dev.csv 
 ```
 
 which we can plot with a simple R script included in the Desman distribution:
