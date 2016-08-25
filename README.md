@@ -412,7 +412,7 @@ wget https://www.dropbox.com/s/x4s50f813ok4tqt/gi_taxid_prot.dmp.gz
 wget https://www.dropbox.com/s/honc1j5g7wli3zv/all_taxa_lineage_notnone.tsv.gz
 ```
 
-The path to these files are hard coded in the ClassifyContigNR.py script as the variables:
+The path to these files are default in the ClassifyContigNR.py script as the variables:
 ```
 DEF_DMP_FILE = "/home/chris/native/Databases/nr/FASTA/gi_taxid_prot.dmp"
 
