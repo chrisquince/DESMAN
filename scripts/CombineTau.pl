@@ -61,7 +61,7 @@ foreach my $sample(@store_ids){
 }
     
 my $gString = join(",",@sampleTags);
-print "Contig,Pos,$gString\n";
+print "Contig,Position,$gString\n";
 
 foreach my $cog (sort keys %hashCogVar){
     foreach my $pos(sort {$a <=> $b} keys %{$hashCogVar{$cog}}){
