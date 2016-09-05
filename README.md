@@ -567,9 +567,9 @@ sed -i '1iH,G,LP,Dev' Dev.csv
 which we can plot with a simple R script included in the Desman distribution:
 ```bash
 cd $DESMAN_EXAMPLE
-$DESMAN/scripts/PlotLL.R -l RunDesman/LLike.csv -o RunDesman/LLike.pdf
+$DESMAN/scripts/PlotDev.R -l RunDesman/Dev.csv -o RunDesman/Dev.pdf
 ```
-![Negative log-likelihood vs. strain number](complete_example/LLike.pdf)
+![Negative log-likelihood vs. strain number](complete_example/Dev.pdf)
 
 From this it is clear that five strains are present. 
 
