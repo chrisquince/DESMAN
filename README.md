@@ -591,13 +591,17 @@ wget https://www.dropbox.com/s/f6ojp1qt4fz5lzn/Hits.tar.gz
 tar -xvzf Hits.tar.gz
 ```
 
-We then select core COGs that were included in our analysis...
+We then select core COGs that were included in our analysis. We reverse those that are reversed on the 
+contigs so that positions match and 
+then find all variants mapping onto the 0,1 encoding employed in DESMAN.
 
 ```
 mkdir Select
-$DESMAN/Select.sh
-$DESMAN/ReverseStrand.pl ../Annotate/ClusterEC_core.cogs
+$DESMAN/scripts/Select.sh
+$DESMAN/scripts/ReverseStrand.pl ../AnnotateEC/ClusterEC_core.cogs
 ```
+
+
 
 <a name="assign_acessory"></a>
 
