@@ -599,9 +599,26 @@ then find all variants mapping onto the 0,1 encoding employed in DESMAN.
 mkdir Select
 $DESMAN/scripts/Select.sh
 $DESMAN/scripts/ReverseStrand.pl ../AnnotateEC/ClusterEC_core.cogs
+$DESMAN/scripts/TauFasta.pl
+$DESMAN/scripts/CombineTau.pl > ClusterEC_core_tau.csv
 ```
 
+We then compare these known assignments to those predicted by DESMAN:
+```
+python $DESMAN/scripts/validateSNP.py ../RunDesman/ClusterEC_5_0/Collated_Tau_mean.csv ClusterEC_core_tau.csv
+```
 
+The output should look like:
+```
+[[ 0.58724428  0.28880866  0.58935018  0.37184116  0.03610108]
+ [ 0.06257521  0.59596871  0.32190132  0.60830325  0.5631769 ]
+ [ 0.34115523  0.59055355  0.08092659  0.60469314  0.55054152]
+ [ 0.60409146  0.40222623  0.61101083  0.03188929  0.37304452]
+ [ 0.60108303  0.03820698  0.60018051  0.4076414   0.28399519]]
+```
+
+This gives for each (row) predicted haplotype (or posterior mean in fact) the fraction of SNPs differing to each 
+of the five reference genomes (columns). We see that each strain maps to one genome with an error rate between 3.2% and 8.1%. 
 
 <a name="assign_acessory"></a>
 
