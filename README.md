@@ -577,22 +577,21 @@ from five to six strains. However, one particular run with five strains is
 as good as the runs with six, we should prefer the run with best fit 
 for smallest strain number, so we shall use this.
 
-```
-python ../DESMAN/scripts/taucomp.py RunDesman/ClusterEC_5_0/Gamma_star.csv RunDesman/ClusterEC_5_*/Collated_Tau_star.csv 
-```
-
 <a name="validate_strains"></a>
 ##Validation of strains
+
+To validate the strain inference we will download pre-identified sequences for each of the 982 single copy core COGs 
+in the five known reference genomes. 
 
 ```
 cd $DESMAN_EXAMPLE
 mkdir Validate
 cd Validate
-wget ...
+wget https://www.dropbox.com/s/f6ojp1qt4fz5lzn/Hits.tar.gz
 tar -xvzf Hits.tar.gz
 ```
 
-Select core COGs that were included in our analysis...
+We then select core COGs that were included in our analysis...
 
 ```
 mkdir Select
