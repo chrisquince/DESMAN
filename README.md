@@ -569,9 +569,13 @@ which we can plot with a simple R script included in the Desman distribution:
 cd $DESMAN_EXAMPLE
 $DESMAN/scripts/PlotDev.R -l RunDesman/Dev.csv -o RunDesman/Dev.pdf
 ```
-![Negative log-likelihood vs. strain number](complete_example/Dev.pdf)
+![Mean posterior deviance vs. strain number](complete_example/Dev.pdf)
 
-From this it is clear that five strains are present. 
+From this it is not as clear as in the full data set analysed in the paper that 
+five strains are present, since on average there is some improvement going 
+from five to six strains. However, one particular run with five strains is 
+as good as the runs with six, we should prefer the run with best fit 
+for smallest strain number, so we shall use this.
 
 ```
 python ../DESMAN/scripts/taucomp.py RunDesman/ClusterEC_5_0/Gamma_star.csv RunDesman/ClusterEC_5_*/Collated_Tau_star.csv 
