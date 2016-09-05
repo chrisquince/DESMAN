@@ -18,10 +18,10 @@ foreach my $fastaFile(@files){
     $stub=~/Select\/(.*)/;
     my $contig = $1;
     
-    print "$stub\n";
+#    print "$stub\n";
 
     if( -e "${stub}_R.gfn" ){
-    	print "Reverse\n";
+    	#print "Reverse\n";
 	    $fastaFile = "${stub}_R.gfn";
     }
 
@@ -85,7 +85,7 @@ foreach my $fastaFile(@files){
             }
             
             my $nA = 0;
-            for(my $n = 1; $n < $seqTotal; $n++){
+            for(my $n = 0; $n < $seqTotal; $n++){
                 my $d = $hashBase{$allHits[$n][$l]};
                 if($d < 4){    
                     $col[$d]++;
@@ -124,7 +124,7 @@ foreach my $fastaFile(@files){
     open(TFILE, ">Select/${contig}_tau.csv") or die "Can't open >Select/${contig}_tau.csv\n";
     
     
-    print TFILE "Contig,Pos,";
+    print TFILE "Contig,Position,";
     
     my @sampleTags = ();
     foreach my $sample(@refs){
@@ -136,8 +136,8 @@ foreach my $fastaFile(@files){
     print TFILE "$gString\n";
      
     for(my $v = 0; $v < $nVar;$v++){
-        
-        print TFILE "$contig,$pos[$v],";
+        my $posT = $pos[$v] + 1;
+        print TFILE "$contig,$posT,";
     
         my @vArray = ();
         
