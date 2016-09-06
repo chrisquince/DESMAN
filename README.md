@@ -706,6 +706,33 @@ python $DESMAN/scripts/gene_read_count_per_genome.py ../contigs/final_contigs_c1
 $DESMAN/scripts/MapGHeader.pl $DESMAN/complete_example/Map.txt < ClusterEC_gene_counts.tsv > ClusterEC_gene_countsR.tsv
 ```
 
+We then do a little bit of R to convert the counts into gene assignments to genomes assuming that if more than 
+1% of reads mapping to a gene derive from a genome then that gene is present in that genome.
+```
+R
+Gene_eta <- read.table("ClusterEC_gene_counts_unamb.tsv",header=TRUE,row.names=1)
+head(Gene_eta)
+Gene_etaP <- Gene_eta/rowSums(Gene_eta)
+Gene_etaP[Gene_etaP > 0.01] = 1.
+Gene_etaP[Gene_etaP <= 0.01] = 0.
+write.csv(Gene_etaP,"Gene_etaP.csv",quote=FALSE)
+```
+
+```
+python $DESMAN/scripts/CompAssign.py ClusterECetaM_df.csv Gene_etaP.csv
+```
+
+Output should look like:
+
+```
+0.9791
+0.9624
+0.9663
+0.9431
+0.9657
+Av. accurracy = 0.963333
+```
+
 ```
 cut -f1-6 < ClusterEC_gene_countsR.tsv > ClusterEC_gene_counts_unamb.tsv
 ```
