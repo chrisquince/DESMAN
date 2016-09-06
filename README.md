@@ -689,21 +689,41 @@ Select run with lowest deviance and 5 strains:
 export SEL_RUN=$DESMAN_EXAMPLE/RunDesman/ClusterEC_5_0/
 ```
 
-
+Then we run the gene/contig assignment algorithm.
 ```
 python $DESMAN/desman/GeneAssign.py ClusterEC_coremean_sd_df.csv $SEL_RUN/Gamma_star.csv Cluster_esc3_gene_cov.csv $SEL_RUN/Eta_star.csv -m 20 -v outputsel_var.csv -o ClusterEC --assign_tau > ClusterEC.cout&
 ```
+
+This should generate the following output files.
+
+1. ClusterEC_log_file.txt: A log file
+
+2. ClusterECeta_df.csv: The assignments from NMF unmanipulated useful for identifying multicopy genes.
+
+3. ClusterECetaD_df.csv: As above but discretised NMF predictions.
+
+4. ClusterECetaS_df.csv: Predictions from the Gibbs sampler selecting run with maximum log posterior.
+
+5. ClusterECetaM_df.csv: Mean log posterior predictions from Gibbs sampler.
+
 
 <a name="validate_acessory"></a>
 
 ##Validate accessory genomes
 
+We will now compare predictions with known assignments to reference genomes. First we 
+use the mapping files to determine number of reads from each genome mapping to each gene.
 ```
 python $DESMAN/scripts/gene_read_count_per_genome.py ../contigs/final_contigs_c10K.fa ../AnnotateEC/ClusterEC.genes ../AssignGenome/Mock1_20genomes.fasta  ../Map/*mapped.sorted.bam > ClusterEC_gene_counts.tsv
 ```
 
+As above we will rename the header file to be a bit more presentable:
 ```
 $DESMAN/scripts/MapGHeader.pl $DESMAN/complete_example/Map.txt < ClusterEC_gene_counts.tsv > ClusterEC_gene_countsR.tsv
+```
+and select just unambiguous assignments to E. coli genomes:
+```
+cut -f1-6 < ClusterEC_gene_countsR.tsv > ClusterEC_gene_counts_unamb.tsv
 ```
 
 We then do a little bit of R to convert the counts into gene assignments to genomes assuming that if more than 
@@ -711,13 +731,13 @@ We then do a little bit of R to convert the counts into gene assignments to geno
 ```
 R
 Gene_eta <- read.table("ClusterEC_gene_counts_unamb.tsv",header=TRUE,row.names=1)
-head(Gene_eta)
 Gene_etaP <- Gene_eta/rowSums(Gene_eta)
 Gene_etaP[Gene_etaP > 0.01] = 1.
 Gene_etaP[Gene_etaP <= 0.01] = 0.
 write.csv(Gene_etaP,"Gene_etaP.csv",quote=FALSE)
 ```
 
+Final we compare the mean posterior predictions to those assignments.
 ```
 python $DESMAN/scripts/CompAssign.py ClusterECetaM_df.csv Gene_etaP.csv
 ```
@@ -733,6 +753,3 @@ Output should look like:
 Av. accurracy = 0.963333
 ```
 
-```
-cut -f1-6 < ClusterEC_gene_countsR.tsv > ClusterEC_gene_counts_unamb.tsv
-```
