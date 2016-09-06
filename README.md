@@ -164,7 +164,7 @@ largest log posterior. One row for each sample.
 [Assign accessory genomes](#assign_acessory)
 
 
-![alt tag](DesmanFig.pdf)
+![alt tag](DesmanFig.png)
 
 
 <a name="getting_started"></a>
