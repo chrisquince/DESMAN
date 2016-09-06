@@ -163,6 +163,10 @@ largest log posterior. One row for each sample.
 
 [Assign accessory genomes](#assign_acessory)
 
+
+![alt tag](DesmanFig.png)
+
+
 <a name="getting_started"></a>
 ##Getting started##
 
@@ -624,28 +628,33 @@ of the five reference genomes (columns). We see that each strain maps to one gen
 
 ##Determine accessory genomes
 
-Now we need variants frequencies on all contigs:
+Now we need the variant frequencies on all contigs:
 
 ```bash
 cd $DESMAN_EXAMPLE
-$DESMAN/scripts/Lengths.py -i Annotate/ClusterEC.fa > Annotate/ClusterEC.len
+$DESMAN/scripts/Lengths.py -i AnnotateEC/ClusterEC.fa > AnnotateEC/ClusterEC.len
 
 mkdir CountsAll
 
-$DESMAN/scripts/AddLengths.pl < Annotate/ClusterEC.len > Annotate/ClusterEC.tsv
+$DESMAN/scripts/AddLengths.pl < AnnotateEC/ClusterEC.len > AnnotateEC/ClusterEC.tsv
 
 for file in Map/*sorted.bam
 do
 	stub=${file%.mapped.sorted.bam}
 	stub=${stub#Map\/}
 	echo $stub
-	(bam-readcount -w 1 -q 20 -l Annotate/ClusterEC.tsv -f contigs/final_contigs_c10K.fa $file > CountsAll/${stub}.cnt 2> CountsAll/${stub}.err)&
+	(bam-readcount -w 1 -q 20 -l AnnotateEC/ClusterEC.tsv -f contigs/final_contigs_c10K.fa $file > CountsAll/${stub}.cnt 2> CountsAll/${stub}.err)&
 done
+```
+
+We also need to extract info on all genes in the E. coli clusters:
+```
+python $DESMAN/scripts/ExtractGenes.py -g AnnotateEC/ClusterEC.gff > AnnotateEC/ClusterEC.genes
 ```
 
 Then we collate the count files together filtering to genes greater than 500bp:
 ```
-$DESMAN/scripts/ExtractCountFreqP.pl Annotate/ClusterEC.genes CountsAll 500 > Cluster_esc3.freq
+$DESMAN/scripts/ExtractCountFreqP.pl AnnotateEC/ClusterEC.genes CountsAll 500 > Cluster_esc3.freq
 ```
 
 and find variants this time insisting on a minimum frequency of 3% and not filtering on sample coverage:
@@ -661,12 +670,13 @@ To assign contigs we also need individual gene coverages, for consistency we gen
 aggregated count files:
 
 ```
+cd VariantsAll
 python $DESMAN/scripts/CalcGeneCov.py Cluster_esc3.freq > Cluster_esc3_gene_cov.csv
 ```
 
 Get list of core COGs:
 ```
-cut -d"," -f5 ../Annotate/ClusterEC_core.cogs > ClusterEC_core_genes.txt
+cut -d"," -f5 ../AnnotateEC/ClusterEC_core.cogs > ClusterEC_core_genes.txt
 ```
 
 Calculate coverage on core genes:
@@ -674,12 +684,12 @@ Calculate coverage on core genes:
 python $DESMAN/scripts/CalcDelta.py Cluster_esc3_gene_cov.csv ClusterEC_core_genes.txt ClusterEC_core
 ```
 
-Select run with lowest MAP:
+Select run with lowest deviance and 5 strains:
 ```
-export SEL_RUN=$DESMAN_EXAMPLE/RunDesman/ClusterEC_5_1/
+export SEL_RUN=$DESMAN_EXAMPLE/RunDesman/ClusterEC_5_0/
 ```
 
 
 ```
-python $DESMAN/desman/ContigAssign.py ClusterEC_coremean_sd_df.csv $SEL_RUN/Gamma_star.csv Cluster_esc3_gene_cov.csv $SEL_RUN/Eta_star.csv -m 20 -v outputsel_var.csv -o ClusterEC --assign_tau > ClusterEC.cout&
+python $DESMAN/desman/GeneAssign.py ClusterEC_coremean_sd_df.csv $SEL_RUN/Gamma_star.csv Cluster_esc3_gene_cov.csv $SEL_RUN/Eta_star.csv -m 20 -v outputsel_var.csv -o ClusterEC --assign_tau > ClusterEC.cout&
 ```
