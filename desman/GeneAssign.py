@@ -228,6 +228,7 @@ def main(argv):
 
     intersect_names1 = sorted(intersect(gamma_names,scg_names))
     intersect_names = sorted(intersect(cov.columns.values,intersect_names1))
+    logging.info('Found %d samples common to all 3 input files' %(len(intersect_names)))
     
     scg_cov = scg_cov.reindex(intersect_names)
     gamma_star = gamma_star.reindex(intersect_names)
@@ -262,6 +263,8 @@ def main(argv):
     
     etaSampler.update()
     
+    etaSampler.update()
+    
     #Now assign tau given eta_star
     contig_names = cov.index.tolist()
     
@@ -271,13 +274,11 @@ def main(argv):
         
         etaSampler.calcTauStar(etaSampler.eta_star)
     
-        (tau_star,pos,contig_index) = etaSampler.getTauStar(variants)
+        (tau_star,tau_mean,pos,contig_index) = etaSampler.getTauStar(variants)
         V = tau_star.shape[0]
+        
         tau_res = np.reshape(tau_star,(V,etaSampler.G*4))
-        
-        
         tau_df = p.DataFrame(tau_res,index=contig_index)
-    
         tau_df['Position'] = pos
         cols = tau_df.columns.tolist()
         cols = cols[-1:] + cols[:-1]
@@ -285,12 +286,24 @@ def main(argv):
         tau_df.to_csv(output_stub+"_tau_star.csv")
         logging.info("Wrote tau star haplotype predictions")
     
+        tau_mean_res = np.reshape(tau_mean,(V,etaSampler.G*4))
+        tau_mean_df = p.DataFrame(tau_mean_res,index=contig_index)
+        tau_mean_df['Position'] = pos
+        cols = tau_mean_df.columns.tolist()
+        cols = cols[-1:] + cols[:-1]
+        tau_mean_df = tau_mean_df[cols]
+        tau_mean_df.to_csv(output_stub+"_tau_mean.csv")
+        logging.info("Wrote tau mean haplotype predictions")
+    
     
     etaD_df = p.DataFrame(etaD,index=contig_names)
     etaD_df.to_csv(output_stub+"etaD_df.csv")
 
     etaS_df = p.DataFrame(etaSampler.eta_star,index=contig_names)
     etaS_df.to_csv(output_stub+"etaS_df.csv")
+
+    etaM_df = p.DataFrame(np.mean(etaSampler.eta_store,axis=0),index=contig_names)
+    etaM_df.to_csv(output_stub+"etaM_df.csv")
 
     eta_df = p.DataFrame(klassign.eta,index=contig_names)
     eta_df.to_csv(output_stub+"eta_df.csv")   

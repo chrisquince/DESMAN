@@ -403,12 +403,13 @@ class Eta_Sampler():
         
         self.gene_tau_star = {}
         self.gene_ll_tau_star = {}
-        
+        self.gene_tau_store = {}
         for gene in self.genes:
             V = self.gene_V[gene]
             self.gene_ll_tau_star[gene] = np.zeros(V)
             self.gene_ll_tau_star[gene].fill(np.finfo(np.float).min)
             self.gene_tau_star[gene] = np.zeros((V,self.G,4), dtype=np.int,order='C')
+            self.gene_tau_store[gene] = np.zeros((self.tau_iter,V,self.G,4), dtype=np.int,order='C')
             
             c = self.gene_map[gene]
             etaSum = eta[c,:].sum()
@@ -419,6 +420,7 @@ class Eta_Sampler():
                 init_NMFT.gamma = np.transpose(gammaR)
                 init_NMFT.factorize_tau()
                 self.gene_tau_star[gene] = np.copy(init_NMFT.get_tau(),order='C')
+                self.gene_tau[gene] = np.copy(init_NMFT.get_tau(),order='C')
                 logging.info('Tau star NTF %d'%(c))
                 
         while (iter < self.tau_iter):
@@ -439,11 +441,13 @@ class Eta_Sampler():
                                 self.gene_tau_star[gene][v,:] = np.copy(self.gene_tau[gene][v,:],order='C')
                         
                         lltausum += self.gene_ll_tau_star[gene].sum()
+                        self.gene_tau_store[gene][iter,:] =  np.copy(self.gene_tau[gene])
                     else:
                         nchange = -1
                     
                     #print "c = " + str(c) + ", change = " + str(nchange) 
-            
+                
+                    
             logging.info('Tau star Iter %d, nll = %f'%(iter,lltausum))
             iter = iter + 1
             #print "Iter = " + str(iter) + ", ll = " + str(lltausum) 
@@ -502,14 +506,18 @@ class Eta_Sampler():
             Vcum_array[c] = Vcum_array[c - 1] + Varray[c - 1]
         
         tauStar =  np.zeros((Vtotal,self.G,4), dtype=np.int,order='C')   
-    
+        tauMean =  np.zeros((Vtotal,self.G,4), dtype=np.int,order='C')   
         for gene in self.genes:
             c = self.gene_map[gene]
             V = self.gene_V[gene]
             start = Vcum_array[c]
             end = start + V
+            
+            gene_tau_store = self.gene_tau_store[gene]
+            gene_tau_mean = np.mean(gene_tau_store,axis=0)
             tauStar[start:end,:] = self.gene_tau_star[gene]
-    
+            tauMean[start:end,:] = gene_tau_mean
+            
         positions = np.zeros(Vtotal,dtype=np.int,order='C')
         contig_index = ["" for x in range(Vtotal)]
         
@@ -534,7 +542,7 @@ class Eta_Sampler():
                 positions[start:end] = gene_pos.as_matrix()        
             except KeyError:
                 pass
-        return (tauStar,positions,contig_index)
+        return (tauStar,tauMean, positions,contig_index)
         
     def storeStarState(self,iter):
     

@@ -63,15 +63,29 @@ class Output_Results():
     def set_haplo_SNP(self,haplo_SNP,genomes):
         self.haplo_SNP = haplo_SNP
         
-        logLL = haplo_SNP.logLikelihood(haplo_SNP.gamma,haplo_SNP.tau,haplo_SNP.eta)
-    
-        AIC = 2.0*haplo_SNP.calcK() - 2.0*logLL
+        #logLL = haplo_SNP.logLikelihood(haplo_SNP.gamma,haplo_SNP.tau,haplo_SNP.eta)
+        
+        #AIC = 2.0*haplo_SNP.calcK() - 2.0*logLL
+        
+        #DIC = haplo_SNP.DIC()
+        
+        meanDev = haplo_SNP.meanDeviance()
         
         fitFile = self.outputDir+"/fit.txt"
         with open(fitFile, "w") as text_file:
-            text_file.write("Fit,%d,%d,%f,%f\n"%(genomes,haplo_SNP.G,logLL,AIC))
+            text_file.write("Fit,%d,%d,%f,%f\n"%(genomes,haplo_SNP.G,haplo_SNP.lp_star, meanDev))
 
         logging.info("Wrote fit stats") 
+        
+    def outPredFit(self,haplo_SNP,genomes):
+                
+        meanDev = haplo_SNP.meanDeviance()
+        
+        fitFile = self.outputDir+"/fitP.txt"
+        with open(fitFile, "w") as text_file:
+            text_file.write("Fit,%d,%d,%f,%f\n"%(genomes,haplo_SNP.G,haplo_SNP.lp_star, meanDev))
+
+        logging.info("Wrote pred fit stats") 
         
     def output_Filtered_Tau(self,tau):
         tau_res = np.reshape(tau,(self.haplo_SNP.V,self.haplo_SNP.G*4))
@@ -83,7 +97,8 @@ class Output_Results():
         tau_df = tau_df[cols]
         tau_df.to_csv(self.outputDir+"/Filtered_Tau_star.csv")
         logging.info("Wrote filtered tau star haplotype predictions")
-    def output_Prob_Tau(self,tauProb):
+    
+    def output_Tau_Mean(self,tauProb):
         
         tau_res = np.reshape(tauProb,(self.haplo_SNP.V,self.haplo_SNP.G*4))
         tau_df = p.DataFrame(tau_res,index=self.filtered_contig_names)
@@ -92,7 +107,7 @@ class Output_Results():
         cols = tau_df.columns.tolist()
         cols = cols[-1:] + cols[:-1]
         tau_df = tau_df[cols]
-        tau_df.to_csv(self.outputDir+"/Probabilistic_Tau.csv")
+        tau_df.to_csv(self.outputDir+"/Tau_Mean.csv")
         logging.info("Wrote probabilistic tau haplotype predictions")
     
     def output_collated_Tau(self,haplo_SNP_NS,full_variants):
@@ -142,8 +157,22 @@ class Output_Results():
         cols = collate_ptau_df.columns.tolist()
         cols = cols[-1:] + cols[:-1]
         collate_ptau_df = collate_ptau_df[cols]
-        collate_ptau_df.to_csv(self.outputDir+"/Collated_PTau_star.csv")
+        collate_ptau_df.to_csv(self.outputDir+"/Collated_Tau_mean.csv")
         logging.info("Wrote all probabilistic tau haplotype predictions")    
+    
+    def output_Gamma_Mean(self,gamma):
+        #output max posterior relative frequencies gamma
+        
+        varCols = self.variants.columns.values.tolist()
+        originalS = (len(varCols) - 1)/4
+        idx = range(1,originalS*4,4)
+        sampleNames = [varCols[i] for i in idx] 
+        sampleNames = [ rchop(x,'-A') for x in sampleNames ]
+        sampleNames = [sampleNames[i] for i in self.variantFilter.sample_indices]
+        
+        gamma_df = p.DataFrame(gamma,index=sampleNames)
+        gamma_df.to_csv(self.outputDir+"/Gamma_mean.csv")
+        logging.info("Wrote mean gamma haplotype relative frequencies")
     
     def output_Gamma(self,gamma):
         #output max posterior relative frequencies gamma
@@ -158,11 +187,21 @@ class Output_Results():
         gamma_df = p.DataFrame(gamma,index=sampleNames)
         gamma_df.to_csv(self.outputDir+"/Gamma_star.csv")
         logging.info("Wrote gamma haplotype relative frequencies")
+    
+    
     def output_Eta(self,eta):
     
         eta_df = p.DataFrame(eta)
         eta_df.to_csv(self.outputDir+"/Eta_star.csv")
         logging.info("Wrote transition error matrix")
+    
+    def output_Eta_Mean(self,eta):
+    
+        eta_df = p.DataFrame(eta)
+        eta_df.to_csv(self.outputDir+"/Eta_mean.csv")
+        logging.info("Wrote transition error matrix")
+    
+    
     def output_Selected_Variants(self):
         #write out selected variants really need to remove filtered samples here tooo...
         selected_Variants = self.variants[self.variantFilter.selected]

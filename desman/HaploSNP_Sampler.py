@@ -107,6 +107,8 @@ class HaploSNP_Sampler():
         self.amatrix = np.identity(4, dtype=np.int)
         
         self.ll = 0.0
+        self.lp = 0.0
+        self.ll_store = np.zeros(self.max_iter)
         
         self.tauMap = np.zeros((self.G,4),dtype=np.int)
         
@@ -316,7 +318,8 @@ class HaploSNP_Sampler():
             self.sampleTau()
             self.sampleEta()
             self.ll = self.logLikelihood(self.gamma,self.tau,self.eta)
-            print str(iter) + " " + str(self.ll)
+            self.lp = self.logPosterior(self.gamma,self.tau,self.eta)
+            print str(iter) + " " + str(self.ll) + " " + str(self.lp)
             
             iter = iter + 1
     
@@ -326,11 +329,12 @@ class HaploSNP_Sampler():
         self.tauIndices_star = np.copy(self.tauIndices)
         self.eta_star = np.copy(self.eta)
         self.iter_star = iter
-        self.ll_star = self.ll
+        self.lp_star = self.lp
     
     def update(self): #perform max_iter Gibbs updates
         iter = 0
         self.ll = self.logLikelihood(self.gamma,self.tau,self.eta)
+        self.lp = self.logPosterior(self.gamma,self.tau,self.eta)
         self.storeStarState(iter)
         
         while (iter < self.max_iter):
@@ -343,7 +347,9 @@ class HaploSNP_Sampler():
             self.sampleEta()
             
             self.ll = self.logLikelihood(self.gamma,self.tau,self.eta)
-            if(self.ll > self.ll_star):
+            self.lp = self.logPosterior(self.gamma,self.tau,self.eta)
+            self.ll_store[iter] = self.ll
+            if(self.lp > self.lp_star):
                 self.storeStarState(iter)
             self.mu_store[iter,]=np.copy(self.mu)
             self.tau_store[iter,]=np.copy(self.tau)
@@ -352,7 +358,7 @@ class HaploSNP_Sampler():
             self.gamma_store[iter,] = np.copy(self.gamma)
             
             if (iter % 10 == 0):    
-                logging.info('Gibbs Iter %d, no. changed = %d, nll = %f'%(iter,nchange,self.ll))
+                logging.info('Gibbs Iter %d, no. changed = %d, nlp = %f'%(iter,nchange,self.lp))
             
             iter = iter + 1
 
@@ -360,14 +366,16 @@ class HaploSNP_Sampler():
          
     def burnTau(self):
         iter = 0
+        self.lp = self.logPosterior(self.gamma_star,self.tau,self.eta_star)
         self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
         
         while (iter < self.burn_iter):
             nchange = self.sampleTau()
             
             self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
-               
-            print str(iter) + "," + str(nchange) + "," + str(self.ll)
+            self.lp = self.logPosterior(self.gamma_star,self.tau,self.eta_star)
+            
+            print str(iter) + "," + str(nchange) + "," + str(self.lp)
             sys.stdout.flush()
             iter = iter + 1
     
@@ -375,24 +383,24 @@ class HaploSNP_Sampler():
     def updateTau(self): #perform max_iter Gibbs updates
         
         iter = 0
-        self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
-        
-        self.ll_star = self.ll
+        self.lp = self.logPosterior(self.gamma_store[0,:],self.tau,self.eta_store[0,:])
+        self.lp_star = self.lp
+        self.tau_star = np.copy(self.tau)
         self.tau_store[iter,]=np.copy(self.tau)
         
         while (iter < self.max_iter):
-            nchange = sampletau.sample_tau(self.tau, self.gamma_star, self.eta_star, self.variants)        
+            nchange = sampletau.sample_tau(self.tau, self.gamma_store[iter,:], self.eta_store[iter,:], self.variants)        
             #nchange = self.sampleTau(self.gamma_star,self.eta_star)
-            
-            self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
-            if (self.ll > self.ll_star):
+            self.ll = self.logLikelihood(self.gamma_store[iter,:],self.tau,self.eta_store[iter,:])
+            self.lp = self.logPosterior(self.gamma_store[iter,:],self.tau,self.eta_store[iter,:])
+            if (self.lp > self.lp_star):
                 self.tau_star = np.copy(self.tau)
-                self.ll_star = self.ll
+                self.lp_star = self.lp
             
             self.tau_store[iter,]=np.copy(self.tau)
-            
+            self.ll_store[iter]=self.ll
             if (iter % 10 == 0):    
-                logging.info('Gibbs Iter %d, no. changed = %d, nll = %f'%(iter,nchange,self.ll))
+                logging.info('Gibbs Iter %d, no. changed = %d, nll = %f'%(iter,nchange,self.lp))
 
             sys.stdout.flush()
             iter = iter + 1
@@ -400,7 +408,7 @@ class HaploSNP_Sampler():
     
     def update_fixed_tau(self): #perform max_iter Gibbs updates
         iter = 0
-        self.ll = self.logLikelihood(self.gamma,self.tau,self.eta)
+        self.lp = self.logPosterior(self.gamma,self.tau,self.eta)
         self.storeStarState(iter)
         
         while (iter < self.max_iter):
@@ -408,15 +416,14 @@ class HaploSNP_Sampler():
             self.sampleGamma()
             self.sampleEta()
             
-            self.ll = self.logLikelihood(self.gamma,self.tau,self.eta)
-            if(self.ll > self.ll_star):
+            self.lp = self.logPosterior(self.gamma,self.tau,self.eta)
+            if(self.lp > self.lp_star):
                 self.storeStarState(iter)
             self.mu_store[iter,]=np.copy(self.mu)
             self.tau_store[iter,]=np.copy(self.tau)
             self.E_store[iter,]=np.copy(self.E)
             self.eta_store[iter,] = np.copy(self.eta)
             self.gamma_store[iter,] = np.copy(self.gamma)    
-            #print str(iter) + " " + str(self.ll)
             
             iter = iter + 1
     
@@ -433,6 +440,60 @@ class HaploSNP_Sampler():
             for s in range(self.S):                    
                 logLL += du.log_multinomial_pdf(self.variants[v,s,:], probVS[v,s,:])
         return logLL
+    
+    def logPosterior(self,cGamma,cTau,cEta):
+    
+        logLL = self.logLikelihood(cGamma,cTau,cEta)
+        
+        logGammaPrior = 0.0
+        for s in range(self.S):
+            logGammaPrior += du.log_dirichlet_pdf(cGamma[s,:], self.alpha)
+        
+        logEtaPrior = 0.0
+        for a in range(4):
+            logEtaPrior += du.log_dirichlet_pdf(cEta[a,:],self.delta)
+        
+        #need tau prior assume uniform over all possible states
+        logTauPrior = self.V*self.G*log(1.0/4.0)
+
+        logPosterior = logLL + logGammaPrior + logEtaPrior + logTauPrior
+        
+        return logPosterior
+    
+    def meanDeviance(self):
+        
+        return -2.0*np.mean(self.ll_store); 
+    
+    def gammaMean(self):
+    
+        gammaMean = np.mean(self.gamma_store, axis = 0)
+        
+        return gammaMean
+    
+    def etaMean(self):
+    
+        etaMean = np.mean(self.eta_store, axis = 0)
+        
+        return etaMean
+    
+    def tauMean(self):
+    
+        tauMean = np.mean(self.tau_store, axis = 0)
+        
+        return tauMean
+    
+    
+    def DIC(self):
+        
+        gammaMean = self.gammaMean()
+        
+        tauMean = self.tauMean()
+        
+        etaMean = self.etaMean()
+        
+        dic = self.meanDeviance() + 2.0*self.logLikelihood(gammaMean,tauMean,etaMean)
+        
+        return dic
     
     def logTauProb(self,cGamma,cEta):
         
