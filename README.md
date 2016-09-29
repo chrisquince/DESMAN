@@ -10,6 +10,9 @@
 [Complete example](#complete_example)  
 
 <a name="installation"/>
+
+The DESMAN pipeline is described in the [bioRxiv preprint](http://biorxiv.org/content/early/2016/09/06/073825).
+
 ##Installation
 
 To install simply type:
