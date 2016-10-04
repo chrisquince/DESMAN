@@ -385,7 +385,13 @@ In your particular run these assignments may vary and the code below must be **c
 There are many ways to taxonomically classify assembled sequence. We suggest a gene based approach. The first step is 
 to call genes on all contigs that are greater than 1,000 bp. Shorter sequences are unlikely to contain complete 
 coding sequences. The following requires that you have a Diamond formatted version of the NCBI NR on your system. 
-With environment variable NR_DMD set as appropriate:
+To ensure compatibility with the files below this can be downloaded by:
+
+```
+wget http://nrdatabase.s3.climb.ac.uk/nr.dmnd
+```
+
+Set the environment variable NR_DMD to point to the location of this file:
 ```
 export NR_DMD=$HOME/native/Databases/nr/FASTA/nr.dmnd
 ```
