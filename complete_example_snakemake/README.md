@@ -1,10 +1,21 @@
 # DESMAN complete example using Snakemake
 
-##Managing python environments with Anaconda
-DESMAN requires some parts of it to be run with python 3 and some with python 2.7, therefore we strongly recommend the use of Anaconda. Anaconda is a tool to isolate your python installation, which allows you to have multiple parallel installations using different versions of different packages, and gives you a very convenient and fast way to install the most common scientific python packages. Anaconda is free of charge and you can download Anaconda [here](https://store.continuum.io/cshop/anaconda/). Installation instructions can be found [here](http://docs.continuum.io/anaconda/install.html).
+![alt tag](desmans.jpg)
 
+## Table of Contents
+[Installation](#installation)
+
+[Taxonomic profiling](#simple_example)
+
+[Complete example](#complete_example)
+
+<a name="installation"/>
 
 ##Installation
+
+###Managing python environments with Anaconda
+DESMAN requires some parts of it to be run with python 3 and some with python 2.7, therefore we strongly recommend the use of Anaconda. Anaconda is a tool to isolate your python installation, which allows you to have multiple parallel installations using different versions of different packages, and gives you a very convenient and fast way to install the most common scientific python packages. Anaconda is free of charge and you can download Anaconda [here](https://store.continuum.io/cshop/anaconda/). Installation instructions can be found [here](http://docs.continuum.io/anaconda/install.html).
+
 
 After installing Anaconda, create an new environment that will contain the python 2.7 installation called 'desman_python2_env':
 
@@ -73,6 +84,7 @@ export PATH=$HOME/myinstalldir/DESMAN/scripts:$PATH
 
 Obviously replacing myinstalldir as appropriate and adding this to your .bash_profile file.
 
+<a name="simple_example"/>
 ##Simple example using Snakemake
 
 ###Setup
