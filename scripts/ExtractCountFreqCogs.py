@@ -137,7 +137,7 @@ def main(argv):
         
             cog_res = np.reshape(cog[4],(length,S*4))
         
-            cog_df = p.DataFrame(cog_res,index=[contig] * length)
+            cog_df = p.DataFrame(cog_res,index=[name] * length)
         
             cog_df.columns = expanded_sample_names
             start = cog[0]
