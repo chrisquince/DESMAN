@@ -359,3 +359,25 @@ rule collate_counts:
     shell:
         """{params.desman_dir}/scripts/ExtractCountFreqP.pl {input.core_cogs} {params.input_dir} 0 > {output}"""
 
+rule desman_variant_filter:
+    input:
+        "Variants/{concat_cluster}_core_cogs.freq"
+    output:
+        lambda wildcards: expand("Variants/{concat_cluster}_output_{output_file_type}",
+                concat_cluster = wildcards.concat_cluster,
+                output_file_type = ["sel_var.csv", "cogf.csv", "p_df.csv", "q_df.csv", "r_df.csv", "tran_df.csv", "log.txt"]) 
+    params:
+        output_stub = lambda wildcards: "Variants/{concat_cluster}_output_".format(wildcards.concat_cluster),
+        desman_dir = config["desman_dir"]
+    shell:
+        "python {params.desman_dir}/desman/Variant_Filter.py -output_stub {params.output_stub} Cluster_esc3_scgs.freq"
+
+rule run_desman:
+    input:
+        sel_var = "Variants/{concat_cluster}_output_sel_var.csv",
+        tran_df = "Variants/{concat_cluster}_output_tran_df.csv",
+    output:
+        lambda wildcards: expand("RunDesman/{concat_cluster}_{g}_{r}/{file_type}",
+            file_type = ["Assigned_Tau_star.csv", "Assigned_Tau_conf.csv"]
+    shell:
+        "desman {input.sel_var} -e {input.tran_df} -o 
