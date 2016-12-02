@@ -322,13 +322,22 @@ rule select_contigs_pos:
     shell:
         """{params.desman_dir}/scripts/SelectContigsPos.pl {params.desman_dir}/complete_example/EColi_core_ident95.txt < {input} > {output}"""
 
-rule reformat_core_cogs:
+rule cog_positions_for_collate_count:
+    input:
+        "Genes/{concat_cluster}_core.cogs"
+    output:
+        "Genes/{concat_cluster}_core_cogs.csv"
+    shell:
+        """awk -F "," '{{print $2,$3,$4,$1}}' {input} | tr ' ' ','i > {output}"""
+
+rule cog_positions_for_bam_readcount:
     input:
         "Genes/{concat_cluster}_core.cogs"
     output:
         "Genes/{concat_cluster}_core_cogs.tsv"
     shell:
         """cut -d',' -f2,3,4 {input} | tr ',' '\t' > {output}"""
+
 
 ####
 ## Determine variants on core COGs
@@ -341,43 +350,51 @@ rule bam_readcount:
         bam_file = "Map/{sample}.sorted.bam"
     output:
         log = "Counts/{concat_cluster}/{sample}.log",
-        counts = "Counts/{concat_cluster}/{sample}.cnt" 
+        counts = "Counts/{concat_cluster}/{sample}.cnt.gz" 
     shell:
-        "bam-readcount -q 20 -l {input.core_gene_loc} -f {input.fasta} {input.bam_file} 2> {output.log} > {output.counts}"
+        "bam-readcount -q 20 -l {input.core_gene_loc} -f {input.fasta} {input.bam_file} 2> {output.log} | gzip > {output.counts}"
 
 rule collate_counts:
     input:
-        all_counts = lambda wildcards: expand("Counts/{concat_cluster}/{sample}.cnt",
+        all_counts = lambda wildcards: expand("Counts/{concat_cluster}/{sample}.cnt.gz",
                 concat_cluster=wildcards.concat_cluster,
                 sample=config["R1_reads_per_sample"]),
-        core_cogs = "Genes/{concat_cluster}_core_cogs.tsv"
+        core_cogs = "Genes/{concat_cluster}_core_cogs.csv"
     output:
         "Variants/{concat_cluster}_core_cogs.freq"
     params:
         input_dir = lambda wildcards: "Counts/{}".format(wildcards.concat_cluster),
-        desman_dir = config["desman_dir"]
+        desman_dir = config["desman_dir"],
+        desman_python2_env = config["desman_python2_env"]
     shell:
-        """{params.desman_dir}/scripts/ExtractCountFreqP.pl {input.core_cogs} {params.input_dir} 0 > {output}"""
+        """set +u; source activate {params.desman_python2_env}; set -u; 
+        python {params.desman_dir}/scripts/ExtractCountFreqCogs.py {input.core_cogs} {params.input_dir} --output_file {output}"""
 
 rule desman_variant_filter:
     input:
         "Variants/{concat_cluster}_core_cogs.freq"
     output:
-        lambda wildcards: expand("Variants/{concat_cluster}_output_{output_file_type}",
-                concat_cluster = wildcards.concat_cluster,
-                output_file_type = ["sel_var.csv", "cogf.csv", "p_df.csv", "q_df.csv", "r_df.csv", "tran_df.csv", "log.txt"]) 
+        expand("Variants/{{concat_cluster}}_output_{output_file_type}",
+                output_file_type = ["sel_var.csv", "p_df.csv", "q_df.csv", "r_df.csv", "tran_df.csv", "log.txt"]) 
     params:
-        output_stub = lambda wildcards: "Variants/{concat_cluster}_output_".format(wildcards.concat_cluster),
-        desman_dir = config["desman_dir"]
-    shell:
-        "python {params.desman_dir}/desman/Variant_Filter.py -output_stub {params.output_stub} Cluster_esc3_scgs.freq"
+        desman_dir = config["desman_dir"],
+        desman_python2_env = config["desman_python2_env"]
+    run:
+        output_stub = "Variants/{}_output_".format(wildcards.concat_cluster)
+        shell("""set +u; source activate {params.desman_python2_env}; set -u; 
+        python {params.desman_dir}/desman/Variant_Filter.py --output_stub {output_stub} {input}""")
 
 rule run_desman:
     input:
         sel_var = "Variants/{concat_cluster}_output_sel_var.csv",
         tran_df = "Variants/{concat_cluster}_output_tran_df.csv",
     output:
-        lambda wildcards: expand("RunDesman/{concat_cluster}_{g}_{r}/{file_type}",
-            file_type = ["Assigned_Tau_star.csv", "Assigned_Tau_conf.csv"]
-    shell:
-        "desman {input.sel_var} -e {input.tran_df} -o 
+        desman_results = expand("RunDesman/{{concat_cluster}}_{{g}}_{{r}}/{file_type}",
+                file_type = ["log_file.txt", "fit.txt"]
+        desman_log = "RunDesman/{concat_cluster}_{g}_{r}.out"
+    params:
+        desman_python2_env = config["desman_python2_env"]
+    run:
+        output_dir = os.path.dirname(output.desman_results)
+        shell("""set +u; source activate {params.desman_python2_env}; set -u; 
+        desman {input.sel_var} -e {input.tran_df} -o {output_dir} -r 1000 -i 100 -g {wildcards.g} -s {wildcards.r} > {output.desman_log}""")
