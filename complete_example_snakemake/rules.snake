@@ -387,10 +387,10 @@ rule desman_variant_filter:
 rule run_desman:
     input:
         sel_var = "Variants/{concat_cluster}_output_sel_var.csv",
-        tran_df = "Variants/{concat_cluster}_output_tran_df.csv",
+        tran_df = "Variants/{concat_cluster}_output_tran_df.csv"
     output:
         desman_results = expand("RunDesman/{{concat_cluster}}_{{g}}_{{r}}/{file_type}",
-                file_type = ["log_file.txt", "fit.txt"]
+                file_type = ["log_file.txt", "fit.txt"]),
         desman_log = "RunDesman/{concat_cluster}_{g}_{r}.out"
     params:
         desman_python2_env = config["desman_python2_env"]
