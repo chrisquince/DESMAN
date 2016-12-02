@@ -39,6 +39,8 @@ def main(argv):
 
     parser.add_argument("input_dir", help="input directory to glob *.cnt.gz from")
     
+    parser.add_argument("--output_file", default="Select_freq.csv")
+
     args = parser.parse_args()
 
     #import ipdb; ipdb.set_trace()
@@ -46,7 +48,7 @@ def main(argv):
     contig_cog_list = defaultdict(list)
     for line in open(args.cog_file):
         line = line.rstrip()
-        (contig, start, end, cog, cluster) = line.split(",")
+        (contig, start, end, cog) = line.split(",")
         length = int(end) - int(start) + 1
         contig_cog_list[contig].append([int(start),int(end),int(length),cog])  
     
@@ -150,6 +152,7 @@ def main(argv):
             results.append(cog_df)
     
     result_df = p.concat(results)
-    result_df.to_csv("Select_freq.csv")
+    result_df.to_csv(args.output_file)
+
 if __name__ == "__main__":
     main(sys.argv[1:])
