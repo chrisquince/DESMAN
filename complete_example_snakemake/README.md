@@ -129,7 +129,7 @@ Adapt these commands to the clusters that you see are associated with E. Coli in
 ```
     mkdir Split
     cd Split
-    $DESMAN/scripts/SplitClusters.pl ../contigs/final_contigs_c10K.fa ../Concoct/clustering_gt1000.csv
+    $DESMAN/scripts/SplitClusters.pl ../Contigs/final_contigs_c10K.fa ../Concoct/Output/clustering_gt1000.csv
     cat Cluster14/Cluster14.fa Cluster3/Cluster3.fa Cluster5/Cluster5.fa Cluster19/Cluster19.fa > ../Contigs/ClusterEC.fa 
     cd ..
 ```
