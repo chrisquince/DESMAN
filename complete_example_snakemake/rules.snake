@@ -352,7 +352,7 @@ rule bam_readcount:
         log = "Counts/{concat_cluster}/{sample}.log",
         counts = "Counts/{concat_cluster}/{sample}.cnt.gz" 
     shell:
-        "bam-readcount -q 20 -l {input.core_gene_loc} -f {input.fasta} {input.bam_file} 2> {output.log} | gzip > {output.counts}"
+        "samtools index {input.bam_file} {input.bam_file}.bai; bam-readcount -q 20 -l {input.core_gene_loc} -f {input.fasta} {input.bam_file} 2> {output.log} | gzip > {output.counts}"
 
 rule collate_counts:
     input:
@@ -396,5 +396,5 @@ rule run_desman:
         desman_python2_env = config["desman_python2_env"]
     run:
         output_dir = os.path.dirname(output.desman_results)
-        shell("""set +u; source activate {params.desman_python2_env}; set -u; 
+	shell("""set +u; source activate {params.desman_python2_env}; set -u; 
         desman {input.sel_var} -e {input.tran_df} -o {output_dir} -r 1000 -i 100 -g {wildcards.g} -s {wildcards.r} > {output.desman_log}""")
