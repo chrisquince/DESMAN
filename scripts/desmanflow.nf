@@ -103,7 +103,7 @@ process estimateStrainCountDesman {
     input:
     set file('outputsel_var.csv'),file('outputtran_df.csv') from desmanfreqs
     each g from 1,2,3,4,5,6,7,8,9,10
-    each repid from 1,2,3
+    each repid from 1,2,3,4,5
     
     output:
     file('fit_*.txt') into desman_dic
