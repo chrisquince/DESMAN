@@ -10,14 +10,15 @@ import gzip
 
 from collections import defaultdict
 from collections import Counter
+import logging
 
 #MIN_IDENTITY_TAXA = (0.40,0.40,0.50,0.50,0.50,0.60,0.85)
 #50,60,70,80,90,95
 MIN_IDENTITY_TAXA = (0.40,0.50,0.60,0.70,0.80,0.90,0.95)
 MIN_IDENTITY = 0.40
 
-MAX_MATCHES = 1
-MIN_FRACTION = 0.5
+MAX_MATCHES = 1e100
+MIN_FRACTION = 0.9
 
 DEF_DMP_FILE = "/home/chris/native/Databases/nr/FASTA/gi_taxid_prot.dmp"
 
@@ -41,11 +42,12 @@ def read_blast_input(blastinputfile,lengths):
         m = re.search(r"gi\|(.*?)\|.*", subjectId)
         gid = m.group(1)
         qLength = lengths[queryId]
-        fHit = float(alnLength)/qLength
+        alnLength_in_query = abs(int(queryEnd) - int(queryStart)) + 1
+        fHit = float(alnLength_in_query)/qLength
         fHit *= float(percIdentity)/100.0
         fHit = min(1.0,fHit)
         #hits[queryId] = hits[queryId] + 1
-        if fHit > MIN_IDENTITY and nmatches[queryId] < MAX_MATCHES:
+        if percIdentity > MIN_IDENTITY and nmatches[queryId] < MAX_MATCHES:
             matches[queryId].append((m.group(1),fHit))
             nmatches[queryId] += 1
             gids[gid] +=1
@@ -143,12 +145,16 @@ def main(argv):
     #import ipdb; ipdb.set_trace()
     
     lengths = read_query_length_file(args.query_length_file)
-    
-    (matches,gids) = read_blast_input(args.blast_input_file,lengths) 
-        
+    logging.info("Finished reading lengths file")
+
+    (matches,gids) = read_blast_input(args.blast_input_file,lengths)
+    logging.info("Finished reading in blast results file")
+
     (lineages,mapBack) = read_lineage_file(args.lineage_file)
+    logging.info("Finished reading in lineage file")
 
     mapping = map_gids_binary(gids, args.gid_taxaid_mapping_file)
+    logging.info("Finished loading map gids file")
 
     geneAssign = defaultdict(dict)
     contigLengths = Counter()
@@ -159,7 +165,6 @@ def main(argv):
     contigGenes = defaultdict(list)
     for gene, matchs in matches.iteritems(): 
         #print str(gene)
-        
         m = re.search(r"(.*)_\d+", gene)
         contig = m.group(1)
         contigLengths[contig] += lengths[gene]
@@ -170,34 +175,36 @@ def main(argv):
             collate_hits.append(Counter())
         
         
-        for (match,fHit) in matchs:
-            
+        added_matches = set()
+        for (match,fHit) in sorted(matchs, key=lambda x: x[1], reverse=True):
+
             if mapping[match] > -1:
-                hits = lineages[mapping[match]]
-        
-                for depth in range(7):
-                    if hits[depth] != "None":
-                        weight = (fHit - MIN_IDENTITY_TAXA[depth])/(1.0 - MIN_IDENTITY_TAXA[depth])
-                        weight = max(weight,0.0)
-                        if weight > 0.0:
-                            collate_hits[depth][hits[depth]] += weight #could put a transform in here
-    
-        
+                tax_id = mapping[match]
+                if tax_id not in added_matches:     # Only add the best hit per species
+                    added_matches.add(tax_id)
+                    hits = lineages[tax_id]
+                    for depth in range(7):
+                        if hits[depth] != "None":
+                            weight = (fHit - MIN_IDENTITY_TAXA[depth])/(1.0 - MIN_IDENTITY_TAXA[depth])
+                            weight = max(weight,0.0)
+                            if weight > 0.0:
+                                collate_hits[depth][hits[depth]] += weight #could put a transform in here
+
+
         #import ipdb; ipdb.set_trace()        
         for depth in range(6,-1,-1):
             collate = collate_hits[depth]
             dWeight = sum(collate.values())
         
             sortCollate = sorted(collate.items(), key=operator.itemgetter(1),reverse=True)
-
             nL = len(collate)
             if nL > 0:
                 dP = 0.0
                 if dWeight > 0.0:
                     dP = float(sortCollate[0][1])/dWeight
-                    geneAssign[gene][depth] = (sortCollate[0][0],dP)
                     
                     if dP > MIN_FRACTION:
+                        geneAssign[gene][depth] = (sortCollate[0][0],dP)
                         assignBack = mapBack[depth][sortCollate[0][0]]
                         depth2 = depth -1
                         for assignB in assignBack:
@@ -205,7 +212,11 @@ def main(argv):
                             depth2 -= 1
                         
                         break
-            else:    
+                    else:
+                        geneAssign[gene][depth] = ('No hits', -1.0)
+                else:
+                    geneAssign[gene][depth] = ('No hits', -1.0)
+            else:
                 geneAssign[gene][depth] = ('No hits',-1.0)
 
     
@@ -241,7 +252,6 @@ def main(argv):
             collate = collate_hits[depth]
             dWeight = sum(collate.values())
             sortCollate = sorted(collate.items(), key=operator.itemgetter(1),reverse=True)
-    
             nL = len(collate)
             if nL > 0:
                 dP = 0.0
