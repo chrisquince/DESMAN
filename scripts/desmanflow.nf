@@ -10,7 +10,7 @@
 
 params.straincount = 0
 params.output = "out"
-params.r12extglob = "r{1,2}.fq.gz"
+params.r12extglob = ".r{1,2}.fq.gz"
 
 speciescontigslist = file(params.speciescontigs)
 assembly4elite = file(params.assembly)
@@ -23,8 +23,8 @@ assembly4straintigs = file(params.assembly)
 //Channel.fromFilePairs(params.inputreads+"/*."+params.r12extglob).
                 
 // get the input files
-readfiles = Channel.fromFilePairs(params.inputreads+"/*."+params.r12extglob)
-Channel.fromFilePairs(params.inputreads+"/*."+params.r12extglob).ifEmpty('\n==\n==> ERROR: no paired FastQ files were found in the directory '+params.inputreads+' matching the file extension glob '+params.r12extglob+'\n==\n').println()
+readfiles = Channel.fromFilePairs(params.inputreads+"/*"+params.r12extglob)
+Channel.fromFilePairs(params.inputreads+"/*"+params.r12extglob).ifEmpty('\n==\n==> ERROR: no paired FastQ files were found in the directory '+params.inputreads+' matching the file extension glob '+params.r12extglob+'\n==\n').println()
 
 
 // map reads to coassembly reference. 
