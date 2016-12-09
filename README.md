@@ -827,4 +827,6 @@ We pick four strains as it looks like the knee in the curve, and now run desmanf
 
 The final output of the workflow is now in the `out/` directory and includes a FastA file for each predicted strain, along with posterior probability values for contig membership in the strains and SNV presence in the contigs.
 
-Note that the output location defaults to `out`, but can be changed to another directory with the `--output=` command-line option to `desmanflow.nf`.
+Note that the output location defaults to `out`, but can be changed to another directory with the `--output=` command-line option to `desmanflow.nf`. The FastQ file name extensions default to `.r1.fastq.gz` and `.r2.fastq.gz`, but can be changed with the `--r12extglob=` option. For example to change them to `.R1.fastq` and `.R2.fastq` you would pass `--r12extglob=".R{1,2}.fastq"` on the command-line.
+
+Once the workflow has completed it is safe to delete the `work/` directory, which contains data generated at the intermediate steps of the workflow.
