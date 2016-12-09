@@ -350,7 +350,7 @@ rule bam_readcount:
         bam_file = "Map/{sample}.sorted.bam"
     output:
         log = "Counts/{concat_cluster}/{sample}.log",
-        counts = "Counts/{concat_cluster}/{sample}.cnt.gz" 
+        counts = "Counts/{concat_cluster}/{sample}.cnt.gz"
     shell:
         "samtools index {input.bam_file} {input.bam_file}.bai; bam-readcount -q 20 -l {input.core_gene_loc} -f {input.fasta} {input.bam_file} 2> {output.log} | gzip > {output.counts}"
 
@@ -367,7 +367,7 @@ rule collate_counts:
         desman_dir = config["desman_dir"],
         desman_python2_env = config["desman_python2_env"]
     shell:
-        """set +u; source activate {params.desman_python2_env}; set -u; 
+        """set +u; source activate {params.desman_python2_env}; set -u;
         python {params.desman_dir}/scripts/ExtractCountFreqCogs.py {input.core_cogs} {params.input_dir} --output_file {output}"""
 
 rule desman_variant_filter:
@@ -375,13 +375,13 @@ rule desman_variant_filter:
         "Variants/{concat_cluster}_core_cogs.freq"
     output:
         expand("Variants/{{concat_cluster}}_output_{output_file_type}",
-                output_file_type = ["sel_var.csv", "p_df.csv", "q_df.csv", "r_df.csv", "tran_df.csv", "log.txt"]) 
+                output_file_type = ["sel_var.csv", "p_df.csv", "q_df.csv", "r_df.csv", "tran_df.csv", "log.txt"])
     params:
         desman_dir = config["desman_dir"],
         desman_python2_env = config["desman_python2_env"]
     run:
         output_stub = "Variants/{}_output_".format(wildcards.concat_cluster)
-        shell("""set +u; source activate {params.desman_python2_env}; set -u; 
+        shell("""set +u; source activate {params.desman_python2_env}; set -u;
         python {params.desman_dir}/desman/Variant_Filter.py --output_stub {output_stub} {input}""")
 
 rule run_desman:
@@ -395,6 +395,6 @@ rule run_desman:
     params:
         desman_python2_env = config["desman_python2_env"]
     run:
-        output_dir = os.path.dirname(output.desman_results)
-	shell("""set +u; source activate {params.desman_python2_env}; set -u; 
+        output_dir = os.path.dirname(output.desman_results[0])
+	shell("""set +u; source activate {params.desman_python2_env}; set -u;
         desman {input.sel_var} -e {input.tran_df} -o {output_dir} -r 1000 -i 100 -g {wildcards.g} -s {wildcards.r} > {output.desman_log}""")
