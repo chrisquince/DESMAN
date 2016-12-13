@@ -1,4 +1,4 @@
-#!/usr/bin/Rscript
+#!/usr/bin/env Rscript
 #
 # script to plot posterior deviance from multiple desman runs
 # will silently install dependency packages if they are not already present on the system
