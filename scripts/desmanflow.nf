@@ -8,19 +8,24 @@
  * Reads are expected to be paired gzip'd FastQ with extensions .r1.fq.gz and .r2.fq.gz
  */
 
+params.straincount = 0
+params.output = "out"
+params.r12extglob = ".r{1,2}.fq.gz"
+
 speciescontigslist = file(params.speciescontigs)
 assembly4elite = file(params.assembly)
 assembly4map = file(params.assembly)
 assembly4pileup = file(params.assembly)
 assembly4elvar = file(params.assembly)
 assembly4straintigs = file(params.assembly)
-// bamdir = file(bamdir)
 
-readfiles = Channel.fromFilePairs(params.inputreads+"/*.r{1,2}.fq.gz")
-//readfiles = Channel.fromPath(inputreads+"/*r1.fq.gz")
+// check for input files
+//Channel.fromFilePairs(params.inputreads+"/*."+params.r12extglob).
+                
+// get the input files
+readfiles = Channel.fromFilePairs(params.inputreads+"/*"+params.r12extglob)
+Channel.fromFilePairs(params.inputreads+"/*"+params.r12extglob).ifEmpty('\n==\n==> ERROR: no paired FastQ files were found in the directory '+params.inputreads+' matching the file extension glob '+params.r12extglob+'\n==\n').println()
 
-params.straincount = 0
-params.output = "out"
 
 // map reads to coassembly reference. 
 // this might be skipped in a future workflow since it will likely already be done to make the species bins
@@ -34,7 +39,7 @@ process mapReads {
 
     """
     bwa index assembly.fa
-    bwa mem assembly.fa ${x}.r1.fq.gz ${x}.r2.fq.gz | samtools view -q40 -S -b - | samtools sort - -o ${x}.sort.bam
+    bwa mem assembly.fa x1 x2 | samtools view -q40 -S -b - | samtools sort -o - - > ${x}.sort.bam
     """
 }
 
