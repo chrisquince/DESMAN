@@ -34,7 +34,7 @@ process mapReads {
 
     """
     bwa index assembly.fa
-    bwa mem assembly.fa ${x}.r1.fq.gz ${x}.r2.fq.gz | samtools view -q40 -S -b - | samtools sort - ${x}.sort
+    bwa mem assembly.fa ${x}.r1.fq.gz ${x}.r2.fq.gz | samtools view -q40 -S -b - | samtools sort - -o ${x}.sort.bam
     """
 }
 
@@ -136,8 +136,8 @@ process plotDev {
 
     script:
     """
-    cat fit*.txt | cut -d"," -f2- > Dev.csv
-    sed -i '1iH,G,LP,Dev' Dev.csv
+    cat fit*.txt | cut -d"," -f2- > Dev_no_header.csv
+    cat <(echo H,G,LP,Dev) Dev_no_header.csv > Dev.csv
     mkdir -p ~/.Rlibs
     ${DESMANHOME}/scripts/PlotDev.R -l Dev.csv -o Dev.pdf
     """
