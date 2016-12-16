@@ -12,12 +12,17 @@ from collections import defaultdict
 from collections import Counter
 import logging
 
-#MIN_IDENTITY_TAXA = (0.40,0.40,0.50,0.50,0.50,0.60,0.85)
-#50,60,70,80,90,95
+# These are identities normalized with query coverage:
 MIN_IDENTITY_TAXA = (0.40,0.50,0.60,0.70,0.80,0.90,0.95)
+
+# This is local to aligned segment identity:
 MIN_IDENTITY = 0.40
 
+# No limit in nr of matches from file to be used
 MAX_MATCHES = 1e100
+
+# Fraction of weights needed to assign at a specific level,
+# a measure of concensus at that level.
 MIN_FRACTION = 0.9
 
 def read_blast_input(blastinputfile,lengths, accession_mode=False):
