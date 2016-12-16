@@ -20,11 +20,7 @@ MIN_IDENTITY = 0.40
 MAX_MATCHES = 1e100
 MIN_FRACTION = 0.9
 
-DEF_DMP_FILE = "/home/chris/native/Databases/nr/FASTA/gi_taxid_prot.dmp"
-
-DEF_LINE_FILE = "/home/chris/native/Databases/nr/FASTA/all_taxa_lineage_notnone.tsv"
-
-def read_blast_input(blastinputfile,lengths): 
+def read_blast_input(blastinputfile,lengths, accession_mode=False):
     #k191_83_2       gi|973180054|gb|KUL19018.1|     71.2    73      21      0       9       81      337     409     6.6e-24 118.2
     
     #queryId, subjectId, percIdentity, alnLength, mismatchCount, gapOpenCount, queryStart, queryEnd, subjectStart, subjectEnd, eVal, bitScore
@@ -39,8 +35,11 @@ def read_blast_input(blastinputfile,lengths):
         (queryId, subjectId, percIdentity, alnLength, mismatchCount, 
         gapOpenCount, queryStart, queryEnd, subjectStart, subjectEnd, eVal, bitScore) = line.split("\t")
         
-        m = re.search(r"gi\|(.*?)\|.*", subjectId)
-        gid = m.group(1)
+        if accession_mode:
+            gid = subjectId
+        else:
+            m = re.search(r"gi\|(.*?)\|.*", subjectId)
+            gid = m.group(1)
         qLength = lengths[queryId]
         alnLength_in_query = abs(int(queryEnd) - int(queryStart)) + 1
         fHit = float(alnLength_in_query)/qLength
@@ -48,7 +47,7 @@ def read_blast_input(blastinputfile,lengths):
         fHit = min(1.0,fHit)
         #hits[queryId] = hits[queryId] + 1
         if percIdentity > MIN_IDENTITY and nmatches[queryId] < MAX_MATCHES:
-            matches[queryId].append((m.group(1),fHit))
+            matches[queryId].append((gid,fHit))
             nmatches[queryId] += 1
             gids[gid] +=1
 
@@ -125,6 +124,22 @@ def map_gids_binary(gids, mapping_file):
 
     return mapping
 
+def map_accessions(accs, mapping_file):
+    first = True
+    mappings = dict([(acc, -1) for acc in accs])
+    with open(mapping_file) as mapping_fh:
+        for line in mapping_fh:
+            if first:
+                first = False
+                continue
+
+            _, acc_ver, taxid, _ = line.split("\t")
+            # Only add taxids for the given acc
+            if acc_ver in mappings:
+                mappings[acc_ver] = int(taxid)
+
+    return mappings
+
 def main(argv):
 
     parser = argparse.ArgumentParser()
@@ -133,28 +148,38 @@ def main(argv):
 
     parser.add_argument("query_length_file", help="tab delimited file of query lengths")
 
-    parser.add_argument('-g','--gid_taxaid_mapping_file',default=DEF_DMP_FILE,help="mapping from gid to taxaid gzipped")
+    parser.add_argument('-g','--gid_taxaid_mapping_file', help="mapping from gid to taxaid gzipped")
 
-    parser.add_argument('-l','--lineage_file',default=DEF_LINE_FILE,help="text taxaid to lineage mapping")
+    parser.add_argument('-a','--acc_taxaid_mapping_file', help="mapping from accession to taxaid gzipped")
+
+    parser.add_argument('-l','--lineage_file', help="text taxaid to lineage mapping")
 
     parser.add_argument('-o','--output_dir', type=str, default="output",
         help=("string specifying output directory and file stubs"))
 
     args = parser.parse_args()
 
-    #import ipdb; ipdb.set_trace()
-    
+    if args.gid_taxaid_mapping_file and args.acc_taxaid_mapping_file:
+        raise Exception("Both gid_taxaid_mapping_file and acc_taxaid_mapping_file are given, but only one at a time is allowed")
+    elif args.gid_taxaid_mapping_file:
+        accession_mode = False
+    else:
+        accession_mode = True
+
     lengths = read_query_length_file(args.query_length_file)
     logging.info("Finished reading lengths file")
 
-    (matches,gids) = read_blast_input(args.blast_input_file,lengths)
+    (matches,gids) = read_blast_input(args.blast_input_file,lengths,accession_mode)
     logging.info("Finished reading in blast results file")
 
     (lineages,mapBack) = read_lineage_file(args.lineage_file)
     logging.info("Finished reading in lineage file")
 
-    mapping = map_gids_binary(gids, args.gid_taxaid_mapping_file)
-    logging.info("Finished loading map gids file")
+    if accession_mode:
+        mapping = map_accessions(gids, args.acc_taxaid_mapping_file)
+    else:
+        mapping = map_gids_binary(gids, args.gid_taxaid_mapping_file)
+    logging.info("Finished loading taxaid map file")
 
     geneAssign = defaultdict(dict)
     contigLengths = Counter()
@@ -182,6 +207,9 @@ def main(argv):
                 tax_id = mapping[match]
                 if tax_id not in added_matches:     # Only add the best hit per species
                     added_matches.add(tax_id)
+                    if tax_id not in lineages:
+                        logging.warning("Taxa id {} is missing from lineage file".format(tax_id))
+                        continue
                     hits = lineages[tax_id]
                     for depth in range(7):
                         if hits[depth] != "None":
