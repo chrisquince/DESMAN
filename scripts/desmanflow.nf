@@ -11,6 +11,7 @@
 params.straincount = 0
 params.output = "out"
 params.r12extglob = ".r{1,2}.fq.gz"
+params.singlecopybed = "."
 
 speciescontigslist = file(params.speciescontigs)
 assembly4elite = file(params.assembly)
@@ -18,6 +19,7 @@ assembly4map = file(params.assembly)
 assembly4pileup = file(params.assembly)
 assembly4elvar = file(params.assembly)
 assembly4straintigs = file(params.assembly)
+singlecopybed = file(params.singlecopybed)
 
 // check for input files
 //Channel.fromFilePairs(params.inputreads+"/*."+params.r12extglob).
@@ -31,7 +33,7 @@ Channel.fromFilePairs(params.inputreads+"/*"+params.r12extglob).ifEmpty('\n==\n=
 // this might be skipped in a future workflow since it will likely already be done to make the species bins
 process mapReads {
     input:
-    set x, file(x1), file(x2) from readfiles
+    set x, file(x1) from readfiles
     file 'assembly.fa' from assembly4map
 
     output:
@@ -39,7 +41,7 @@ process mapReads {
 
     """
     bwa index assembly.fa
-    bwa mem assembly.fa x1 x2 | /home/koadman/software/samtools-1.3.1/samtools view -q40 -S -b - | /home/koadman/software/samtools-1.3.1/samtools sort -o - - > ${x}.sort.bam
+    bwa mem assembly.fa $x1 | /home/koadman/software/samtools-1.3.1/samtools view -q40 -S -b - | /home/koadman/software/samtools-1.3.1/samtools sort -o - - > ${x}.sort.bam
     """
 }
 
@@ -48,21 +50,30 @@ process findEliteGenes {
     input:
     file 'species.contigs' from speciescontigslist
     file 'assembly.fa' from assembly4elite
+    file 'scb' from singlecopybed
 
     output:
     file 'elites.bed' into elitebed, elitebed2
     file 'species_contigs.fa' into speciesfa
 
-    """
-    ${DESMANHOME}/scripts/extract_species_contigs.py assembly.fa species.contigs > species_contigs.fa
-    WORKDIR=`pwd`
-    cd ${DESMANHOME}/external/
-    tar xjf phylosift_v1.0.1.tar.bz2
-    cd \$WORKDIR
-    ${DESMANHOME}/external/phylosift_v1.0.1/phylosift search --besthit --isolate species_contigs.fa
-    ${DESMANHOME}/external/phylosift_v1.0.1/phylosift align --besthit --isolate species_contigs.fa
-    ${DESMANHOME}/scripts/get_elite_range.py PS_temp/species_contigs.fa/blastDir/lookup_ID.1.tbl PS_temp/species_contigs.fa/alignDir/DNGNGWU*.codon.updated.1.fasta > elites.bed 
-    """
+    script:
+    if(params.singlecopybed == "."){
+        """
+        ${DESMANHOME}/scripts/extract_species_contigs.py assembly.fa species.contigs > species_contigs.fa
+        WORKDIR=`pwd`
+        cd ${DESMANHOME}/external/
+        tar xjf phylosift_v1.0.1.tar.bz2
+        cd \$WORKDIR
+        ${DESMANHOME}/external/phylosift_v1.0.1/phylosift search --besthit --isolate species_contigs.fa
+        ${DESMANHOME}/external/phylosift_v1.0.1/phylosift align --besthit --isolate species_contigs.fa
+        ${DESMANHOME}/scripts/get_elite_range.py PS_temp/species_contigs.fa/blastDir/lookup_ID.1.tbl PS_temp/species_contigs.fa/alignDir/DNGNGWU*.codon.updated.1.fasta > elites.bed 
+        """
+    }else{
+        """
+        ${DESMANHOME}/scripts/extract_species_contigs.py assembly.fa species.contigs > species_contigs.fa
+        cp ${scb} elites.bed
+        """
+    }
 }
 
 // makes pileups for the marker gene ranges
