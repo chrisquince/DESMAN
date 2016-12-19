@@ -830,3 +830,5 @@ The final output of the workflow is now in the `out/` directory and includes a F
 Note that the output location defaults to `out`, but can be changed to another directory with the `--output=` command-line option to `desmanflow.nf`. The FastQ file name extensions default to `.r1.fastq.gz` and `.r2.fastq.gz`, but can be changed with the `--r12extglob=` option. For example to change them to `.R1.fastq` and `.R2.fastq` you would pass `--r12extglob=".R{1,2}.fastq"` on the command-line.
 
 Once the workflow has completed it is safe to delete the `work/` directory, which contains data generated at the intermediate steps of the workflow.
+
+This workflow uses a collection of 37 genes from bacteria and archaea to identify single copy regions of the assembly. The workflow can also be applied in situations where a different or larger set of single copy regions has been manually identified, as may be required when analysing viruses or eukarya. In this situation, a bed file specifying those regions can be given with the `--singlecopybed=` option.
