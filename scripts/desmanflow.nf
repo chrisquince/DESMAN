@@ -41,7 +41,7 @@ process mapReads {
 
     """
     bwa index assembly.fa
-    bwa mem assembly.fa $x1 | /home/koadman/software/samtools-1.3.1/samtools view -q40 -S -b - | /home/koadman/software/samtools-1.3.1/samtools sort -o - - > ${x}.sort.bam
+    bwa mem assembly.fa $x1 | samtools view -q40 -S -b - | samtools sort -o - - > ${x}.sort.bam
     """
 }
 
