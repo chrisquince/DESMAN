@@ -68,7 +68,7 @@ def read_lineage_file(lineage_file):
     
         tokens = line.split("\t")
         (taxaid, domainid, phylumid, classid, orderid, familyid, genusid, speciesid) = tokens
-    
+
         mapping[int(taxaid)]=[domainid, phylumid, classid, orderid, familyid, genusid, speciesid];
         tokens.pop(0)
         for depth in range(6,0,-1):
@@ -223,7 +223,6 @@ def main(argv):
                             if weight > 0.0:
                                 collate_hits[depth][hits[depth]] += weight #could put a transform in here
 
-
         #import ipdb; ipdb.set_trace()        
         for depth in range(6,-1,-1):
             collate = collate_hits[depth]
@@ -281,16 +280,21 @@ def main(argv):
                 if assignhit != 'No hits':
                     collate_hits[depth][assignhit] += lengths[gene]#*genef
         
+        # Contigs are assigned a taxonomy based on LCA for
+        # all genes assigned on at least kingdom level.
+        dWeight = sum(collate_hits[0].values())
         for depth in range(7):
             collate = collate_hits[depth]
-            dWeight = sum(collate.values())
             sortCollate = sorted(collate.items(), key=operator.itemgetter(1),reverse=True)
             nL = len(collate)
             if nL > 0:
                 dP = 0.0
                 if dWeight > 0.0:
                     dP = float(sortCollate[0][1])/dWeight
-                    contigAssign[contig][depth] = (sortCollate[0][0],dP,sortCollate[0][1])   
+                    if dP > MIN_FRACTION:
+                        contigAssign[contig][depth] = (sortCollate[0][0],dP,sortCollate[0][1])
+                    else:
+                        contigAssign[contig][depth] = ('No hits',0.,0.)
                 else:
                     contigAssign[contig][depth] = ('No hits',0.,0.)
             else:    
