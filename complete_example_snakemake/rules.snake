@@ -22,9 +22,11 @@ rule cut_up_fasta:
     output:
         "Contigs/final_contigs_c10K.fa"
     params:
-        concoct_dir = config["concoct_dir"]
+        concoct_dir = config["concoct_dir"],
+        desman_python2_env=config["desman_python2_env"]
     shell:
-        """python2 {params.concoct_dir}/scripts/cut_up_fasta.py -c 10000 -o 0 -m {input} > {output}"""
+        """set +u; source activate {params.desman_python2_env}; set -u;
+        python2 {params.concoct_dir}/scripts/cut_up_fasta.py -c 10000 -o 0 -m {input} > {output}"""
 
 ####
 ##BWA MAP
@@ -93,9 +95,11 @@ rule contig_lengths:
     output:
         "Contigs/final_contigs_c10K.len"
     params:
-        desman_dir=config["desman_dir"] 
+        desman_dir=config["desman_dir"],
+        desman_python2_env=config["desman_python2_env"]
     shell:
-        "python2 {params.desman_dir}/scripts/Lengths.py -i {input} > {output}"
+        """set +u; source activate {params.desman_python2_env}; set -u;
+        python {params.desman_dir}/scripts/Lengths.py -i {input} > {output}"""
 
 rule bedtools_genomecov:
     input:
@@ -199,9 +203,11 @@ rule gene_lengths:
     output:
         "Genes/final_contigs_c10K_gt1000.len"
     params:
-        desman_dir=config["desman_dir"]
+        desman_dir=config["desman_dir"],
+        desman_python2_env = config["desman_python2_env"]
     shell:
-        "python2 {params.desman_dir}/scripts/Lengths.py -i {input} > {output}"
+        """set +u; source activate {params.desman_python2_env}; set -u
+        python2 {params.desman_dir}/scripts/Lengths.py -i {input} > {output}"""
 
 rule diamond_blastp:
     input:
