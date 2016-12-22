@@ -413,3 +413,13 @@ rule run_all_desman:
     output: "RunDesman/{concat_cluster}/Dev.csv"
     shell:
         """cat <(echo 'H,G,LP,Dev') <(cat {input} | cut -d',' -f2-) > {output}"""
+
+rule plot_dev:
+    input: "RunDesman/{concat_cluster}/Dev.csv"
+    output: "RunDesman/{concat_cluster}/Dev.pdf"
+    params:
+        desman_dir = config["desman_dir"]
+    shell:
+        """{params.desman_dir}/scripts/PlotDev.R -l {input} -o {output}"""
+
+

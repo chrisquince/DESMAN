@@ -159,3 +159,12 @@ Adapt these commands to the clusters that you see are associated with E. Coli in
     cd ..
 ```
 
+### Run Desman on identified E. Coli contigs
+
+To generate a plot showing mean posterior deviance vs strain number run the command
+
+```
+    snakemake --cores 16 RunDesman/ClusterEC/Dev.pdf
+```
+
+
