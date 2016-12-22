@@ -10,7 +10,9 @@
     "diamond_nr_db": "~/Databases/NR/nr.dmnd",
     "diamond_threads": 8,
     "lineage_file": "~/Databases/Taxonomy/all_taxa_lineage_notnone.tsv",
-    "gid_taxaid_file": "~/Databases/Taxonomy/gi_taxid_prot.dmp",
+    "accession_taxaid_file": "~/Databases/Taxonomy/prot.accession2taxid",
     "rpsblast_COG_db": "~/Databases/COG/Cog",
-    "rpsblast_threads": 8
+    "rpsblast_threads": 8,
+    "desman_nr_genomes_range": [2,3,4,5,6,7,8],
+    "desman_nr_variable_positions": [0,1,2,3,4]
 }

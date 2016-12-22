@@ -239,11 +239,11 @@ rule classify_contig_nr:
         desman_dir = config["desman_dir"],
         desman_python2_env = config["desman_python2_env"],
         lineage_file = config["lineage_file"],
-        gid_taxaid_file = config["gid_taxaid_file"],
-        output_base = "AssignTaxa/final_contigs_c10K_gt1000_nr"
+        output_base = "AssignTaxa/final_contigs_c10K_gt1000_nr",
+        id_tax_mapping = "-a " + config["accession_taxaid_file"] if "accession_taxaid_file" in config else "-g " + config["gid_taxaid_file"]
     shell:
         """set +u; source activate {params.desman_python2_env}; set -u;
-           python {params.desman_dir}/scripts/ClassifyContigNR.py {input.diamond_result} {input.gene_len} -o {params.output_base} -l {params.lineage_file} -g {params.gid_taxaid_file}"""
+           python {params.desman_dir}/scripts/ClassifyContigNR.py {input.diamond_result} {input.gene_len} -o {params.output_base} -l {params.lineage_file} {params.id_tax_mapping} """
 
 rule filter_assignment:
     input:
@@ -404,3 +404,12 @@ rule run_desman:
         output_dir = os.path.dirname(output.desman_results[0])
 	shell("""set +u; source activate {params.desman_python2_env}; set -u;
         desman {input.sel_var} -e {input.tran_df} -o {output_dir} -r 1000 -i 100 -g {wildcards.g} -s {wildcards.r} > {output.desman_log}""")
+
+rule run_all_desman:
+    input: lambda wildcards: expand("RunDesman/{concat_cluster}_{g}_{r}/fit.txt", \
+            concat_cluster = wildcards.concat_cluster, \
+            g = config["desman_nr_genomes_range"], \
+            r = config["desman_nr_variable_positions"])
+    output: "RunDesman/{concat_cluster}/Dev.csv"
+    shell:
+        """cat <(echo 'H,G,LP,Dev') <(cat {input} | cut -d',' -f2-) > {output}"""
