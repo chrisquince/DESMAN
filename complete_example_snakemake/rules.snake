@@ -423,3 +423,113 @@ rule plot_dev:
         """{params.desman_dir}/scripts/PlotDev.R -l {input} -o {output}"""
 
 
+####
+## Determine accessory genomes
+####
+
+rule contig_length:
+    input:
+        "Contigs/{concat_cluster}.fa"
+    output:
+        "Contigs/{concat_cluster}.len"
+    params:
+        desman_dir = config["desman_dir"],
+        desman_python2_env=config["desman_python2_env"]
+    shell:
+        """set +u; source activate {params.desman_python2_env}; set -u;
+        {params.desman_dir}/scripts/Lengths.py -i {input} > {output}"""
+
+rule contig_length_tsv:
+    input:
+        "Contigs/{concat_cluster}.len"
+    output:
+        "Contigs/{concat_cluster}.len.tsv"
+    params:
+        desman_dir = config["desman_dir"]
+    shell:
+        """{params.desman_dir}/scripts/AddLengths.pl < {input} > {output}"""
+
+rule bam_readcount_all_contigs:
+    input:
+        contig_len_tsv = "Contigs/{concat_cluster}.len.tsv",
+        fasta = "Contigs/{concat_cluster}.fa",
+        bam_file = "Map/{sample}.sorted.bam"
+    output:
+        log = "CountsAll/{concat_cluster}/{sample}.log",
+        counts = "CountsAll/{concat_cluster}/{sample}.cnt"
+    shell:
+        "bam-readcount -w 1 -q 20 -l {input.contig_len_tsv} -f {input.fasta} {input.bam_file} 2> {output.log} > {output.counts}"
+
+rule extract_gene_info:
+    input:
+        "Genes/{concat_cluster}.gff"
+    output:
+        "Genes/{concat_cluster}.genes"
+    params:
+        desman_dir = config["desman_dir"],
+        desman_python2_env=config["desman_python2_env"]
+    shell:
+        """set +u; source activate {params.desman_python2_env}; set -u;
+        python {params.desman_dir}/scripts/ExtractGenes.py -g {input} > {output}"""
+
+rule extract_count_freq:
+    input:
+        all_counts = lambda wildcards: expand("CountsAll/{concat_cluster}/{sample}.cnt",
+                concat_cluster=wildcards.concat_cluster,
+                sample=config["R1_reads_per_sample"]),
+        genes = "Genes/{concat_cluster}.genes"
+    output:
+        "VariantsAll/{concat_cluster}.freq"
+    params:
+        desman_dir = config["desman_dir"]
+    shell:
+        """{params.desman_dir}/scripts/ExtractCountFreqP.pl {input.genes} CountsAll 500 > {output}"""
+
+
+rule desman_variant_all_filter:
+    input:
+        "VariantsAll/{concat_cluster}.freq"
+    output:
+        expand("VariantsAll/{{concat_cluster}}_output_{output_file_type}",
+                output_file_type = ["sel_var.csv", "p_df.csv", "q_df.csv", "r_df.csv", "tran_df.csv", "log.txt"])
+    params:
+        desman_dir = config["desman_dir"],
+        desman_python2_env = config["desman_python2_env"]
+    run:
+        output_stub = "Variants/{}_output_".format(wildcards.concat_cluster)
+        shell("""set +u; source activate {params.desman_python2_env}; set -u;
+        python {params.desman_dir}/desman/Variant_Filter.py --output_stub {output_stub} {input} -m 0.0 -v 0.03""")
+
+rule assign_contigs:
+    input:
+        "VariantsAll/{concat_cluster}.freq"
+    output:
+        "VariantsAll/{concat_cluster}_gene_cov.csv"
+    params:
+        desman_dir = config["desman_dir"],
+        desman_python2_env=config["desman_python2_env"]
+    shell:
+        """set +u; source activate {params.desman_python2_env}; set -u;
+        {params.desman_dir}/scripts/CalcGeneCov.py {input} > {output}"""
+
+rule get_list_of_core_cog:
+    input:
+        "Genes/{concat_cluster}_core.cogs"
+    output:
+        "Genes/{concat_cluster}_core_genes.txt"
+    shell:
+        """cut -d"," -f5 {input} > {output}"""
+
+rule coverage_on_core_cogs:
+    input:
+        gene_cov = "VariantsAll/{concat_cluster}_gene_cov.csv",
+        core_genes = "Genes/{concat_cluster}_core_genes.txt"
+    output:
+        "VariantsAll/{concat_cluster}_delta_out_mean_sd_df.csv"
+    params:
+        desman_dir = config["desman_dir"],
+        desman_python2_env=config["desman_python2_env"]
+    run:
+        output_stub = "VariantsAll/{}_delta_out_".format(wildcards.concat_cluster)
+        shell("""set +u; source activate {params.desman_python2_env}; set -u;
+        python {params.desman_dir}/scripts/CalcDelta.py {input.gene_cov} {input.core_genes} {output_stub}""")
