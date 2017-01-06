@@ -43,7 +43,7 @@ def main(argv):
 
     args = parser.parse_args()
 
-    #import ipdb; ipdb.set_trace()
+#    import ipdb; ipdb.set_trace()
 
     contig_cog_list = defaultdict(list)
     for line in open(args.cog_file):
@@ -143,7 +143,8 @@ def main(argv):
         
             cog_df.columns = expanded_sample_names
             start = cog[0]
-            posns = [x + start for x in range(length)]
+            #posns = [x + start for x in range(length)]
+            posns = list(range(length))
             cog_df['Position'] = posns
             cols = cog_df.columns.tolist()
             cols = cols[-1:] + cols[:-1]
