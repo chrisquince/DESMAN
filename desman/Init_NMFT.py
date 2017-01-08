@@ -23,6 +23,8 @@ import Desman_Utils as du
 class Init_NMFT:
     """Initialises tau and gamma based on tensor non-negative matrix factorization""" 
    
+    BASE_PRIOR = 1.0
+   
     def __init__(self,snps, rank, randomState, n_run = 1, max_iter = 5000, min_change = 1.0e-5,alpha_constant=0.01):
         
         self.V = snps.shape[0] #number of variants
@@ -36,7 +38,7 @@ class Init_NMFT:
         self.alpha = np.empty(self.G); self.alpha.fill(alpha_constant)
         self.alpha4 = np.empty(4); self.alpha4.fill(alpha_constant)
         
-        variants = snps.astype(np.float) + 1.0 #prior on base frequency
+        variants = snps.astype(np.float) + self.BASE_PRIOR #prior on base frequency 
         
         #normalise frequencies at each site
         site_sum = variants.sum(axis = 2)
@@ -136,7 +138,7 @@ class Init_NMFT:
 
     def div_objective(self):
         """Compute divergence of target matrix from its NMF estimate."""
-        pa = np.dot(self.tau, self.gamma)
+        pa = du.elop(np.dot(self.tau, self.gamma))
         
         return (np.multiply(self.freq_matrix, np.log(du.elop(self.freq_matrix, pa, div))) - self.freq_matrix + pa).sum()
         
