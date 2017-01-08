@@ -38,6 +38,8 @@ def main(argv):
     parser.add_argument("cog_file", help="cogs and contig locations for frequencies to be called on")
 
     parser.add_argument("input_dir", help="input directory to glob *.cnt.gz from")
+
+    parser.add_argument("--output_file", default="Select_freq.csv")
     
     args = parser.parse_args()
 
@@ -153,6 +155,7 @@ def main(argv):
             results.append(gene_df)
     
     result_df = p.concat(results)
-    result_df.to_csv("Select_freq.csv")
+    result_df.to_csv(args.output_file)
+
 if __name__ == "__main__":
     main(sys.argv[1:])
