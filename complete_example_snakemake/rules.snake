@@ -365,7 +365,7 @@ rule collate_counts:
         all_counts = lambda wildcards: expand("Counts/{concat_cluster}/{sample}.cnt.gz",
                 concat_cluster=wildcards.concat_cluster,
                 sample=config["R1_reads_per_sample"]),
-        core_cogs = "Genes/{concat_cluster}_core_cogs.csv"
+        core_cogs = "Genes/{concat_cluster}_core.cogs"
     output:
         "Variants/{concat_cluster}_core_cogs.freq"
     params:
@@ -374,7 +374,7 @@ rule collate_counts:
         desman_python2_env = config["desman_python2_env"]
     shell:
         """set +u; source activate {params.desman_python2_env}; set -u;
-        python {params.desman_dir}/scripts/ExtractCountFreqCogs.py {input.core_cogs} {params.input_dir} --output_file {output}"""
+        python {params.desman_dir}/scripts/ExtractCountFreqGenes.py {input.core_cogs} {params.input_dir} --output_file {output}"""
 
 rule desman_variant_filter:
     input:
