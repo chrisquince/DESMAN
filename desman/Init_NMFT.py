@@ -81,12 +81,17 @@ class Init_NMFT:
         """Adjust small values to factors to avoid numerical underflow."""
         self.tau = np.maximum(self.tau, np.finfo(self.tau.dtype).eps)
         self.gamma = np.maximum(self.gamma, np.finfo(self.gamma.dtype).eps)
-    
+   
+    def _adjustment_input(self,X):
+        """Adjust small values to factors to avoid numerical underflow."""
+        X = np.maximum(X, np.finfo(self.tau.dtype).eps)
+ 
+        return X
     def factorize(self):
     
         for run in xrange(self.n_run):
             self.random_initialize()
-        
+            self._adjustment()        
             divl = 0.0
             div = self.div_objective()
             iter=0
@@ -138,7 +143,7 @@ class Init_NMFT:
 
     def div_objective(self):
         """Compute divergence of target matrix from its NMF estimate."""
-        pa = du.elop(np.dot(self.tau, self.gamma))
+        pa = self._adjustment_input(np.dot(self.tau, self.gamma))
         
         return (np.multiply(self.freq_matrix, np.log(du.elop(self.freq_matrix, pa, div))) - self.freq_matrix + pa).sum()
         
