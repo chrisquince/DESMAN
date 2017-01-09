@@ -358,7 +358,7 @@ rule bam_readcount:
         log = "Counts/{concat_cluster}/{sample}.log",
         counts = "Counts/{concat_cluster}/{sample}.cnt.gz"
     shell:
-        "samtools index {input.bam_file} {input.bam_file}.bai; bam-readcount -q 20 -l {input.core_gene_loc} -f {input.fasta} {input.bam_file} 2> {output.log} | gzip > {output.counts}"
+        "samtools index {input.bam_file} {input.bam_file}.bai; bam-readcount -w 1 -q 20 -l {input.core_gene_loc} -f {input.fasta} {input.bam_file} 2> {output.log} | gzip > {output.counts}"
 
 rule collate_counts:
     input:
@@ -492,20 +492,12 @@ rule extract_gene_info:
         """set +u; source activate {params.desman_python2_env}; set -u;
         python {params.desman_dir}/scripts/ExtractGenes.py -g {input} > {output}"""
 
-rule gene_positions_for_collate_count:
-    input:
-        "Genes/{concat_cluster}.genes"
-    output:
-        "Genes/{concat_cluster}_all_genes.csv"
-    shell:
-        """awk -F "," '{{print $2,$3,$4,$1}}' {input} | tr ' ' ',' > {output}"""
-
 rule extract_count_freq:
     input:
         all_counts = lambda wildcards: expand("CountsAll/{concat_cluster}/{sample}.cnt.gz",
                 concat_cluster=wildcards.concat_cluster,
                 sample=config["R1_reads_per_sample"]),
-        genes = "Genes/{concat_cluster}_all_genes.csv"
+        genes = "Genes/{concat_cluster}.genes"
     output:
         "VariantsAll/{concat_cluster}.freq"
     params:
@@ -514,7 +506,7 @@ rule extract_count_freq:
         desman_python2_env = config["desman_python2_env"]
     shell:
         """set +u; source activate {params.desman_python2_env}; set -u;
-        python {params.desman_dir}/scripts/ExtractCountFreqCogs.py {input.genes} {params.input_dir} --output_file {output}"""
+        python {params.desman_dir}/scripts/ExtractCountFreqGenes.py {input.genes} {params.input_dir} --output_file {output} --gene_file"""
 
 
 rule desman_variant_all_filter:

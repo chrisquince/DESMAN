@@ -41,15 +41,21 @@ def main(argv):
 
     parser.add_argument("--output_file", default="Select_freq.csv")
     
+    parser.add_argument('-g', '--gene_file', action='store_true',help=("alternate input format"))
+    
     args = parser.parse_args()
-
+    
     #import ipdb; ipdb.set_trace()
 
     contig_gene_list = defaultdict(list)
     for line in open(args.cog_file):
         line = line.rstrip()
     #COG0100,k99_17880,11324,11714,k99_17880_25,1
-        (cog, contig, start, end, gene, strand) = line.split(",")
+    #k99_10285_3,k99_10285,873,1386,1
+        if args.gene_file:
+            (gene, contig, start, end, strand) = line.split(",")
+        else:
+            (cog, contig, start, end, gene, strand) = line.split(",")
         length = int(end) - int(start) + 1
         contig_gene_list[contig].append([int(start),int(end),int(length),gene])  
     
