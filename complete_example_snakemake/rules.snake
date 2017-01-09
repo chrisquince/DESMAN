@@ -501,7 +501,7 @@ rule extract_count_freq:
     output:
         "VariantsAll/{concat_cluster}.freq"
     params:
-        input_dir = lambda wildcards: "Counts/{}".format(wildcards.concat_cluster),
+        input_dir = lambda wildcards: "CountsAll/{}".format(wildcards.concat_cluster),
         desman_dir = config["desman_dir"],
         desman_python2_env = config["desman_python2_env"]
     shell:
