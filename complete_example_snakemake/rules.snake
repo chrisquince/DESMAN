@@ -429,19 +429,20 @@ rule strain_cog_fastas:
         genes = "Genes/{concat_cluster}_core.cogs",
         variants = "RunDesman/{concat_cluster}_{g}_{r}/Collated_Tau_star.csv"
     output:
-        "StrainCogs/{concat_cluster}_{g}_{r}/{gene}_hap.fa"
+    #    "StrainCogs/{concat_cluster}_{g}_{r}/{gene}_hap.fa",
+        stdout_file = "StrainCogs/{concat_cluster}_{g}_{r}/run_log.txt"
     params:
         desman_dir = config["desman_dir"],
         desman_python2_env=config["desman_python2_env"]
     run:
         output_stub = "StrainCogs/{}_{}_{}/".format(wildcards.concat_cluster, wildcards.g, wildcards.r)
         shell("""set +u; source activate {params.desman_python2_env}; set -u;
-        python {params.desman_dir}/scripts/GetVariants.py {input.contigs} {input.genes} {input.variants} -o {output_stub} -c""")
+        python {params.desman_dir}/scripts/GetVariants.py {input.contigs} {input.genes} {input.variants} -o {output_stub} -c > {output.stdout_file}""")
 
-rule extract_cog_fastas:
-    input: lambda wildcards: dynamic("StrainCogs/{}_{}_{}/{{gene}}_hap.fa".format(wildcards.concat_cluster, wildcards.g, wildcards.r))
-    output: "RunForCog_{concat_cluster}_{g}_{r}"
-    shell: "touch {output}"
+#rule extract_cog_fastas:
+ #   input: lambda wildcards: dynamic("StrainCogs/{}_{}_{}/{{gene}}_hap.fa".format(wildcards.concat_cluster, wildcards.g, wildcards.r))
+  #  output: "RunForCog_{concat_cluster}_{g}_{r}"
+   # shell: "touch {output}"
 
 ####
 ## Determine accessory genomes
@@ -622,21 +623,22 @@ rule norme_gene_counts:
     shell:
         """{params.desman_dir}/scripts/NormGeneCounts.py {input} --output_file {output}"""
 
-
 rule strain_contig_fastas:
     input:
         contigs = "Contigs/{concat_cluster}.fa",
         genes = "Genes/{concat_cluster}.genes",
-        variants = "RunDesmanAll/{concat_cluster}_{g}_{r}/output__tau_star.csv"
+        variants = "RunDesmanAll/{concat_cluster}_{g}_{r}/output__tau_star.csv",
+        eta = "RunDesmanAll/{concat_cluster}_{g}_{r}/output_etaS_df.csv"
     output:
-        "StrainFastas/{concat_cluster}_{g}_{r}/{gene}_hap.fa"
+        #"StrainFastas/{concat_cluster}_{g}_{r}/{gene}_hap.fa",
+        stdout_file = "StrainFastas/{concat_cluster}_{g}_{r}/run_log.txt"
     params:
         desman_dir = config["desman_dir"],
         desman_python2_env=config["desman_python2_env"]
     run:
-        output_stub = "StrainFastas/{}_{}_{}".format(wildcards.concat_cluster, wildcards.g, wildcards.r)
+        output_stub = "StrainFastas/{}_{}_{}/".format(wildcards.concat_cluster, wildcards.g, wildcards.r)
         shell("""set +u; source activate {params.desman_python2_env}; set -u;
-        python {params.desman_dir}/scripts/GetVariants.py {input.contigs} {input.genes} {input.variants} -o {output_stub}""")
+        python {params.desman_dir}/scripts/GetVariantsEta.py {input.contigs} {input.genes} {input.variants} {input.eta} -o {output_stub} > {output.stdout_file}""")
 
 rule extract_strains:
     input: lambda wildcards: dynamic("StrainFastas/{}_{}_{}/{{gene}}_hap.fa".format(wildcards.concat_cluster, wildcards.g, wildcards.r))
