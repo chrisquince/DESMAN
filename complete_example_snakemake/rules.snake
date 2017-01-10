@@ -612,6 +612,17 @@ rule parse_gene_read_count_per_genome:
     shell:
         """cut -f1-6 < {input} > {output}"""
 
+rule norme_gene_counts:
+    input:
+        "Validation/{concat_cluster}_gene_counts_unamb.tsv"
+    output:
+        "Validation/{concat_cluster}_etaP.csv"
+    params:
+        desman_dir = config["desman_dir"]
+    shell:
+        """{params.desman_dir}/scripts/NormGeneCounts.py {input} --output_file {output}"""
+
+
 rule strain_contig_fastas:
     input:
         contigs = "Contigs/{concat_cluster}.fa",
