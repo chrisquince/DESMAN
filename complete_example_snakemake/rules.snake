@@ -434,9 +434,9 @@ rule strain_cog_fastas:
         desman_dir = config["desman_dir"],
         desman_python2_env=config["desman_python2_env"]
     run:
-        output_stub = "StrainCogs/{}_{}_{}".format(wildcards.concat_cluster, wildcards.g, wildcards.r)
+        output_stub = "StrainCogs/{}_{}_{}/".format(wildcards.concat_cluster, wildcards.g, wildcards.r)
         shell("""set +u; source activate {params.desman_python2_env}; set -u;
-        python {params.desman_dir}/scripts/GetVariants.py {input.contigs} <(awk -F ',' '{{print $5,$1,$3,$4,$6}}' {input.genes} | tr ' ' ',') {input.variants} -o {output_stub}""")
+        python {params.desman_dir}/scripts/GetVariants.py {input.contigs} {input.genes} {input.variants} -o {output_stub} -c""")
 
 rule extract_cog_fastas:
     input: lambda wildcards: dynamic("StrainCogs/{}_{}_{}/{{gene}}_hap.fa".format(wildcards.concat_cluster, wildcards.g, wildcards.r))
