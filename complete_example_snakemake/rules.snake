@@ -576,6 +576,42 @@ rule gene_assignment:
         shell("""set +u; source activate {params.desman_python2_env}; set -u;
         python {params.desman_dir}/desman/GeneAssign.py {input.sd_df} {input.gamma_star} {input.gene_cov} {input.eta_star} -m 20 -v {input.sel_var} -o {output_stub} --assign_tau > {output.stdout_file}""")
 
+rule gene_read_count_per_genome:
+    input:
+        genes = "Genes/{concat_cluster}.genes",
+        references="data/Mock1_20genomes.fasta",
+        bam_files = expand("Map/{sample}.sorted.bam",
+            sample=config["R1_reads_per_sample"]),
+        bam_indices = expand("Map/{sample}.sorted.bam.bai",
+            sample=config["R1_reads_per_sample"])
+    output:
+        "Validation/{concat_cluster}_gene_counts.tsv"
+    params:
+        desman_dir = config["desman_dir"],
+        desman_python2_env = config["desman_python2_env"]
+    shell:
+        """set +u; source activate {params.desman_python2_env}; set -u
+           python {params.desman_dir}/scripts/gene_read_count_per_genome.py {input.genes} {input.references} {input.bam_files} > {output}
+        """
+
+rule MapGHeaderGene:
+    input:
+	    "Validation/{concat_cluster}_gene_counts.tsv"
+    output:
+        "Validation/{concat_cluster}_gene_countsR.tsv"        
+    params:
+        desman_dir = config["desman_dir"]
+    shell:
+        """{params.desman_dir}/scripts/MapGHeader.pl {params.desman_dir}/complete_example/Map.txt < {input} > {output}"""
+
+rule parse_gene_read_count_per_genome:
+    input:
+        "Validation/{concat_cluster}_gene_countsR.tsv"
+    output:
+        "Validation/{concat_cluster}_gene_counts_unamb.tsv"
+    shell:
+        """cut -f1-6 < {input} > {output}"""
+
 rule strain_contig_fastas:
     input:
         contigs = "Contigs/{concat_cluster}.fa",
