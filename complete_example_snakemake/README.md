@@ -1,13 +1,11 @@
 # DESMAN complete example using Snakemake
 
-![alt tag](desmans.jpg)
+![alt tag](../desmans.jpg)
 
 ## Table of Contents
 [Installation](#installation)
 
-[Taxonomic profiling](#simple_example)
-
-[Complete example](#complete_example)
+[Complete example using Snakemake](#complete_example)
 
 <a name="installation"/>
 
@@ -60,6 +58,7 @@ A c-compiler, e.g. gcc, is needed to compile the c parts of CONCOCT and DESMAN t
 GNU Scientific Library GSL. For linux (ubuntu) this is installed through:
 
 ```
+    sudo apt-get update
     sudo apt-get install build-essential libgsl0-dev
 ```
 
@@ -82,46 +81,82 @@ and the DESMAN software:
     python ./setup.py install
 ```
 
-In the desman_python3_env we'll install a few dependencies that are not available in the default Conda distribution, instead we install these using the bioconda channel.
+In the desman_python3_env we will install snakemake, in theory this should be possible within conda 
+but we found some conflicts so instead used:
 
 ```
-    source activate desman_python3_env
-    conda install -c bioconda snakemake bwa samtools prodigal diamond r r-gplots r-getopt
+source activate desman_python3_env
+sudo apt install python3-pip
+pip3 install snakemake
 ```
 
-Need to look at the above dependencies failing on my fresh Ubuntu. Instead install through repos e.g. BWA:
-We also assume that you have some standard and not so standard sequence analysis software installed:
+You will now need to install a number of third party programs. These may be possible through conda 
+but mostly we use git or the Ubuntu package managers. We include below our install strategy 
+but you may need to adjust these. You will use need to make a local bin directory (mkdir ~/bin) if 
+not already present:
+
 
 1. [megahit](https://github.com/voutcn/megahit): A highly efficient metagenomics assembler currently our default for most studies
 
+```
+    cd ~/repos
+    git clone https://github.com/voutcn/megahit
+    cd megahit/
+    sudo apt-get install zlib1g-dev
+    make
+    cp megahit* ~/bin
+```
 2. [bwa](https://github.com/lh3/bwa): Necessary for mapping reads onto contigs
 
+```
+    cd ~/repos
+    git clone https://github.com/lh3/bwa.git
+    cd bwa; make
+    cp bwa ~/bin
+```
+
 3. [bam-readcount](https://github.com/genome/bam-readcount): Used to get per sample base frequencies at each position
+```
+    cd ~/repos
+    sudo apt-get install build-essential git-core cmake zlib1g-dev libncurses-dev patch
+    git clone https://github.com/genome/bam-readcount.git
+    mkdir bam-readcount-build
+    cd bam-readcount-build/
+    cmake ../bam-readcount
+    make
+    cp bin/bam-readcount ~/bin/
+```
 
 4. [samtools] (http://www.htslib.org/download/): Utilities for processing mapped files
-
-5. [CONCOCT](https://github.com/BinPro/CONCOCT): Our own contig binning algorithm
-
-6. [prodigal] (https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
-
-7. [gnu parallel] (http://www.gnu.org/software/parallel/): Used for parallelising rps-blast
-
-8. [standalone blast] (http://www.ncbi.nlm.nih.gov/books/NBK52640/): Need rps-blast
-
-9. COG RPS database: ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/ Cog databases
-
-10. [GFF python parser] (https://github.com/chapmanb/bcbb/tree/master/gff)
-
-and megahit:
-
-package manager:
 ```
-sudo apt-get install bwa samtools
-
+    sudo apt-get install samtools
 ```
 
-<a name="simple_example"/>
-##Simple example using Snakemake
+5. [prodigal] (https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
+```
+    wget https://github.com/hyattpd/Prodigal/releases/download/v2.6.3/prodigal.linux 
+    cp prodigal.linux ~/bin
+    chmod +rwx ~/bin/prodigal
+```
+
+6. [gnu parallel] (http://www.gnu.org/software/parallel/): Used for parallelising rps-blast
+```
+    sudo apt-get install parallel
+```
+
+7. [standalone blast] (http://www.ncbi.nlm.nih.gov/books/NBK52640/): Need rps-blast
+```
+
+```
+
+8. COG RPS database: ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/ Cog databases
+
+9. [GFF python parser] (https://github.com/chapmanb/bcbb/tree/master/gff)
+
+
+
+<a name="complete_example"/>
+##Complete example using Snakemake
 
 ###Setup
 ```
