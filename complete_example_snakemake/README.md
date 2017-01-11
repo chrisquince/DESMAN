@@ -140,10 +140,17 @@ not already present:
     cp bin/bam-readcount ~/bin/
     ```
 
-4. [samtools] (http://www.htslib.org/download/): Utilities for processing mapped files
+4. [samtools] (http://www.htslib.org/download/): Utilities for processing mapped files. The version 
+    available through apt will *NOT* work instead...
 
     ```
-    sudo apt-get install samtools
+    
+    ```
+
+5 [bedtools] (http://bedtools.readthedocs.io/en/latest/): Utilities for working with read mappings
+
+    ```
+    apt-get install bedtools
     ```
 
 5. [prodigal] (https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
@@ -165,7 +172,8 @@ not already present:
     ```
     sudo apt-get install blast2
     ```
-8. [diamond] (): BLAST compatible accelerated aligner
+    
+8. [diamond] (https://github.com/bbuchfink/diamond): BLAST compatible accelerated aligner
 
     ```
     cd ~/repos
@@ -175,30 +183,42 @@ not already present:
     tar xzf diamond-linux64.tar.gz
     cp diamond ~/bin/
     ```
+    
+9. [R] (https://www.r-project.org/) Finally we need R we followed these steps 
+[how to install r on linux ubuntu 16-04 xenial xerus](https://www.r-bloggers.com/how-to-install-r-on-linux-ubuntu-16-04-xenial-xerus/):
+and installed the additional packages gplots ggplot2 getopt
+
 
 We also need some database files versions of which that are compatible with the pipeline 
 we have made available through s3. Below we suggest downloading them to a databases directory:
 
 1. COG RPS database: ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/ Cog databases
+    
     ```
     mkdir ~/Databases
     cd ~/Databases
     wget https://desmandatabases.s3.climb.ac.uk/rpsblast_cog_db.tar.gz
     tar -xvzf rpsblast_cog_db.tar.gz
     ```
-2.  NCBI non-redundant database diamond formatted in old GI format downloaded 02/08/2016 02:07:05
+2.  NCBI non-redundant database formatted in old GI format downloaded 02/08/2016 02:07:05. We provide 
+this as fasta sequence so that you can diamond format it yourself to avoid any version issues:
+    
     ```
     cd ~/Databases
     mkdir NR
     cd NR
-    wget https://desmandatabases.s3.climb.ac.uk/nr.dmnd
+    wget https://desmandatabases.s3.climb.ac.uk/nr.faa
+    diamond makedb --in nr.faa -d nr
     ```
 3. GI to Taxaid and lineage files for the above:
+    
     ```
     wget https://desmandatabases.s3.climb.ac.uk/gi_taxid_prot.dmp
-    wget https://desmandatabases.s3.climb.ac.uk/all_taxa_lineage_notnone.tsv.gz
-    gunzip all_taxa_lineage_notnone.tsv.gz
+    wget https://desmandatabases.s3.climb.ac.uk/all_taxa_lineage_notnone.tsv
     ```
+
+
+
 
 <a name="complete_example"/>
 ##Complete example using Snakemake
@@ -206,13 +226,23 @@ we have made available through s3. Below we suggest downloading them to a databa
 ###Setup
 ```
     source activate desman_python3_env
+```
 
-    cd DESMAN_DIR/complete_example_snakemake
+We will work in a new example directory and download the simulated example sequences:
 
-    mkdir data; cd data    
-    wget https://www.dropbox.com/s/l6g3culvibym8g7/Example.tar.gz
-    tar -xvzf Example.tar.gz
-    cd ..
+```
+mkdir ~/complete_example_snakemake
+cd complete_example_snakemake
+mkdir data; cd data
+wget https://www.dropbox.com/s/l6g3culvibym8g7/Example.tar.gz
+tar -xvzf Example.tar.gz
+cd ..
+```
+
+We now copy in the snakemake config file which will have to be edited to suit your system:
+```
+cd ~/complete_example_snakemake
+cp ~/repos/DESMAN/complete_example_snakemake/config.json .
 ```
 
 Make sure you edit the 'config.json' file to suit your system:
