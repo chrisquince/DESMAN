@@ -97,6 +97,7 @@ not already present:
 
 
 1. [megahit](https://github.com/voutcn/megahit): A highly efficient metagenomics assembler currently our default for most studies
+    
     ```
     cd ~/repos
     git clone https://github.com/voutcn/megahit
@@ -105,14 +106,18 @@ not already present:
     make
     cp megahit* ~/bin
     ```
+
 2. [bwa](https://github.com/lh3/bwa): Necessary for mapping reads onto contigs
+
     ```
     cd ~/repos
     git clone https://github.com/lh3/bwa.git
     cd bwa; make
     cp bwa ~/bin
     ```
+
 3. [bam-readcount](https://github.com/genome/bam-readcount): Used to get per sample base frequencies at each position
+
     ```
     cd ~/repos
     sudo apt-get install build-essential git-core cmake zlib1g-dev libncurses-dev patch
@@ -123,21 +128,29 @@ not already present:
     make
     cp bin/bam-readcount ~/bin/
     ```
+
 4. [samtools] (http://www.htslib.org/download/): Utilities for processing mapped files
+
     ```
     sudo apt-get install samtools
     ```
+
 5. [prodigal] (https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
+
     ```
     wget https://github.com/hyattpd/Prodigal/releases/download/v2.6.3/prodigal.linux 
     cp prodigal.linux ~/bin
     chmod +rwx ~/bin/prodigal
     ```
+
 6. [gnu parallel] (http://www.gnu.org/software/parallel/): Used for parallelising rps-blast
+
     ```
     sudo apt-get install parallel
     ```
+
 7. [standalone blast] (http://www.ncbi.nlm.nih.gov/books/NBK52640/): Need rps-blast
+
     ```
 
     ```
