@@ -24,6 +24,9 @@ To install the recommended minimal version of conda, miniconda:
     ./Miniconda-latest-Linux-x86_64.sh
     export PATH=~/miniconda2/bin:$PATH
 ```
+Select default answers to all questions and yes at each step note that the miniconda2 bin will then 
+be permanently added to the .bashrc so the export will not be needed on future sessions.
+
 
 After installing Conda, create an new environment that will contain the python 2.7 installation called 'desman_python2_env':
 
@@ -38,42 +41,45 @@ and one environment that will contain the python 3 installation called 'desman_p
     conda create -n desman_python3_env python=3
 ```
 
-In the desman_python2_env environment we'll install the concoct dependencies:
+In the desman_python2_env environment we'll install the CONCOCT and DESMAN dependencies:
 
 ```
     source activate desman_python2_env
-    conda install cython numpy scipy biopython pandas pip scikit-learn
+    conda install cython numpy scipy biopython pandas pip scikit-learn pysam
 ```
 
-These items are prerequisities for the installation of desman:
+These items are prerequisities for the installation of DESMAN:
 
-1. *python v2.7.*
-2. *gcc
-3. *gsl
+1. *gcc
+2. *gsl
 
 The installation procedure varies on different systems,
 and described in this README is only how to proceed with a linux (ubuntu) distribution.
 
-The first item, python v2.7.*, should be installed on a modern Ubuntu distribution.
-A c-compiler, e.g. gcc, is needed to compile the c parts of concoct that uses the
-GNU Scientific Library gsl. For linux (ubuntu) this is installed through:
+A c-compiler, e.g. gcc, is needed to compile the c parts of CONCOCT and DESMAN that use the
+GNU Scientific Library GSL. For linux (ubuntu) this is installed through:
 
 ```
     sudo apt-get install build-essential libgsl0-dev
 ```
 
-and the concoct software:
+We then install CONCOCT in a directory ~/repos but this could be any where on your system just change 
+as appropriate:
 
 ```
-    cd CONCOCT_DIR
-    python setup.py install
+    mkdir ~/repos
+    cd ~/repos
+    git clone https://github.com/BinPro/CONCOCT.git
+    cd CONCOCT
+    python ./setup.py install
 ```
 
-and the desman software:
+and the DESMAN software:
 
 ```
-    cd DESMAN_DIR
-    python setup.py install
+    cd ~/repos
+    git clone https://github.com/chrisquince/DESMAN.git
+    python ./setup.py install
 ```
 
 In the desman_python3_env we'll install a few dependencies that are not available in the default Conda distribution, instead we install these using the bioconda channel.
@@ -83,31 +89,36 @@ In the desman_python3_env we'll install a few dependencies that are not availabl
     conda install -c bioconda snakemake bwa samtools prodigal diamond r r-gplots r-getopt
 ```
 
-These items are prerequisities for the installation of desman:
+Need to look at the above dependencies failing on my fresh Ubuntu. Instead install through repos e.g. BWA:
+We also assume that you have some standard and not so standard sequence analysis software installed:
 
-1. *python v2.7.*
-2. *gcc
-3. *gsl
+1. [megahit](https://github.com/voutcn/megahit): A highly efficient metagenomics assembler currently our default for most studies
 
-The installation procedure varies on different systems, 
-and described in this README is only how to proceed with a linux (ubuntu) distribution.
+2. [bwa](https://github.com/lh3/bwa): Necessary for mapping reads onto contigs
 
-The first item, python v2.7.*, should be installed on a modern Ubuntu distribution. 
-A c-compiler, e.g. gcc, is needed to compile the c parts of concoct that uses the 
-GNU Scientific Library gsl. For linux (ubuntu) this is installed through:
+3. [bam-readcount](https://github.com/genome/bam-readcount): Used to get per sample base frequencies at each position
+
+4. [samtools] (http://www.htslib.org/download/): Utilities for processing mapped files
+
+5. [CONCOCT](https://github.com/BinPro/CONCOCT): Our own contig binning algorithm
+
+6. [prodigal] (https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
+
+7. [gnu parallel] (http://www.gnu.org/software/parallel/): Used for parallelising rps-blast
+
+8. [standalone blast] (http://www.ncbi.nlm.nih.gov/books/NBK52640/): Need rps-blast
+
+9. COG RPS database: ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/ Cog databases
+
+10. [GFF python parser] (https://github.com/chapmanb/bcbb/tree/master/gff)
+
+and megahit:
+
+package manager:
+```
+sudo apt-get install bwa samtools
 
 ```
-    sudo apt-get install build-essential libgsl0-dev
-```
-
-For convenience we also recommend adding the scripts directory to your path:
-
-```
-export PATH=$HOME/myinstalldir/DESMAN/scripts:$PATH
-
-````
-
-Obviously replacing myinstalldir as appropriate and adding this to your .bash_profile file.
 
 <a name="simple_example"/>
 ##Simple example using Snakemake
