@@ -11,8 +11,18 @@
 
 ##Installation
 
+The following was tested on a clean version of Ubuntu 16.04.1 LTS some changes may 
+need to be made on other systems.
+
 ### Install Dependencies
-DESMAN requires some parts of it to be run with python 3 and some with python 2.7, therefore we strongly recommend the use of Conda. Conda is a tool to isolate your python installation, which allows you to have multiple parallel installations using different versions for different packages, and gives you a very convenient and fast way to install the most common scientific python packages. Additionaly you can use Conda to install all kinds of software into an somewhat isolated environment. Conda is free of charge and you can read more about it [here](https://github.com/conda/conda).
+
+DESMAN requires some parts of it to be run with python 3 and some with python 2.7,
+ therefore we strongly recommend the use of Conda. Conda is a tool to isolate 
+ your python installation, which allows you to have multiple parallel installations
+  using different versions for different packages, and gives you a very convenient 
+  and fast way to install the most common scientific python packages. Additionaly 
+  you can use Conda to install all kinds of software into an somewhat isolated 
+  environment. Conda is free of charge and you can read more about it [here](https://github.com/conda/conda).
 
 To install the recommended minimal version of conda, miniconda:
 
@@ -44,6 +54,7 @@ In the desman_python2_env environment we'll install the CONCOCT and DESMAN depen
 ```
     source activate desman_python2_env
     conda install cython numpy scipy biopython pandas pip scikit-learn pysam
+    pip install bcbio-gff
 ```
 
 These items are prerequisities for the installation of DESMAN:
@@ -149,25 +160,53 @@ not already present:
     sudo apt-get install parallel
     ```
 
-7. [standalone blast] (http://www.ncbi.nlm.nih.gov/books/NBK52640/): Need rps-blast
+7. [standalone blast] (http://www.ncbi.nlm.nih.gov/books/NBK52640/): Need rpsblast from the blast2 package
 
     ```
+    sudo apt-get install blast2
+    ```
+8. [diamond] (): BLAST compatible accelerated aligner
 
     ```
+    cd ~/repos
+    mkdir diamond
+    cd diamond
+    wget http://github.com/bbuchfink/diamond/releases/download/v0.8.31/diamond-linux64.tar.gz
+    tar xzf diamond-linux64.tar.gz
+    cp diamond ~/bin/
+    ```
 
-8. COG RPS database: ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/ Cog databases
+We also need some database files versions of which that are compatible with the pipeline 
+we have made available through s3. Below we suggest downloading them to a databases directory:
 
-9. [GFF python parser] (https://github.com/chapmanb/bcbb/tree/master/gff)
-
-
+1. COG RPS database: ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/ Cog databases
+    ```
+    mkdir ~/Databases
+    cd ~/Databases
+    wget https://desmandatabases.s3.climb.ac.uk/rpsblast_cog_db.tar.gz
+    tar -xvzf rpsblast_cog_db.tar.gz
+    ```
+2.  NCBI non-redundant database diamond formatted in old GI format downloaded 02/08/2016 02:07:05
+    ```
+    cd ~/Databases
+    mkdir NR
+    cd NR
+    wget https://desmandatabases.s3.climb.ac.uk/nr.dmnd
+    ```
+3. GI to Taxaid and lineage files for the above:
+    ```
+    wget https://desmandatabases.s3.climb.ac.uk/gi_taxid_prot.dmp
+    wget https://desmandatabases.s3.climb.ac.uk/all_taxa_lineage_notnone.tsv.gz
+    gunzip all_taxa_lineage_notnone.tsv.gz
+    ```
 
 <a name="complete_example"/>
 ##Complete example using Snakemake
 
 ###Setup
 ```
-    source activate desman_snakemake
-    conda install snakemake
+    source activate desman_python3_env
+
     cd DESMAN_DIR/complete_example_snakemake
 
     mkdir data; cd data    
