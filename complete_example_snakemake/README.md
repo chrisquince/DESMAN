@@ -144,10 +144,17 @@ not already present:
     available through apt will *NOT* work instead...
 
     ```
-    
+    cd ~/repos
+    wget https://github.com/samtools/samtools/releases/download/1.3.1/samtools-1.3.1.tar.bz2
+    tar xvfj samtools-1.3.1.tar.bz2 
+    cd samtools-1.3.1/ 
+    sudo apt-get install libcurl4-openssl-dev libssl-dev
+    ./configure --enable-plugins --enable-libcurl --with-plugin-path=$PWD/htslib-1.3.1
+    make all plugins-htslib
+    cp samtools ~/bin/  
     ```
 
-5 [bedtools] (http://bedtools.readthedocs.io/en/latest/): Utilities for working with read mappings
+5. [bedtools] (http://bedtools.readthedocs.io/en/latest/): Utilities for working with read mappings
 
     ```
     apt-get install bedtools
