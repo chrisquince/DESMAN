@@ -1,0 +1,14 @@
+{
+    "reads_file_ending": "fastq",
+    "read_dir": "data/Example",
+    "megahit_threads": 8,
+    "bwa_map_threads": 8,
+    "samtools_sort_memory": 60000000,
+    "concoct_dir": "~/Installed/CONCOCT",
+    "desman_dir": "~/DesmanSnake/DESMAN",
+    "concoct_python_env": "concoct",
+    "diamond_nr_db": "~/Databases/NR/nr.dmnd",
+    "diamond_threads": 16,
+    "lineage_file": "~/Databases/Taxonomy/all_taxa_lineage_notnone.tsv",
+    "gid_taxaid_file": "~/Databases/Taxonomy/gi_taxid_prot.dmp"
+}

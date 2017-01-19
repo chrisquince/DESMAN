@@ -47,6 +47,8 @@ def main(argv):
     
     parser.add_argument("tau_file", help="variants")
 
+    parser.add_argument("eta_file", help="eta assignment of genes to strains")
+
     parser.add_argument('-o','--output_stub', type=str, default="output",
                                     help=("string specifying file stubs"))
 
@@ -76,14 +78,18 @@ def main(argv):
 	    contigs[record.id] = str(seq)
     print "Open " + args.tau_file + " reading tau"
     tau_df = p.read_csv(args.tau_file, header=0, index_col=0)
-    
+    eta_df = p.read_csv(args.eta_file, header=0, index_col=0)
+    eta = eta_df.as_matrix()
     pos = tau_df['Position']
-    gene_ids = set(tau_df.index.tolist())
+    gene_ids = set(eta_df.index.tolist())
     
     G = (len(tau_df.columns) - 1)/4
     c = 0
     C = len(gene_ids)
     
+    assert G == eta.shape[1]
+    assert C == len(gene_mapping)
+
     variants = defaultdict(dict)
     for gene in gene_ids:
         
@@ -101,9 +107,10 @@ def main(argv):
             gene_variants_matrix = np.reshape(gene_variants_matrix,(V,G,4))
         
             for g in range(G):
-                (contig,start,end,strand) = gene_mapping[gene]
-                contig_seq = contigs[contig]
-                variants[gene][g] = list(contig_seq[start:end])
+                if eta[c,g] > 0:
+                    (contig,start,end,strand) = gene_mapping[gene]
+                    contig_seq = contigs[contig]
+                    variants[gene][g] = list(contig_seq[start:end])
             v = 0
             for (index,value) in gene_pos.iteritems():
                 value = value - 1
@@ -114,9 +121,10 @@ def main(argv):
                 v = v + 1
         except KeyError:
             for g in range(G):
-                (contig,start,end,strand) = gene_mapping[gene]
-                contig_seq = contigs[contig]
-                variants[gene][g] = list(contig_seq[start:end])
+                if eta[c,g] > 0:
+                    (contig,start,end,strand) = gene_mapping[gene]
+                    contig_seq = contigs[contig]
+                    variants[gene][g] = list(contig_seq[start:end])
             pass
         
         c = c + 1

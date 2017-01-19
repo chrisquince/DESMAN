@@ -96,7 +96,7 @@ def sum_count_dicts(cd1, cd2, column_header):
     return cd1
 
 
-def main(contigfa, genefile, reffa, bamfiles, max_n_processors):
+def main(genefile, reffa, bamfiles, max_n_processors):
     
     #import ipdb; ipdb.set_trace()
     geneDict = {}
@@ -126,7 +126,6 @@ def main(contigfa, genefile, reffa, bamfiles, max_n_processors):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("contigfa", help="Contigs fasta file")
     parser.add_argument("genefile", help="gene positions")
     parser.add_argument("reffa", help="Reference fasta file")
     parser.add_argument("bamfiles", nargs='+', help="BAM files with mappings to contigs")
@@ -140,4 +139,4 @@ if __name__ == "__main__":
             raise(Exception("No index for %s file found, run samtools index "
             "first on bam file." % bf))
 
-    main(args.contigfa, args.genefile,args.reffa, args.bamfiles, args.max_n_processors)
+    main(args.genefile,args.reffa, args.bamfiles, args.max_n_processors)
