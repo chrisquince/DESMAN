@@ -36,7 +36,7 @@ def mixNLL(p, eta, n, m, f):
 
 def benjamini_Hochberg(pvalues):
     n = float(pvalues.shape[0])                                                                           
-    new_pvalues = np.zeros(n)
+    new_pvalues = np.zeros(int(n))
 
     values = [ (pvalue, i) for i, pvalue in enumerate(pvalues) ]                                      
     values.sort()
