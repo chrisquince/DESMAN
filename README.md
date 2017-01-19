@@ -2,15 +2,26 @@
 
 ![alt tag](desmans.jpg)
 
-## Table of Contents  
-[Installation](#installation)  
+## Table of Contents
 
-[Taxonomic profiling](#simple_example)  
+[Overview](#overview)  
+
+[Installation](#installation)
+
+[Simple example](#simple_example)  
 
 [Complete example](#complete_example)  
 
 [Using the desmanflow automated workflow](#desmanflow)  
 
+<a name="installation"/>
+
+##Overview
+
+The DESMAN pipeline is described in the [bioRxiv preprint](http://biorxiv.org/content/early/2016/09/06/073825). The software 
+itself enables strain inference from frequency counts on contigs across multiple samples. 
+[Installation](#installation) and a [Simple example](#simple_example) are 
+described below.
 
 <a name="installation"/>
 
