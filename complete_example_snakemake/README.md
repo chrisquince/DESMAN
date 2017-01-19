@@ -157,7 +157,7 @@ not already present:
 5. [bedtools] (http://bedtools.readthedocs.io/en/latest/): Utilities for working with read mappings
 
     ```
-    apt-get install bedtools
+    sudo apt-get install bedtools
     ```
 
 5. [prodigal] (https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
@@ -193,7 +193,7 @@ not already present:
     
 9. [R] (https://www.r-project.org/) Finally we need R we followed these steps 
 [how to install r on linux ubuntu 16-04 xenial xerus](https://www.r-bloggers.com/how-to-install-r-on-linux-ubuntu-16-04-xenial-xerus/):
-and installed the additional packages gplots ggplot2 getopt
+and installed the additional packages: gplots ggplot2 getopt reshape
 
 
 We also need some database files versions of which that are compatible with the pipeline 
@@ -235,6 +235,13 @@ this as fasta sequence so that you can diamond format it yourself to avoid any v
     source activate desman_python3_env
 ```
 
+For convenience we will also create environmental variables for the paths to the 
+CONCOCT and DESMAN repos:
+```
+export DESMAN=~/repos/DESMAN/
+export CONCOCT=~/repos/CONCOCT/
+```
+
 We will work in a new example directory and download the simulated example sequences:
 
 ```
@@ -252,11 +259,14 @@ cd ~/complete_example_snakemake
 cp ~/repos/DESMAN/complete_example_snakemake/config.json .
 ```
 
-Make sure you edit the 'config.json' file to suit your system:
+Make sure you edit the 'config.json' file to suit your system, it is currently configured based 
+on the install above:
 
 ```
     less config.json
 ```
+
+Snakemake works by generating 
 
 To show what rules will be executed in order to create a certain file, run:
 
@@ -269,7 +279,7 @@ To show what rules will be executed in order to create a certain file, run:
 In this step, we'll assemble the reads, run concoct including all the preprocessing of the data and taxonomically assign the contigs.
 
 ```
-    snakemake --cores 16 confusion_matrix_plot --resources memory=128000000000
+    snakemake --cores 8 confusion_matrix_plot --resources memory=6000000
 ```
 
 ### Extract clusters associated with E. Coli
@@ -278,12 +288,14 @@ In this dataset there is several E. Coli strains present, which CONCOCT is not a
 So we'll use the taxonomic assignment of the contigs to select clusters to use as input for DESMAN. 
 
 Adapt these commands to the clusters that you see are associated with E. Coli in your taxassign_conf.pdf.
- 
+    
+    D0   D10   D18    D20     D2
+     
 ```
     mkdir Split
     cd Split
-    $DESMAN/scripts/SplitClusters.pl ../Contigs/final_contigs_c10K.fa ../Concoct/Output/clustering_gt1000.csv
-    cat Cluster14/Cluster14.fa Cluster3/Cluster3.fa Cluster5/Cluster5.fa Cluster19/Cluster19.fa > ../Contigs/ClusterEC.fa 
+    ~/repos/DESMAN/scripts/SplitClusters.pl ../Contigs/final_contigs_c10K.fa ../Concoct/Output/clustering_gt1000.csv
+    cat Cluster0/Cluster0.fa Cluster10/Cluster10.fa Cluster18/Cluster18.fa Cluster20/Cluster20.fa Cluster2/Cluster2.fa > ../Contigs/ClusterEC.fa 
     cd ..
 ```
 
@@ -292,7 +304,7 @@ Adapt these commands to the clusters that you see are associated with E. Coli in
 To generate a plot showing mean posterior deviance vs strain number run the command
 
 ```
-    snakemake --cores 16 RunDesman/ClusterEC/Dev.pdf
+    snakemake --cores 8 RunDesman/ClusterEC/Dev.pdf
 ```
 
 
