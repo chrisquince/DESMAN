@@ -274,7 +274,7 @@ class Variant_Filter():
         n = (self.freq.max(axis=1)).astype(np.float64)
         e = N -n
         #self.maxN = 
-        
+                
         NLComb = -log_factorial(N) + log_factorial(self.freq).sum(axis=1)
         
         lastSelect = 0
@@ -331,7 +331,7 @@ class Variant_Filter():
         n = (self.freq.max(axis=1)).astype(np.float64) #value of most abundant base
         m =  (ftemp.max(axis=1)).astype(np.float64)     #value of second most abundant
         e = N -n
-        
+        self.minV = m/N
         p = np.zeros(self.V)
         MLL = np.zeros(self.V)
         lastSelect = 0
@@ -493,7 +493,7 @@ def main(argv):
     if args.max_qvalue is not None:
         max_qvalue = args.max_qvalue
     
-    filter_variants = 3.84 
+    filter_variants = 25.0 
     if args.filter_variants is not None:
         filter_variants = args.filter_variants
     
@@ -502,7 +502,7 @@ def main(argv):
         min_variant_freq = args.min_variant_freq
         
     #read in snp variants
-    #import ipdb; ipdb.set_trace()
+    import ipdb; ipdb.set_trace()
     variants    = p.read_csv(variant_file, header=0, index_col=0)
     
     variant_Filter =  Variant_Filter(variants, randomState = prng, optimise = optimiseP, threshold = filter_variants, 
@@ -528,7 +528,12 @@ def main(argv):
     
     logging.info('Output selected variants to %s',output_stub+"sel_var.csv") 
     snps_reshape_df.to_csv(output_stub+"sel_var.csv")
-          
+    
+    logging.info('Output minor variant frequencies to %s',output_stub+"v_df.csv")
+    p_df = p.DataFrame(variant_Filter.minV,index=contig_names)
+    p_df = addPositions(p_df,position)
+    p_df.to_csv(output_stub+"v_df.csv")
+
     logging.info('Output p-values to %s',output_stub+"p_df.csv")             
     p_df = p.DataFrame(variant_Filter.pvalue,index=contig_names)
     p_df = addPositions(p_df,position)   
