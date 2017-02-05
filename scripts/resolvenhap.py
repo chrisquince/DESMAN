@@ -150,8 +150,8 @@ def main(argv):
        # print desman_dir
         
         if os.path.isdir(desman_dir):
-            p = re.compile('.*_(\d+)_0')
-            m = p.match(desman_dir)
+            preg = re.compile('.*_(\d+)_0')
+            m = preg.match(desman_dir)
             if m:
                 G = int(m.group(1))
                 gValues.append(G)
@@ -204,19 +204,23 @@ def main(argv):
             if r != bestr:
                 comp_files.append(args.input_stub + "_" + str(G) + "_" + str(r) +"/Filtered_Tau_star.csv")
         (gamma_mean, mean_acc) = computeStrainReproducibility(gamma_file,tau_file,comp_files)
-    
+        
+        hidx = 0
         NStrains = 0
         selected_err = []
+        selected_strains = []
         for mean, acc in zip(gamma_mean, mean_acc):
             if mean > args.min_freq and acc < args.max_err:
                 NStrains += 1
                 selected_err.append(acc)
+                selected_strains.append(hidx)
+            hidx += 1
         if NStrains > 0:
             meanError = np.mean(selected_err)       
         else:
             meanError = -1.0
         
-        strainQuality[G] = (NStrains,meanError,bestr)
+        strainQuality[G] = (NStrains,meanError,bestr,selected_strains)
     
     
     strainSorted = sorted(strainQuality, key=lambda k: (strainQuality[k][0], -strainQuality[k][1]))
@@ -224,10 +228,88 @@ def main(argv):
     
     if newNG > 0:
         bestG = strainSorted[-1]
-        (NStrains,meanError,bestr) = strainQuality[bestG]
+        (NStrains,meanError,bestr,selected_strains) = strainQuality[bestG]
         
         tau_file = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Filtered_Tau_star.csv"
         
-        print str(bestG)+ "," + str(NStrains) + "," + str(bestr) + "," + str(meanError) + "," + tau_file   
+        print str(bestG)+ "," + str(NStrains) + "," + str(bestr) + "," + str(meanError) + "," + tau_file
+        
+        #Now remove low quality strains from gamma and tau files
+        
+        gamma_file = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Gamma_star.csv"
+        
+        gamma    = p.read_csv(gamma_file, header=0, index_col=0)
+        
+        gammaR = gamma.ix[:,selected_strains]
+        
+        gamma_fileR = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Gamma_starR.csv"
+        
+        gammaR.to_csv(gamma_fileR)
+        
+        
+        
+        gamma_file2 = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Gamma_mean.csv"
+        
+        gamma2    = p.read_csv(gamma_file2, header=0, index_col=0)
+        
+        gammaR2 = gamma2.ix[:,selected_strains]
+        
+        gamma_fileR2 = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Gamma_meanR.csv"
+        
+        gammaR2.to_csv(gamma_fileR2)
+        
+        
+        
+        tau = p.read_csv(tau_file, header=0, index_col=0)
+        
+        tau_select_idx = [0]
+        for selected in selected_strains:
+            offset = 1 + 4*selected
+            for n in range(4):
+                tau_select_idx.append(offset + n)
+        
+        tauR = tau.ix[:,tau_select_idx]
+        
+        tau_fileR = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Filtered_Tau_starR.csv"
+        
+        tauR.to_csv(tau_fileR)
+        
+        
+        
+        tau_mean_file = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Tau_mean.csv"
+        tau2 = p.read_csv(tau_mean_file, header=0, index_col=0)
+        
+        tauR2 = tau2.ix[:,tau_select_idx]
+        
+        tau_fileR2 = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Tau_meanR.csv"
+        
+        tauR2.to_csv(tau_fileR2)
+        
+        tau_collated_file = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Collated_Tau_star.csv"
+        
+        if os.path.isfile(tau_collated_file):
+            tauC = p.read_csv(tau_collated_file, header=0, index_col=0)
+        
+            tauCR = tauC.ix[:,tau_select_idx]
+        
+            tau_fileCR = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Collated_Tau_starR.csv"
+        
+            tauCR.to_csv(tau_fileCR)
+            
+            
+            tau_collated_mean_file = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Collated_Tau_mean.csv"
+        
+            tauC2 = p.read_csv(tau_collated_mean_file, header=0, index_col=0)
+        
+            tauCR2 = tauC2.ix[:,tau_select_idx]
+        
+            tau_fileCR2 = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Collated_Tau_meanR.csv"
+        
+            tauCR2.to_csv(tau_fileCR2)
+        
+        #Gamma_star.csv  Tau_Mean.csv  
+        #/Collated_Tau_star.csv, /Collated_Tau_mean.csv
+        
+           
 if __name__ == "__main__":
     main(sys.argv[1:])
