@@ -71,7 +71,7 @@ def main(argv):
         
     args = parser.parse_args()
     
-    import ipdb; ipdb.set_trace()
+    #import ipdb; ipdb.set_trace()
     tau_star_file = args.tau_star_file
     tau_file = args.tau_file
 

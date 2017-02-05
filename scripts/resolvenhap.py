@@ -276,12 +276,12 @@ def main(argv):
         
         
         
-        tau_mean_file = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Tau_mean.csv"
+        tau_mean_file = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Tau_Mean.csv"
         tau2 = p.read_csv(tau_mean_file, header=0, index_col=0)
         
         tauR2 = tau2.ix[:,tau_select_idx]
         
-        tau_fileR2 = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Tau_meanR.csv"
+        tau_fileR2 = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Tau_MeanR.csv"
         
         tauR2.to_csv(tau_fileR2)
         
