@@ -1,5 +1,6 @@
 <a name="complete_example"></a>
-#Complete example of _de novo_ strain level analysis from metagenome data
+Complete example of _de novo_ strain level analysis from metagenome data
+========================================================================
 
 ## Table of Contents  
 [Getting started](#getting_started)  
