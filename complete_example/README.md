@@ -1,5 +1,5 @@
 <a name="complete_example"></a>
-#Complete example of _de novo_ strain level analysis from metagenome data#
+#Complete example of _de novo_ strain level analysis from metagenome data
 
 ## Table of Contents  
 [Getting started](#getting_started)  
@@ -21,38 +21,152 @@
 [Assign accessory genomes](#assign_acessory)
 
 
-![alt tag](DesmanFig.png)
+![alt tag](../DesmanFig.png)
 
 
 <a name="getting_started"></a>
-##Getting started##
+##Getting started
 
-To provide an in depth illustration of how to use Deman we will give a complete worked example from a subset of the synthetic community 
-used in Quince et al. 2016. We have provided 16 samples, subsampled to 1 million reads from the 64 samples with 11.75 million reads used 
-originally. This example is therefore more tractable but the following analysis assumes you have access to a multi-core server. 
-We also assume that you have some standard and not so standard sequence analysis software installed:
+To provide an in depth illustration of how to use Deman we will give a complete worked example from a subset of the synthetic community used in the [bioRxiv preprint](http://biorxiv.org/content/early/2016/09/06/073825. We have provided 16 samples, subsampled to 1 million reads from the 64 samples with 11.75 million reads used 
+originally. This example is therefore more tractable but the following analysis assumes you have access to a multi-core server. We also assume that you have some standard and not so standard sequence analysis software installed. To make things a bit simpler we include installation for each of these assuming a Linux Ubuntu distribution if you are 
+not running Ubuntu these will have to be adapted accordingly:
+
+You will use need to make a local bin directory (mkdir ~/bin) if 
+not already present and add to your path by adding this line to your .bashrc:
+```
+export PATH=~/bin:$PATH
+```
+
 
 1. [megahit](https://github.com/voutcn/megahit): A highly efficient metagenomics assembler currently our default for most studies
+    
+    ```
+    cd ~/repos
+    git clone https://github.com/voutcn/megahit
+    cd megahit/
+    sudo apt-get install zlib1g-dev
+    make
+    cp megahit* ~/bin
+    ```
 
 2. [bwa](https://github.com/lh3/bwa): Necessary for mapping reads onto contigs
 
+    ```
+    cd ~/repos
+    git clone https://github.com/lh3/bwa.git
+    cd bwa; make
+    cp bwa ~/bin
+    ```
+
 3. [bam-readcount](https://github.com/genome/bam-readcount): Used to get per sample base frequencies at each position
 
-4. [samtools] (http://www.htslib.org/download/): Utilities for processing mapped files
+    ```
+    cd ~/repos
+    sudo apt-get install build-essential git-core cmake zlib1g-dev libncurses-dev patch
+    git clone https://github.com/genome/bam-readcount.git
+    mkdir bam-readcount-build
+    cd bam-readcount-build/
+    cmake ../bam-readcount
+    make
+    cp bin/bam-readcount ~/bin/
+    ```
 
-5. [CONCOCT](https://github.com/BinPro/CONCOCT): Our own contig binning algorithm
+4. [samtools] (http://www.htslib.org/download/): Utilities for processing mapped files. The version 
+    available through apt will *NOT* work instead...
 
-6. [prodigal] (https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
+    ```
+    cd ~/repos
+    wget https://github.com/samtools/samtools/releases/download/1.3.1/samtools-1.3.1.tar.bz2
+    tar xvfj samtools-1.3.1.tar.bz2 
+    cd samtools-1.3.1/ 
+    sudo apt-get install libcurl4-openssl-dev libssl-dev
+    ./configure --enable-plugins --enable-libcurl --with-plugin-path=$PWD/htslib-1.3.1
+    make all plugins-htslib
+    cp samtools ~/bin/  
+    ```
 
-7. [gnu parallel] (http://www.gnu.org/software/parallel/): Used for parallelising rps-blast
+5. [bedtools] (http://bedtools.readthedocs.io/en/latest/): Utilities for working with read mappings
 
-8. [standalone blast] (http://www.ncbi.nlm.nih.gov/books/NBK52640/): Need rps-blast
+    ```
+    sudo apt-get install bedtools
+    ```
 
-9. COG RPS database: ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/ Cog databases
+5. [prodigal] (https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
 
-10. [GFF python parser] (https://github.com/chapmanb/bcbb/tree/master/gff)
+    ```
+    wget https://github.com/hyattpd/Prodigal/releases/download/v2.6.3/prodigal.linux 
+    cp prodigal.linux ~/bin
+    chmod +rwx ~/bin/prodigal
+    ```
 
-Click the link associated with each application for installation details. To begin obtain the reads from Dropbox:
+6. [gnu parallel] (http://www.gnu.org/software/parallel/): Used for parallelising rps-blast
+
+    ```
+    sudo apt-get install parallel
+    ```
+
+7. [standalone blast] (http://www.ncbi.nlm.nih.gov/books/NBK52640/): Need a legacy blast 2.5.0 which we provide as a download:
+
+    ```
+    wget https://desmandatabases.s3.climb.ac.uk/ncbi-blast-2.5.0+-x64-linux.tar.gz
+    
+    tar -xvzf ncbi-blast-2.5.0+-x64-linux.tar.gz
+    
+    cp ncbi-blast-2.5.0+/bin/* ~/bin
+    ```
+    
+8. [diamond] (https://github.com/bbuchfink/diamond): BLAST compatible accelerated aligner
+
+    ```
+    cd ~/repos
+    mkdir diamond
+    cd diamond
+    wget http://github.com/bbuchfink/diamond/releases/download/v0.8.31/diamond-linux64.tar.gz
+    tar xzf diamond-linux64.tar.gz
+    cp diamond ~/bin/
+    ```
+    
+9. [R] (https://www.r-project.org/) Finally we need R we followed these steps 
+[how to install r on linux ubuntu 16-04 xenial xerus](https://www.r-bloggers.com/how-to-install-r-on-linux-ubuntu-16-04-xenial-xerus/):
+and installed the additional packages: gplots ggplot2 getopt reshape
+
+
+We also need some database files versions of which that are compatible with the pipeline 
+we have made available through s3. Below we suggest downloading them to a databases directory:
+
+1. COG RPS database: ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/ Cog databases
+    
+    ```
+    mkdir ~/Databases
+    cd ~/Databases
+    wget https://desmandatabases.s3.climb.ac.uk/rpsblast_cog_db.tar.gz
+    tar -xvzf rpsblast_cog_db.tar.gz
+    ```
+2.  NCBI non-redundant database formatted in old GI format downloaded 02/08/2016 02:07:05. We provide 
+this as fasta sequence so that you can diamond format it yourself to avoid any version issues:
+    
+    ```
+    cd ~/Databases
+    mkdir NR
+    cd NR
+    wget https://desmandatabases.s3.climb.ac.uk/nr.faa
+    diamond makedb --in nr.faa -d nr
+    ```
+3. GI to Taxaid and lineage files for the above:
+    
+    ```
+    wget https://desmandatabases.s3.climb.ac.uk/gi_taxid_prot.dmp
+    wget https://desmandatabases.s3.climb.ac.uk/all_taxa_lineage_notnone.tsv
+    ```
+
+We then install both the [CONCOCT](https://github.com/BinPro/CONCOCT) and [DESMAN]((https://github.com/chrisquince/DESMAN)) repositories. These are both Python 2.7 and require the following modules:
+
+```
+    sudo pip install cython numpy scipy biopython pandas pip scikit-learn pysam bcbio-gff
+```
+
+
+To begin obtain the reads from Dropbox:
 
 ```bash
 wget https://www.dropbox.com/s/l6g3culvibym8g7/Example.tar.gz
