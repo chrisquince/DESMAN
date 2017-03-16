@@ -26,18 +26,27 @@ Complete example of _de novo_ strain level analysis from metagenome data
 
 <a name="getting_started"></a>
 
-##Getting started
+Getting started
+---------------
 
 To provide an in depth illustration of how to use Deman we will give a complete worked example from a subset of the synthetic community used in the [bioRxiv preprint](http://biorxiv.org/content/early/2016/09/06/073825. We have provided 16 samples, subsampled to 1 million reads from the 64 samples with 11.75 million reads used 
 originally. This example is therefore more tractable but the following analysis assumes you have access to a multi-core server. We also assume that you have some standard and not so standard sequence analysis software installed. To make things a bit simpler we include installation for each of these assuming a Linux Ubuntu distribution if you are 
 not running Ubuntu these will have to be adapted accordingly:
 
-You will use need to make a local bin directory (mkdir ~/bin) if 
-not already present and add to your path by adding this line to your .bashrc:
+You will use need to make a local bin directory and a repos dir:
+```
+mkdir ~/bin
+mkdir ~/repos
+```
+if not already present and add to your path by adding this line to your .bashrc:
 ```
 export PATH=~/bin:$PATH
 ```
-
+and also install GSL:
+```
+sudo apt-get update
+sudo apt-get install build-essential libgsl0-dev
+```
 
 1. [megahit](https://github.com/voutcn/megahit): A highly efficient metagenomics assembler currently our default for most studies
     
