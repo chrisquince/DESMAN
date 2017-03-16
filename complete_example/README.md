@@ -22,10 +22,10 @@ Complete example of _de novo_ strain level analysis from metagenome data
 [Assign accessory genomes](#assign_acessory)
 
 
-![alt tag](../DesmanFig.png)
-
+![alt tag](../desmans.jpg)
 
 <a name="getting_started"></a>
+
 ##Getting started
 
 To provide an in depth illustration of how to use Deman we will give a complete worked example from a subset of the synthetic community used in the [bioRxiv preprint](http://biorxiv.org/content/early/2016/09/06/073825. We have provided 16 samples, subsampled to 1 million reads from the 64 samples with 11.75 million reads used 
@@ -72,8 +72,7 @@ export PATH=~/bin:$PATH
     cp bin/bam-readcount ~/bin/
     ```
 
-4. [samtools] (http://www.htslib.org/download/): Utilities for processing mapped files. The version 
-    available through apt will *NOT* work instead...
+4. [samtools](http://www.htslib.org/download/): Utilities for processing mapped files. The version available through apt will *NOT* work instead...
 
     ```
     cd ~/repos
@@ -86,13 +85,13 @@ export PATH=~/bin:$PATH
     cp samtools ~/bin/  
     ```
 
-5. [bedtools] (http://bedtools.readthedocs.io/en/latest/): Utilities for working with read mappings
+5. [bedtools](http://bedtools.readthedocs.io/en/latest/): Utilities for working with read mappings
 
     ```
     sudo apt-get install bedtools
     ```
 
-5. [prodigal] (https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
+5. [prodigal](https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
 
     ```
     wget https://github.com/hyattpd/Prodigal/releases/download/v2.6.3/prodigal.linux 
@@ -100,13 +99,13 @@ export PATH=~/bin:$PATH
     chmod +rwx ~/bin/prodigal
     ```
 
-6. [gnu parallel] (http://www.gnu.org/software/parallel/): Used for parallelising rps-blast
+6. [gnu parallel](http://www.gnu.org/software/parallel/): Used for parallelising rps-blast
 
     ```
     sudo apt-get install parallel
     ```
 
-7. [standalone blast] (http://www.ncbi.nlm.nih.gov/books/NBK52640/): Need a legacy blast 2.5.0 which we provide as a download:
+7. [standalone blast](http://www.ncbi.nlm.nih.gov/books/NBK52640/): Need a legacy blast 2.5.0 which we provide as a download:
 
     ```
     wget https://desmandatabases.s3.climb.ac.uk/ncbi-blast-2.5.0+-x64-linux.tar.gz
@@ -116,7 +115,7 @@ export PATH=~/bin:$PATH
     cp ncbi-blast-2.5.0+/bin/* ~/bin
     ```
     
-8. [diamond] (https://github.com/bbuchfink/diamond): BLAST compatible accelerated aligner
+8. [diamond](https://github.com/bbuchfink/diamond): BLAST compatible accelerated aligner
 
     ```
     cd ~/repos
@@ -127,7 +126,7 @@ export PATH=~/bin:$PATH
     cp diamond ~/bin/
     ```
     
-9. [R] (https://www.r-project.org/) Finally we need R we followed these steps 
+9. [R](https://www.r-project.org/) Finally we need R we followed these steps 
 [how to install r on linux ubuntu 16-04 xenial xerus](https://www.r-bloggers.com/how-to-install-r-on-linux-ubuntu-16-04-xenial-xerus/):
 and installed the additional packages: gplots ggplot2 getopt reshape
 
