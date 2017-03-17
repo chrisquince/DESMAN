@@ -231,15 +231,14 @@ We will now perform CONCOCT binning of these contigs. As explained in [Alneberg 
 there are good reasons to cut up contigs prior to binning. We will use a script from CONCOCT to do this. For convenience we 
 will create environmental variables points to the CONCOCT and DESMAN install directories:
 
-```bash
-export CONCOCT=$HOME/mypathtoConcoct/CONCOCT
-export DESMAN=$HOME/mypathtoDesman/DESMAN
+```
 export DESMAN_EXAMPLE=$HOME/mypathtoDesmanExample/Example
 ```
 
 Then cut up contigs and place in new dir:
 
 ```bash
+cd ~/DesmanExample/Example
 mkdir contigs
 python $CONCOCT/scripts/cut_up_fasta.py -c 10000 -o 0 -m Assembly/final.contigs.fa > contigs/final_contigs_c10K.fa
 ```
