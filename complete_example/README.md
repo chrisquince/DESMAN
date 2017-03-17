@@ -198,8 +198,8 @@ sudo python ./setup.py install
 Then add this lines to .bashrc:
 
 ```
-export CONCOCT=:~/repos/CONCOCT
-export DESMAN=:~/repos/DESMAN
+export CONCOCT=~/repos/CONCOCT
+export DESMAN=~/repos/DESMAN
 ```
 
 To begin make working directory and obtain the reads from Dropbox:
