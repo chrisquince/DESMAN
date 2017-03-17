@@ -104,7 +104,7 @@ sudo apt-get install build-essential libgsl0-dev
 
     ```
     wget https://github.com/hyattpd/Prodigal/releases/download/v2.6.3/prodigal.linux 
-    cp prodigal.linux ~/bin
+    cp prodigal.linux ~/bin/prodigal
     chmod +rwx ~/bin/prodigal
     ```
 
@@ -171,13 +171,43 @@ this as fasta sequence so that you can diamond format it yourself to avoid any v
 We then install both the [CONCOCT](https://github.com/BinPro/CONCOCT) and [DESMAN]((https://github.com/chrisquince/DESMAN)) repositories. These are both Python 2.7 and require the following modules:
 
 ```
+    sudo apt-get -y install python-pip
     sudo pip install cython numpy scipy biopython pandas pip scikit-learn pysam bcbio-gff
 ```
 
+Then install the repos and set their location in your .bashrc:
+```
+cd ~/repos
 
-To begin obtain the reads from Dropbox:
+git clone https://github.com/BinPro/CONCOCT.git
+
+cd CONCOCT
+
+sudo python ./setup.py install
+
+cd ~/repos
+
+git clone https://github.com/chrisquince/DESMAN.git
+
+cd DESMAN
+
+sudo python ./setup.py install
+
+```
+
+Then add this lines to .bashrc:
+
+```
+export CONCOCT=:~/repos/CONCOCT
+export DESMAN=:~/repos/DESMAN
+```
+
+To begin make working directory and obtain the reads from Dropbox:
 
 ```bash
+cd ~
+mkdir DesmanExample
+cd DesmanExample
 wget https://www.dropbox.com/s/l6g3culvibym8g7/Example.tar.gz
 ```
 
@@ -192,7 +222,7 @@ cd Example
 
 Then assemble the reads. We recommend megahit for this:
 ```bash
-nohup megahit -1 $(<R1.csv) -2 $(<R2.csv) -t 36 -o Assembly --presets meta > megahit.out&
+nohup megahit -1 $(<R1.csv) -2 $(<R2.csv) -t 36 -o Assembly > megahit.out&
 ```
 This will take a while so we have set megahit running on 36 threads (adjust to your system) and 
 run in background with nohup.
