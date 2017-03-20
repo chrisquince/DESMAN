@@ -112,9 +112,10 @@ def computeStrainReproducibility(gamma_file,tau_file,comp_files):
         
         all_acc[:,c] = accuracies
         c=c+1
-    
-    mean_acc = np.mean(all_acc, axis=1)
-
+    if NC > 0:     
+        mean_acc = np.mean(all_acc, axis=1)
+    else:
+        mean_acc = np.ones(G)
     #for g in range(G):
      #   print "%d,%f,%f" %(g,gamma_mean[g],mean_acc[g]) 
 
@@ -127,10 +128,10 @@ def main(argv):
     
     parser.add_argument("input_stub", help="relative frequencies of haplotypes")
     
-    parser.add_argument('-d','--delta_g', type=float, default=1.0e-2,
-        help=("minimum fractional reduction in PD default 1.0e-2"))
+    parser.add_argument('-d','--delta_g', type=float, default=0.05,
+        help=("minimum fractional reduction in PD default 0.05"))
     
-    parser.add_argument('-m','--max_err', type=float, default=0.05,
+    parser.add_argument('-m','--max_err', type=float, default=0.10,
         help=("maximum error valid strain"))
     
     parser.add_argument('-f','--min_freq', type=float, default=0.05,
@@ -188,7 +189,8 @@ def main(argv):
 
         if countPD[gidx] < 1 or fractionalReduction < deltaG:
             break
-    newNG = gidx + 1
+    
+    newNG = gidx
     
     strainQuality = {}
     for gidx in range(newNG):
@@ -218,17 +220,22 @@ def main(argv):
         if NStrains > 0:
             meanError = np.mean(selected_err)       
         else:
-            meanError = -1.0
+            #choose one strain in this event must abundant? most reproducible?
+            bestidx = np.argmin(mean_acc)
+            NStrains += 1
+            selected_err.append(mean_acc[bestidx])
+            selected_strains.append(bestidx)
+            meanError = mean_acc[bestidx]
         
-        strainQuality[G] = (NStrains,meanError,bestr,selected_strains)
+        strainQuality[G] = (NStrains,meanError,bestr,selected_strains,G)
     
     
-    strainSorted = sorted(strainQuality, key=lambda k: (strainQuality[k][0], -strainQuality[k][1]))
+    strainSorted = sorted(strainQuality, key=lambda k: (strainQuality[k][0], -strainQuality[k][1],-strainQuality[k][4]))
     
     
     if newNG > 0:
         bestG = strainSorted[-1]
-        (NStrains,meanError,bestr,selected_strains) = strainQuality[bestG]
+        (NStrains,meanError,bestr,selected_strains,G) = strainQuality[bestG]
         
         tau_file = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Filtered_Tau_star.csv"
         
