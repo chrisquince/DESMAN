@@ -100,7 +100,7 @@ sudo apt-get install build-essential libgsl0-dev
     sudo apt-get install bedtools
     ```
 
-5. [prodigal](https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
+6. [prodigal](https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
 
     ```
     wget https://github.com/hyattpd/Prodigal/releases/download/v2.6.3/prodigal.linux 
@@ -108,13 +108,13 @@ sudo apt-get install build-essential libgsl0-dev
     chmod +rwx ~/bin/prodigal
     ```
 
-6. [gnu parallel](http://www.gnu.org/software/parallel/): Used for parallelising rps-blast
+7. [gnu parallel](http://www.gnu.org/software/parallel/): Used for parallelising rps-blast
 
     ```
     sudo apt-get install parallel
     ```
 
-7. [standalone blast](http://www.ncbi.nlm.nih.gov/books/NBK52640/): Need a legacy blast 2.5.0 which we provide as a download:
+8. [standalone blast](http://www.ncbi.nlm.nih.gov/books/NBK52640/): Need a legacy blast 2.5.0 which we provide as a download:
 
     ```
     wget https://desmandatabases.s3.climb.ac.uk/ncbi-blast-2.5.0+-x64-linux.tar.gz
@@ -124,7 +124,7 @@ sudo apt-get install build-essential libgsl0-dev
     cp ncbi-blast-2.5.0+/bin/* ~/bin
     ```
     
-8. [diamond](https://github.com/bbuchfink/diamond): BLAST compatible accelerated aligner
+9. [diamond](https://github.com/bbuchfink/diamond): BLAST compatible accelerated aligner
 
     ```
     cd ~/repos
@@ -135,7 +135,7 @@ sudo apt-get install build-essential libgsl0-dev
     cp diamond ~/bin/
     ```
     
-9. [R](https://www.r-project.org/) Finally we need R we followed these steps 
+10. [R](https://www.r-project.org/) Finally we need R we followed these steps 
 [how to install r on linux ubuntu 16-04 xenial xerus](https://www.r-bloggers.com/how-to-install-r-on-linux-ubuntu-16-04-xenial-xerus/):
 and installed the additional packages: gplots ggplot2 getopt reshape
 
@@ -218,7 +218,8 @@ tar -xvzf Example.tar.gz
 cd Example
 ```
 <a name="assembly"></a>
-##Read assembly, mapping and binning##
+Read assembly, mapping and binning
+----------------------------------
 
 Then assemble the reads. We recommend megahit for this:
 ```bash
@@ -318,7 +319,8 @@ cd ..
 ```
 
 <a name="genome_assignment"></a>
-##Contig genome assignemnts##
+Contig genome assignments
+-------------------------
 
 In this case we know which contig derives from which of the 20 genomes and so we can compare the assignment of 
 contigs to clusters with those genome assignments. To get the genome assignments we first need the 
@@ -344,7 +346,7 @@ done
 Then we run a script that extracts the mock genome ids out of the fastq ids of the simulated reads:
 ```
 cd AssignGenome
-python $DESMAN/scripts/contig_read_count_per_genome.py final_contigs_c10K.fa Mock1_20genomes.fasta ../Map/*mapped.sorted.bam > final_contigs_c10K_genome_count.tsv
+python $DESMAN/scripts/contig_read_count_per_genome.py ../contigs/final_contigs_c10K.fa Mock1_20genomes.fasta ../Map/*mapped.sorted.bam > final_contigs_c10K_genome_count.tsv
 cd ..
 ``` 
 This file contains counts of unambiguous and ambiguous reads mapping to each of the genomes for each of the 
