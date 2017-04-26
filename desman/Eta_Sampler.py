@@ -482,7 +482,7 @@ class Eta_Sampler():
                         st1 = np.log(siteProb)*variants[v,:,:]
                         stateLogProb[a] = st1.sum()
                 
-                        s = self.sampleLogProb(stateLogProb)
+                    s = self.sampleLogProb(stateLogProb)
                 
                     if not np.array_equal(propTau[s,:,:],tau[v,:,:]):
                         tau[v,:,:] = propTau[s,:,:]

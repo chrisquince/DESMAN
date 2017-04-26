@@ -36,8 +36,8 @@ def expand_sample_names(sample_names):
     for name in sample_names:
         expanded.append(name + "-A")
         expanded.append(name + "-C")
-        expanded.append(name + "-T")
         expanded.append(name + "-G")
+        expanded.append(name + "-T")
     
     return expanded
 
