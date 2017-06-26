@@ -331,13 +331,15 @@ class Variant_Filter():
         n = (self.freq.max(axis=1)).astype(np.float64) #value of most abundant base
         m =  (ftemp.max(axis=1)).astype(np.float64)     #value of second most abundant
         e = N -n
-        self.minV = m/N
+        self.filtered = N < self.Nthreshold
+        self.minV = np.zeros(self.V)
+        self.minV[self.filtered == False] = m[self.filtered == False]/N[self.filtered == False] 
+        
         p = np.zeros(self.V)
         MLL = np.zeros(self.V)
         lastSelect = 0
         Select = self.V
-        
-        p = n/N
+        p[self.filtered == False] = n[self.filtered == False]/N[self.filtered == False]
         p[p > self.upperP] = self.upperP
         while iter < self.max_iter and lastSelect != Select:
             #filter based on current error rate
