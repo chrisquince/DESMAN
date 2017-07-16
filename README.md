@@ -25,6 +25,7 @@ through of how to perform this analysis in [Complete example](complete_example/R
 including validation of results from this synthetic E. coli data set.
 
 <a name="installation"/>
+
 ## Installation
 
 To install simply type:
