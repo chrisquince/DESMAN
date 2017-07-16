@@ -161,6 +161,11 @@ this as fasta sequence so that you can diamond format it yourself to avoid any v
     wget https://desmandatabases.s3.climb.ac.uk/nr.faa
     diamond makedb --in nr.faa -d nr
     ```
+or we also provide a pre-formatted version:
+    ```
+    wget https://nrdatabase.s3.climb.ac.uk/nr.dmnd
+    ```
+    
 3. GI to Taxaid and lineage files for the above:
     
     ```
@@ -388,24 +393,20 @@ In your particular run these assignments may vary and the code below must be **c
 
 
 <a name="taxa_assignment"></a>
-##Taxonomic classification of contigs
+## Taxonomic classification of contigs
 
 There are many ways to taxonomically classify assembled sequence. We suggest a gene based approach. The first step is 
 to call genes on all contigs that are greater than 1,000 bp. Shorter sequences are unlikely to contain complete 
-coding sequences. The following requires that you have a Diamond formatted version of the NCBI NR on your system. 
-To ensure compatibility with the files below this can be downloaded by:
+coding sequences. 
 
+Set the environment variable NR_DMD to point to the location of your formatted NR database:
 ```
-wget http://nrdatabase.s3.climb.ac.uk/nr.dmnd
-```
-
-Set the environment variable NR_DMD to point to the location of this file:
-```
-export NR_DMD=$HOME/native/Databases/nr/FASTA/nr.dmnd
+export NR_DMD=$HOME/Databases/NR/nr.dmnd
 ```
 
 Then we begin by calling genes on all contigs greater than 1000bp in length.
 ```
+cd ~/DesmanExample/Example
 mkdir Annotate_gt1000
 cd Annotate_gt1000
 python $DESMAN/scripts/LengthFilter.py -m 1000 ../contigs/final_contigs_c10K.fa > final_contigs_gt1000_c10K.fa
