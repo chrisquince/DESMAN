@@ -26,9 +26,9 @@ for a DESMAN run:
 1. If you are processing a well studied organism, for which a core gene set can be determined, then we suggest you adapt this analysis in [Complete example](complete_example/README.md). Which is a complete run  
 including validation of results from this synthetic *E. coli* data set. We also 
 provide two strategies two automate this entire process:
-* A snakemake pipeline: [snakemake] (/complete_example_snakemake/README.md)
+* A snakemake pipeline: [snakemake] (complete_example_snakemake/README.md)
 
-* A nextflow pipeline: [desmanflow](desmanflow)
+* A nextflow pipeline: [desmanflow](#desmanflow)
 
 2. Alternatively for an environmental data set, when most organisms are novel without 
 multiple cultured representatives then you will just use the 36 single-copy core genes that are universal to all species. This strategy is detailed in the associated repository [Complex synthetic community](https://github.com/chrisquince/StrainMetaSim). 
@@ -69,6 +69,7 @@ export PATH=$HOME/myinstalldir/DESMAN/scripts:$PATH
 Obviously replacing myinstalldir as appropriate and adding this to your .bash_profile file.
 
 <a name="simple_example"/>
+
 ## Simple example
 
 To illustrate the actual strain inference algorithm we will start with a simple example using base frequencies 
@@ -210,6 +211,8 @@ A test dataset is available which consists of a metagenomic assembly generated b
 curl -fsSL https://cloudstor.aarnet.edu.au/plus/index.php/s/7DH5qMuM5jMbcUc/download > testdata.tar
 tar xf testdata.tar
 ```
+
+
 
 ### Running the desmanflow automated workflow
 
