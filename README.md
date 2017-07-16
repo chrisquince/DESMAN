@@ -20,9 +20,19 @@ The DESMAN pipeline is described in the [bioRxiv preprint](http://biorxiv.org/co
 itself enables strain inference from frequency counts on contigs across multiple samples. 
 [Installation](#installation) and a [Simple example](#simple_example) are 
 described below. Generating contig bins, and counts on those contigs in 
-order to run DESMAN is rather an involved process. We give a complete run 
-through of how to perform this analysis in [Complete example](complete_example/README.md) 
-including validation of results from this synthetic E. coli data set.
+order to run DESMAN is rather an involved process. We propose two typical strategies 
+for a DESMAN run:
+
+1. If you are processing a well studied organism, for which a core gene set can be determined, then we suggest you adapt this analysis in [Complete example](complete_example/README.md). Which is a complete run  
+including validation of results from this synthetic *E. coli* data set. We also 
+provide two strategies two automate this entire process:
+* A snakemake pipeline: [snakemake] (/complete_example_snakemake/README.md)
+
+* A nextflow pipeline: [desmanflow](desmanflow)
+
+2. Alternatively for an environmental data set, when most organisms are novel without 
+multiple cultured representatives then you will just use the 36 single-copy core genes that are universal to all species. This strategy is detailed in the associated repository [Complex synthetic community](https://github.com/chrisquince/StrainMetaSim). 
+
 
 <a name="installation"/>
 
