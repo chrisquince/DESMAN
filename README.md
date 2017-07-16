@@ -14,7 +14,7 @@
 
 [Using the desmanflow automated workflow](#desmanflow)  
 
-##Overview
+## Overview
 
 The DESMAN pipeline is described in the [bioRxiv preprint](http://biorxiv.org/content/early/2016/09/06/073825). The software 
 itself enables strain inference from frequency counts on contigs across multiple samples. 
@@ -25,7 +25,7 @@ through of how to perform this analysis in [Complete example](complete_example/R
 including validation of results from this synthetic E. coli data set.
 
 <a name="installation"/>
-##Installation
+## Installation
 
 To install simply type:
     
@@ -58,7 +58,7 @@ export PATH=$HOME/myinstalldir/DESMAN/scripts:$PATH
 Obviously replacing myinstalldir as appropriate and adding this to your .bash_profile file.
 
 <a name="simple_example"/>
-##Simple example
+## Simple example
 
 To illustrate the actual strain inference algorithm we will start with a simple example using base frequencies 
 that have been pre-prepared. Below we also give [a complete example](#complete_example) including 
@@ -76,7 +76,7 @@ by one line for each position with format:
     gene name, position, freq. of A in sample 1, freq. of C in 1,freq. of G in 1,freq. of T in 1,..., freq. of A in sample N, freq. of C in N,freq. of G in N,freq. of T in N 
 
 
-###Finding variant positions for the test data set
+### Finding variant positions for the test data set
 
 The first step is to identify variant positions. This is performed by the desman script Variant_Filter.py. 
 Start assuming you are in the DESMAN repo directory by making a test folder.
@@ -109,7 +109,7 @@ A log file will be generated 'COG0015_out_log.txt' and output files:
 
 5. COG0015_outtran_df.csv: A matrix of estimated error rates.
 
-###Inferring haplotypes and abundances for the test data set
+### Inferring haplotypes and abundances for the test data set
 
 Having found the variant positions we will now the run the program for inferring haplotypes and their abundance:
 
