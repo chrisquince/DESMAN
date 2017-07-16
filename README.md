@@ -23,10 +23,11 @@ described below. Generating contig bins, and counts on those contigs in
 order to run DESMAN is rather an involved process. We propose two typical strategies 
 for a DESMAN run:
 
-1. If you are processing a well studied organism, for which a core gene set can be determined, then we suggest you adapt this analysis in [Complete example](complete_example_snakemake/README.md). Which is a complete run  
+1. If you are processing a well studied organism, for which a core gene set can be determined, then we suggest you adapt this analysis in [Complete example](complete_example/README.md). Which is a complete run  
 including validation of results from this synthetic *E. coli* data set. We also 
 provide two strategies two automate this entire process:
-* A snakemake pipeline: [snakemake] (complete_example_snakemake/README.md)
+
+* A snakemake pipeline: [Complete snakemake example](complete_example_snakemake/README.md)
 
 * A nextflow pipeline: [desmanflow](#desmanflow)
 
