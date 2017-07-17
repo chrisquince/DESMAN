@@ -9,7 +9,7 @@
 
 <a name="installation"/>
 
-##Installation
+## Installation
 
 The following was tested on a clean version of Ubuntu 16.04.1 LTS some changes may 
 need to be made on other systems.
@@ -228,9 +228,9 @@ this as fasta sequence so that you can diamond format it yourself to avoid any v
 
 
 <a name="complete_example"/>
-##Complete example using Snakemake
+## Complete example using Snakemake
 
-###Setup
+### Setup
 ```
     source activate desman_python3_env
 ```
@@ -257,6 +257,8 @@ We now copy in the snakemake config file which will have to be edited to suit yo
 ```
 cd ~/complete_example_snakemake
 cp ~/repos/DESMAN/complete_example_snakemake/config.json .
+cp ~/repos/DESMAN/complete_example_snakemake/rules.snake .
+cp ~/repos/DESMAN/complete_example_snakemake/Snakefile .
 ```
 
 Make sure you edit the 'config.json' file to suit your system, it is currently configured based 
