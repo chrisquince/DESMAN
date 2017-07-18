@@ -615,10 +615,10 @@ done
 cd ..
 ```
 This runs the haplotype inference for between 2 and 8 strains inclusive with 5 replicates. The options used are:
-1. ** -r 1000 ** : The number of randomly selected positions to base inference on
-2. ** -i 100 ** : The number of Gibbs sampling updates on real data increase this to say 500
-3. ** -g $g ** : Number of haplotypes to be inferred
-4. ** -s $r ** : Seed for random number generator using integer run index ensures independent replicate runs
+1. * -r 1000 * : The number of randomly selected positions to base inference on
+2. * -i 100 * : The number of Gibbs sampling updates on real data increase this to say 500
+3. * -g $g * : Number of haplotypes to be inferred
+4. * -s $r * : Seed for random number generator using integer run index ensures independent replicate runs
 
 First lets have a look at the mean posterior deviance as a function of strain number:
 ```bash
