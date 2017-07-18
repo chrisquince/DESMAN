@@ -473,7 +473,7 @@ $CONCOCT/scripts/ConfPlot.R -c Taxa_Conf.csv -o Taxa_Conf.pdf
 This confirms from a *de novo* approach that D1, D9, D11, D15 and D18 represent the *E. coli* pangenome.
 
 <a name="core_genes"></a>
-##Identifying *E. coli* core genes
+## Identifying *E. coli* core genes
 
 We now determine core genes single copy genes within these four clusters through annotation to COGs. First lets split the contigs 
 by their cluster and concatenate togethers those from D1, D20, D22, and D23 into one file ClusterEC.fa. If your clustering 
@@ -523,7 +523,7 @@ cut -d"," -f2,3,4 ClusterEC_core.cogs | tr "," "\t" > ClusterEC_core_cogs.tsv
 ```
 
 <a name="determine_variants"></a>
-##Determine variants on core COGs
+## Determine variants on core COGs
 
 To input into bam-readcount:
 

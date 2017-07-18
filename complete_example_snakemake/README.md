@@ -228,6 +228,7 @@ this as fasta sequence so that you can diamond format it yourself to avoid any v
 
 
 <a name="complete_example"/>
+
 ## Complete example using Snakemake
 
 ### Setup
