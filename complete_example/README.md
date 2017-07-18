@@ -516,11 +516,39 @@ Then we determine those regions of the contigs with core COGs on in single copy 
 ```bash
 $DESMAN/scripts/SelectContigsPos.pl $DESMAN/complete_example/EColi_core_ident95.txt < ClusterEC.cogs > ClusterEC_core.cogs
 ```
+This contains core COG ids and gene locations i.e:
+```
+COG0001,k119_1371,8446,9352,k119_1371_9,1
+COG0004,k119_5582,920,1970,k119_5582_3,1
+COG0012,k119_6421,2,1037,k119_6421_1,-1
+COG0013,k119_5506,1310,3941,k119_5506_2,-1
+COG0014,k119_3846.0,293,1547,k119_3846.0_2,1
+COG0015,k119_7392,581,1952,k119_7392_2,-1
+COG0016,k119_10287,405,1389,k119_10287_1,1
+COG0017,k119_17329,321,1722,k119_17329_1,-1
+COG0018,k119_7639,4300,6034,k119_7639_5,-1
+COG0019,k119_6580,570,1833,k119_6580_2,1
+```
+
 Now we just reformat the location of core cogs on contigs:
 
 ```bash
 cut -d"," -f2,3,4 ClusterEC_core.cogs | tr "," "\t" > ClusterEC_core_cogs.tsv
 ```
+This will simply be a bed style tab separated format file i.e.:
+```
+k119_1371	8446	9352
+k119_5582	920	1970
+k119_6421	2	1037
+k119_5506	1310	3941
+k119_3846.0	293	1547
+k119_7392	581	1952
+k119_10287	405	1389
+k119_17329	321	1722
+k119_7639	4300	6034
+k119_6580	570	1833
+```
+
 
 <a name="determine_variants"></a>
 ## Determine variants on core COGs
