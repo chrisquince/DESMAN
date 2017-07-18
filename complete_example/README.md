@@ -468,7 +468,7 @@ We then plot the out Conf.csv which contains species proportions in each cluster
 $CONCOCT/scripts/ConfPlot.R -c Taxa_Conf.csv -o Taxa_Conf.pdf 
 ```
 
-![CONCOCT clusters against taxa](complete_example/Taxa_Conf.pdf)
+![CONCOCT clusters against taxa](Taxa_Conf.pdf)
 
 This confirms from a *de novo* approach that D1, D9, D11, D15 and D18 represent the *E. coli* pangenome.
 
