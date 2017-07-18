@@ -470,7 +470,7 @@ $CONCOCT/scripts/ConfPlot.R -c Taxa_Conf.csv -o Taxa_Conf.pdf
 
 ![CONCOCT clusters against taxa](Taxa_Conf.pdf)
 
-This confirms from a *de novo* approach that D1, D9, D11, D15 and D18 represent the *E. coli* pangenome.
+This confirms from a *de novo* approach that D1, D9, D11, D15 and D18 represent the *E. coli* pangenome. In your own analysis it will probably be a different set of clusters and hence the code below will have to be adjusted accordingly.
 
 <a name="core_genes"></a>
 ## Identifying *E. coli* core genes
@@ -548,15 +548,22 @@ do
 	(bam-readcount -q 20 -l AnnotateEC/ClusterEC_core_cogs.tsv -f contigs/final_contigs_c10K.fa $file 2> Counts/${stub}.err > Counts/${stub}.cnt)&
 done
 ```
+The above will run each sample in parallel adjust as necessary. To save space we will zip the resulting base frequencies:
+```
+cd Counts
+gzip *cnt
+cd..
+```
 
 Next we collate the positions frequencies into a single file for Desman, here we use all genes regardless of length:
 
 ```bash
-$DESMAN/scripts/ExtractCountFreqP.pl AnnotateEC/ClusterEC_core.cogs Counts 0 > Cluster_esc3_scgs.freq
+python $DESMAN/scripts/ExtractCountFreqGenes.py AnnotateEC/ClusterEC_core.cogs Counts --output_file Cluster_esc3_scgs.freq
 ```
 
 <a name="infer_strains"></a>
-##Infer strains with Desman
+
+## Infer strains with Desman
 
 Now lets use Desman to find the variant positions on these core cogs:
 ```bash
