@@ -631,7 +631,7 @@ which we can plot with a simple R script included in the Desman distribution:
 cd $DESMAN_EXAMPLE
 $DESMAN/scripts/PlotDev.R -l RunDesman/Dev.csv -o RunDesman/Dev.pdf
 ```
-![Mean posterior deviance vs. strain number](complete_example/Dev.pdf)
+![Mean posterior deviance vs. strain number](Dev.pdf)
 
 From this it is not as clear as in the full data set analysed in the paper that 
 five strains are present, since on average there is some improvement going 
