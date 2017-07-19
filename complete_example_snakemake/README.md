@@ -312,6 +312,6 @@ To generate a plot showing mean posterior deviance vs strain number run the comm
 
 This should generate something similar to the below:
 
-![Mean posterior deviance vs. strain number](Dev.pdf)
+[Mean posterior deviance vs. strain number](Dev.pdf)
 
 
