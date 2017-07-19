@@ -635,17 +635,19 @@ $DESMAN/scripts/PlotDev.R -l RunDesman/Dev.csv -o RunDesman/Dev.pdf
 
 From this it is not as clear as in the full data set analysed in the paper that 
 five strains are present, since on average there is some improvement going 
-from five to six strains. However, the runs with five strains are almost as good as those 
-with six, we will use the best fitting one of these.
+from five to six strains. However, we can run our heuristic program for determining haplotype number:
 
-In addition we can run our heuristic program for determining haplotype number:
 ```
 python $DESMAN/scripts/resolvenhap.py ClusterEC
-``
+```
 
-This gave the following output:
+This gave in our run the following output:
 
+```
+6,5,2,0.0165,ClusterEC_6_2/Filtered_Tau_star.csv
+```
 
+Which we interpret as the best run had six haplotypes, five of which we are confident in and the average error in those inferences was 1.6%. The best haplotypes are given by the file ClusterEC_6_2/Filtered_Tau_star.csv. This is what we will use in the analysis below.
 
 <a name="validate_strains"></a>
 
@@ -671,24 +673,33 @@ $DESMAN/scripts/Select.sh
 $DESMAN/scripts/ReverseStrand.pl ../AnnotateEC/ClusterEC_core.cogs
 $DESMAN/scripts/TauFasta.pl
 $DESMAN/scripts/CombineTau.pl > ClusterEC_core_tau.csv
+$DESMAN/scripts/MapCogBack.pl ../AnnotateEC/ClusterEC_core.cogs < ClusterEC_core_tau.csv > ClusterEC_core_tau_gene.csv
 ```
 
-We then compare these known assignments to those predicted by DESMAN:
+We then compare these known assignments to those predicted by DESMAN for our optimum run:
 ```
-python $DESMAN/scripts/validateSNP.py ../RunDesman/ClusterEC_5_0/Collated_Tau_mean.csv ClusterEC_core_tau.csv
+python $DESMAN/scripts/validateSNP2.py ../RunDesman/ClusterEC_6_2/Collated_Tau_mean.csv ClusterEC_core_tau_gene.csv
 ```
 
 The output should look like:
 ```
-[[ 0.58724428  0.28880866  0.58935018  0.37184116  0.03610108]
- [ 0.06257521  0.59596871  0.32190132  0.60830325  0.5631769 ]
- [ 0.34115523  0.59055355  0.08092659  0.60469314  0.55054152]
- [ 0.60409146  0.40222623  0.61101083  0.03188929  0.37304452]
- [ 0.60108303  0.03820698  0.60018051  0.4076414   0.28399519]]
+Intersection: 14854
+[[9219 4045 9022 6726 3692]
+ [8849  625 8784 6124 4190]
+ [5127 8765 1349 9308 7850]
+ [1155 8738 5002 9148 7975]
+ [8793 4451 8713 5843  399]
+ [9123 5949 9126  482 5702]]
+[[ 0.6206409   0.27231722  0.60737848  0.45280732  0.24855258]
+ [ 0.59573179  0.04207621  0.59135586  0.41227952  0.2820789 ]
+ [ 0.34515955  0.59007675  0.09081729  0.62663256  0.52847718]
+ [ 0.07775683  0.58825905  0.33674431  0.61586105  0.53689242]
+ [ 0.59196176  0.29964993  0.58657601  0.39336206  0.02686145]
+ [ 0.614178    0.40049818  0.61437996  0.03244917  0.38386966]]
 ```
 
 This gives for each (row) predicted haplotype (or posterior mean in fact) the fraction of SNPs differing to each 
-of the five reference genomes (columns). We see that each strain maps to one genome with an error rate between 3.2% and 8.1%. 
+of the five reference genomes (columns). We see that each strain maps to one genome with an error rate between 2.7% and 9.1%. 
 
 <a name="assign_acessory"></a>
 
