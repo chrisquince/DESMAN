@@ -285,6 +285,8 @@ In this step, we'll assemble the reads, run concoct including all the preprocess
     snakemake --cores 8 confusion_matrix_plot --resources memory=6000000
 ```
 
+This will use 8 cores adjust to appropriate for your set-up.
+
 ### Extract clusters associated with E. Coli
 
 In this dataset there is several E. Coli strains present, which CONCOCT is not able to resolve properly.
@@ -314,4 +316,34 @@ This should generate something similar to the below:
 
 [Mean posterior deviance vs. strain number](Dev.pdf)
 
+From which we deduce that 5 strains explains the vast majority of the nucleotide 
+frequencies. We still need to decide which replication run to generate results from.
+We suggest the one with the lowest deviance which can be determined by looking at the fit 
+files:
+
+```
+cat RunDesman/ClusterEC_5_*/fit.txt
+```
+
+which will produce output like:
+```
+Fit,5,5,-28182.958093,43225.015313
+Fit,5,5,-28096.134362,42913.959977
+Fit,5,5,-28879.211000,46616.208660
+Fit,5,5,-29953.768037,46569.729176
+Fit,5,5,-28161.045416,43053.840296
+```
+
+The final column is the posterior mean deviance, which in our case is lowest for the second run 
+indexed 1, we will use this below, but you should chose the best fitting replicate for your 
+own analysis. All the results from this run are in the output directory *~/complete_example_snakemake/RunDesman/ClusterEC_5_1*
+
+Now to generate sequences on the non-core genes using this run we pass snakemake the command necessary to generate 
+all intermediate files up to the final log file:
+
+```
+snakemake --cores 8 StrainFastas/ClusterEC_5_1/run_log.txt
+```
+
+We sometimes find that bam-readcount fails with SEGFAULT this can be addressed by simply rerunning the snake command.
 
