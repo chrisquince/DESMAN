@@ -642,7 +642,9 @@ In addition we can run our heuristic program for determining haplotype number:
 ```
 python $DESMAN/scripts/resolvenhap.py ClusterEC
 ``
+
 This gave the following output:
+
 ```
 6,5,2,0.0165,ClusterEC_6_2/Filtered_Tau_star.csv
 ```
