@@ -310,4 +310,8 @@ To generate a plot showing mean posterior deviance vs strain number run the comm
     snakemake --cores 8 RunDesman/ClusterEC/Dev.pdf
 ```
 
+This should generate something similar to the below:
+
+![Mean posterior deviance vs. strain number](Dev.pdf)
+
 
