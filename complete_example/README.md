@@ -374,7 +374,7 @@ This should generate output similar too:
 
 ```
 N	M	TL	S	K	Rec.	Prec.	NMI	Rand	AdjRand
-9159	9159	5.8184e+07	20	25	0.986561	0.992898	0.988337	0.998623	0.988009
+9869	9869	6.1623e+07	20	24	0.983277	0.983970	0.984496	0.998533	0.986840
 ```
 
 The exact results may vary but the overall accuracy should be similar.
@@ -460,9 +460,9 @@ $CONCOCT/scripts/Validate.pl --cfile=../Concoct/clustering_gt1000.csv --sfile=fi
 Now the results will be somewhat different...
 ```
 N	M	TL	S	K	Rec.	Prec.	NMI	Rand	AdjRand
-9159	6926	4.8270e+07	56	25	0.940151	0.994404	0.969259	0.994666	0.955695
+9869	1746	1.5257e+07	17	24	0.985459	0.999801	0.990303	0.999300	0.996926
 ```
-With a decrease in recall because the taxonomically classification is overestimating the diversity of organisms present.
+
 We then plot the out Conf.csv which contains species proportions in each cluster:
 ```
 $CONCOCT/scripts/ConfPlot.R -c Taxa_Conf.csv -o Taxa_Conf.pdf 
@@ -470,13 +470,13 @@ $CONCOCT/scripts/ConfPlot.R -c Taxa_Conf.csv -o Taxa_Conf.pdf
 
 ![CONCOCT clusters against taxa](Taxa_Conf.pdf)
 
-This confirms from a *de novo* approach that D1, D9, D11, D15 and D18 represent the *E. coli* pangenome. In your own analysis it will probably be a different set of clusters and hence the code below will have to be adjusted accordingly.
+This confirms from a *de novo* approach that D0, D14, D17, D18 and D21 represent the *E. coli* pangenome. In your own analysis it will probably be a different set of clusters and hence the code below will have to be adjusted accordingly.
 
 <a name="core_genes"></a>
 ## Identifying *E. coli* core genes
 
 We now determine core genes single copy genes within these four clusters through annotation to COGs. First lets split the contigs 
-by their cluster and concatenate togethers those from D1, D20, D22, and D23 into one file ClusterEC.fa. If your clustering 
+by their cluster and concatenate togethers those from D0, D14, D17, D18 and D21 into one file ClusterEC.fa. If your clustering 
 gave different bins associated with *E. coli* then change the files selected below as appropriate:
 
 Go back to 
@@ -486,7 +486,7 @@ the top level example directory and then:
 mkdir Split
 cd Split
 $DESMAN/scripts/SplitClusters.pl ../contigs/final_contigs_c10K.fa ../Concoct/clustering_gt1000.csv
-cat Cluster1/Cluster1.fa Cluster9/Cluster9.fa Cluster11/Cluster11.fa Cluster15/Cluster15.fa Cluster18/Cluster18.fa > ClusterEC.fa
+cat Cluster0/Cluster0.fa Cluster14/Cluster14.fa Cluster17/Cluster17.fa Cluster18/Cluster18.fa Cluster21/Cluster21.fa > ClusterEC.fa
 cd ..
 ```
 
@@ -635,15 +635,23 @@ $DESMAN/scripts/PlotDev.R -l RunDesman/Dev.csv -o RunDesman/Dev.pdf
 
 From this it is not as clear as in the full data set analysed in the paper that 
 five strains are present, since on average there is some improvement going 
-from five to six strains. However, one particular run with five strains is 
-as good as the runs with six, we should prefer the run with best fit 
-for smallest strain number, so we shall use this.
+from five to six strains. However, the runs with five strains are almost as good as those 
+with six, we will use the best fitting one of these.
+
+In addition we can run our heuristic program for determining haplotype number:
+```
+python $DESMAN/scripts/resolvenhap.py ClusterEC
+``
+This gave the following output:
+```
+6,5,2,0.0165,ClusterEC_6_2/Filtered_Tau_star.csv
+```
 
 <a name="validate_strains"></a>
-##Validation of strains
 
-To validate the strain inference we will download pre-identified sequences for each of the 982 single copy core COGs 
-in the five known reference genomes. 
+## Validation of strains
+
+To validate the strain inference we will download pre-identified sequences for each of the 982 single copy core COGs in the five known reference genomes. 
 
 ```
 cd $DESMAN_EXAMPLE
