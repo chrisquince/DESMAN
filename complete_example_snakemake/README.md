@@ -345,5 +345,11 @@ all intermediate files up to the final log file:
 snakemake --cores 8 StrainFastas/ClusterEC_5_1/run_log.txt
 ```
 
+This will generate haplotype files one for each gene, containing each sequence variant from each strain in the directory 
+*StrainFastas/ClusterEC_5_1/*
+
 We sometimes find that bam-readcount fails with SEGFAULT this can be addressed by simply rerunning the snake command.
 
+For more information on the output see the [Complete Example](../complete_example/README.md)
+
+### Validation
