@@ -703,7 +703,7 @@ of the five reference genomes (columns). We see that each strain maps to one gen
 
 <a name="assign_acessory"></a>
 
-##Determine accessory genomes
+## Determine accessory genomes
 
 Now we need the variant frequencies on all contigs:
 
@@ -724,6 +724,13 @@ do
 done
 ```
 
+Gzip them up to save space and because the downstream programs expect this format:
+```
+cd CountsAll
+gzip *.cnt
+cd ..
+```
+
 We also need to extract info on all genes in the E. coli clusters:
 ```
 python $DESMAN/scripts/ExtractGenes.py -g AnnotateEC/ClusterEC.gff > AnnotateEC/ClusterEC.genes
@@ -731,10 +738,9 @@ python $DESMAN/scripts/ExtractGenes.py -g AnnotateEC/ClusterEC.gff > AnnotateEC/
 
 Then we collate the count files together filtering to genes greater than 500bp:
 ```
-$DESMAN/scripts/ExtractCountFreqP.pl AnnotateEC/ClusterEC.genes CountsAll 500 > Cluster_esc3.freq
+python $DESMAN/scripts/ExtractCountFreqGenes.py -g AnnotateEC/ClusterEC.genes CountsAll --output_file Cluster_esc3.freq 
 ```
-
-and find variants this time insisting on a minimum frequency of 3% and not filtering on sample coverage:
+The _-g_ flag here tells the script to expect gene positions in a slightly different format to the cog file used above. Now we find variants again, this time insisting on a minimum frequency of 3% and not filtering on sample coverage:
 ```
 mkdir VariantsAll
 cd VariantsAll
