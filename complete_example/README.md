@@ -769,7 +769,7 @@ python $DESMAN/scripts/CalcDelta.py Cluster_esc3_gene_cov.csv ClusterEC_core_gen
 
 Select run with lowest deviance and 5 strains:
 ```
-export SEL_RUN=$DESMAN_EXAMPLE/RunDesman/ClusterEC_5_0/
+export SEL_RUN=$DESMAN_EXAMPLE/RunDesman/ClusterEC_6_2/
 ```
 
 Then we run the gene/contig assignment algorithm.
