@@ -184,7 +184,7 @@ class Eta_Sampler():
             c = self.gene_map[gene]
             self.gene_ll[c] = 0.0
             for g in xrange(self.G):
-                self.gene_ll[c] += self.eta_log_prior[self.eta[c,g]]
+                self.gene_ll[c] += self.eta_log_prior[int(self.eta[c,g])]
             
             self.gene_ll[c] += log_Poisson(self.cov[c,:],cov_expminus[c,:]).sum()
             
