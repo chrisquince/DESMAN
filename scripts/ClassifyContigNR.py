@@ -57,7 +57,7 @@ def read_blast_input(blastinputfile,lengths, accession_mode=False):
             gids[gid] +=1
 
 
-    return (matches, gids.keys())
+    return (matches, list(gids.keys()))
     
 def read_lineage_file(lineage_file): 
     
@@ -94,7 +94,7 @@ def map_gids_binary(gids, mapping_file):
     
     t = open(mapping_file, 'r')
     c = 0
-    size = long(os.path.getsize(mapping_file))
+    size = int(os.path.getsize(mapping_file))
     mapping = {}
     
     for gis in gids: #binary search #########################################
@@ -193,7 +193,7 @@ def main(argv):
             contigAssignDepth.append(defaultdict(lambda: Counter()))
 
     contigGenes = defaultdict(list)
-    for gene, matchs in matches.iteritems(): 
+    for gene, matchs in list(matches.items()): 
         #print str(gene)
         m = re.search(r"(.*)_\d+", gene)
         contig = m.group(1)
@@ -228,7 +228,7 @@ def main(argv):
             collate = collate_hits[depth]
             dWeight = sum(collate.values())
         
-            sortCollate = sorted(collate.items(), key=operator.itemgetter(1),reverse=True)
+            sortCollate = sorted(list(collate.items()), key=operator.itemgetter(1),reverse=True)
             nL = len(collate)
             if nL > 0:
                 dP = 0.0
@@ -253,7 +253,7 @@ def main(argv):
 
     
     with open(args.output_dir+"_genes.csv", "w") as text_file:
-        for gene in geneAssign.keys():
+        for gene in list(geneAssign.keys()):
             text_file.write('%s'%gene)
             for depth in range(7):
                 (assign,p) = geneAssign[gene][depth]
@@ -266,7 +266,7 @@ def main(argv):
     
     contigAssign = defaultdict(dict)
     
-    for contig, genes in contigGenes.iteritems():
+    for contig, genes in contigGenes.items():
     
         collate_hits = list()
         for depth in range(7):
@@ -285,7 +285,7 @@ def main(argv):
         dWeight = sum(collate_hits[0].values())
         for depth in range(7):
             collate = collate_hits[depth]
-            sortCollate = sorted(collate.items(), key=operator.itemgetter(1),reverse=True)
+            sortCollate = sorted(list(collate.items()), key=operator.itemgetter(1),reverse=True)
             nL = len(collate)
             if nL > 0:
                 dP = 0.0
@@ -301,7 +301,7 @@ def main(argv):
                 contigAssign[contig][depth] = ('No hits',0.,0.)
 
     with open(args.output_dir+"_contigs.csv", "w") as text_file:
-        for contig in contigAssign.keys():
+        for contig in list(contigAssign.keys()):
             text_file.write('%s,%f'%(contig,contigLengths[contig]))
             for depth in range(7):
                 (assign,p,dF) = contigAssign[contig][depth]

@@ -21,11 +21,9 @@ def rchop(thestring, ending):
 def get_sample_names(scg_freq):
     scgCols = scg_freq.columns.values.tolist()
     
-    originalS = (len(scgCols) - 1)/4
+    originalS = (len(scgCols) - 1) // 4
     
-    idx = range(1,originalS*4,4)
-    
-    sampleNames = [scgCols[i] for i in idx] 
+    sampleNames = [scgCols[i] for i in range(1,originalS*4,4)] 
 
     return sampleNames
 

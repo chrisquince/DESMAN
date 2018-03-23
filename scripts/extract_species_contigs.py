@@ -17,4 +17,4 @@ for line in asmfile:
         else:
             printing=0
     if printing==1: 
-        print line
+        print(line)

@@ -39,7 +39,7 @@ def main(argv):
     
     contig_names = coverage.index.values
     sample_names = list(coverage.columns.values)        
-    contig_dict = dict(zip(contig_names,range(len(contig_names))))
+    contig_dict = dict(list(zip(contig_names,list(range(len(contig_names))))))
         
     cluster_mapping = {}
     
@@ -63,17 +63,17 @@ def main(argv):
     NSamples = coverage_matrix.shape[1]
     clusterSum = defaultdict(lambda: np.zeros(NSamples))
     clusterLengthSum = Counter()
-    for contig, cluster in cluster_mapping.iteritems():
+    for contig, cluster in cluster_mapping.items():
         idx = contig_dict[contig]
         clusterSum[cluster] += coverage_matrix[idx,:]*contig_lengths[contig]
         clusterLengthSum[cluster] += contig_lengths[contig]
 
     hString = ",".join(sample_names)
-    print "Cluster" + "," + hString
-    for cluster, sum in clusterSum.iteritems():
+    print("Cluster" + "," + hString)
+    for cluster, sum in clusterSum.items():
         sumR = sum/clusterLengthSum[cluster]
         sumString = ",".join(map(str,sumR.tolist()))
-        print cluster + "," + sumString
+        print(cluster + "," + sumString)
     
 
     #import ipdb; ipdb.set_trace()

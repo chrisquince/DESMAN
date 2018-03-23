@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+
+
 import sys, getopt
 import os
 import pandas as p
@@ -21,11 +23,9 @@ def rchop(thestring, ending):
 def get_sample_names(scg_freq):
     scgCols = scg_freq.columns.values.tolist()
     
-    originalS = (len(scgCols) - 1)/4
+    originalS = (len(scgCols) - 1) // 4
     
-    idx = range(1,originalS*4,4)
-    
-    sampleNames = [scgCols[i] for i in idx] 
+    sampleNames = [scgCols[i] for i in range(1,originalS*4,4)] 
 
     return sampleNames
 
@@ -63,7 +63,7 @@ def main(argv):
             gene_freqs = gene_freq.loc[gene]
             gene_freq_matrix = gene_freqs.as_matrix()
             gene_freq_matrix = np.delete(gene_freq_matrix, 0, 1)
-            gene_freqs = np.reshape(gene_freq_matrix, (gene_freq_matrix.shape[0],gene_freq_matrix.shape[1]/4,4))
+            gene_freqs = np.reshape(gene_freq_matrix, (gene_freq_matrix.shape[0],gene_freq_matrix.shape[1] // 4,4))
             gene_totals = gene_freqs.sum(axis=2)
     
             total_mean = np.mean(gene_totals,axis=0,dtype=np.float64)
@@ -87,12 +87,12 @@ def main(argv):
     #slope, intercept, r_value, p_value, std_err = stats.linregress(all_covs,all_stds)
     
     sString = ",".join(sample_names_new)
-    print "Gene," + sString
+    print("Gene," + sString)
     for gene in genes:
         covs = gene_covs[gene]    
         cString = ','.join(map(str, covs)) 
 
-        print gene + "," + cString
+        print(gene + "," + cString)
         
    
     

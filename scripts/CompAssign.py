@@ -72,7 +72,7 @@ def main(argv):
     
     np.savetxt(sys.stdout, dacc, fmt='%.4f')
     
-    print ('Av. accurracy = %f' %(dtotal))
+    print(('Av. accurracy = %f' %(dtotal)))
        
 if __name__ == "__main__":
     main(sys.argv[1:])

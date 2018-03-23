@@ -155,7 +155,7 @@ def main(args):
 
                         gene_id = rec.id + "_" + idx                        
 
-                        print gene_id + "," + rec.id + "," + str(feature.location.start) + "," +  str(feature.location.end) + "," + str(feature.strand)
+                        print(gene_id + "," + rec.id + "," + str(feature.location.start) + "," +  str(feature.location.end) + "," + str(feature.strand))
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(usage=usage())

@@ -8,7 +8,7 @@ import scipy.stats as ss
 from scipy.stats import norm
 import argparse
 import math
-import Eta_Sampler as es
+from . import Eta_Sampler as es
 import sampletau
 import logging
 
@@ -24,7 +24,7 @@ def get_sample_names(scg_freq):
     
     originalS = (len(scgCols) - 1)/4
     
-    idx = range(1,originalS*4,4)
+    idx = list(range(1,originalS*4,4))
     
     sampleNames = [scgCols[i] for i in idx] 
 
@@ -85,7 +85,7 @@ class KLAssign():
             
     def factorize(self):
     
-        for run in xrange(self.n_run):
+        for run in range(self.n_run):
             
             self.random_initialize()
         

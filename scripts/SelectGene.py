@@ -22,7 +22,7 @@ def get_sample_names(scg_freq):
     
     originalS = (len(scgCols) - 1)/4
     
-    idx = range(1,originalS*4,4)
+    idx = list(range(1,originalS*4,4))
     
     sampleNames = [scgCols[i] for i in idx] 
 
@@ -62,14 +62,14 @@ def main(argv):
         
         if header is None:
             header = line
-            print line
+            print(line)
             
         else:
             covs = line.split(",")
     
             gene = covs.pop(0)
             if gene in select:
-                print line
+                print(line)
         
    
     

@@ -15,4 +15,4 @@ for f in sys.argv[2:]:
     line = psaln.readline()
     d = line[1:-1].split(".")
     chrname = ids[d[0]].split(" ")
-    print chrname[0] + "\t" + d[2] + "\t" + d[3]
+    print(chrname[0] + "\t" + d[2] + "\t" + d[3])

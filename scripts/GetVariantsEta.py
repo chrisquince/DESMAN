@@ -70,13 +70,13 @@ def main(argv):
 
     contigs = {}
 
-    print "Open " + args.contig_fasta_file + " reading fasta"
+    print("Open " + args.contig_fasta_file + " reading fasta")
     handle = open(args.contig_fasta_file, "rU")
 
     for record in SeqIO.parse(handle, "fasta"):
 	    seq = record.seq
 	    contigs[record.id] = str(seq)
-    print "Open " + args.tau_file + " reading tau"
+    print("Open " + args.tau_file + " reading tau")
     tau_df = p.read_csv(args.tau_file, header=0, index_col=0)
     eta_df = p.read_csv(args.eta_file, header=0, index_col=0)
     eta = eta_df.as_matrix()
@@ -112,7 +112,7 @@ def main(argv):
                     contig_seq = contigs[contig]
                     variants[gene][g] = list(contig_seq[start:end])
             v = 0
-            for (index,value) in gene_pos.iteritems():
+            for (index,value) in gene_pos.items():
                 value = value - 1
                 for var in variants[gene]:
                     base = np.nonzero(gene_variants_matrix[v,int(var)])[0]

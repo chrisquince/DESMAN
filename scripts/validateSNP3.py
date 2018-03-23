@@ -9,11 +9,11 @@ import scipy as sp
 import scipy.misc as spm
 import math
 import argparse
-import cPickle
+import pickle
 
 from collections import defaultdict
 from operator import mul, div, eq, ne, add, ge, le, itemgetter
-from itertools import izip
+
 from numpy import array, log, exp
 from scipy.special import gammaln
 from scipy.optimize import minimize_scalar
@@ -158,7 +158,7 @@ def main(argv):
         
 
     mean_acc = np.mean(accuracies)
-    print str(PG) + "," + str(G) + "," + str(mean_acc) 
+    print(str(PG) + "," + str(G) + "," + str(mean_acc)) 
 
     #print(compV)
 if __name__ == "__main__":

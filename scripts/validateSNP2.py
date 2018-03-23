@@ -9,11 +9,11 @@ import scipy as sp
 import scipy.misc as spm
 import math
 import argparse
-import cPickle
+import pickle
 
 from collections import defaultdict
 from operator import mul, div, eq, ne, add, ge, le, itemgetter
-from itertools import izip
+
 from numpy import array, log, exp
 from scipy.special import gammaln
 from scipy.optimize import minimize_scalar
@@ -136,7 +136,7 @@ def main(argv):
     tau_star_pred = np.reshape(tau_pred_intersect,(intersect, G,4))
     tau_pred      = np.reshape(tau_intersect,(intersect, PG,4))
     
-    print "Intersection: " + str(intersect)
+    print("Intersection: " + str(intersect))
     
     comp = compSND(tau_star_pred,tau_pred)
     print(comp)
