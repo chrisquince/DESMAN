@@ -41,18 +41,18 @@ multiple cultured representatives then you will just use the 36 single-copy core
 
 To install simply type:
     
-    sudo python ./setup.py install
+    sudo python3 ./setup.py install
     
 These items are prerequisities for the installation of desman:
 
-1. *python v2.7.*
+1. *Python 3*
 2. *gcc
 3. *gsl
 
 The installation procedure varies on different systems, 
 and described in this README is only how to proceed with a linux (ubuntu) distribution.
 
-The first item, python v2.7.*, should be installed on a modern Ubuntu distribution. 
+The first item, Python 3, should be installed on a modern Ubuntu distribution. 
 A c-compiler, e.g. gcc, is needed to compile the c parts of concoct that uses the 
 GNU Scientific Library gsl. For linux (ubuntu) this is installed through:
 
@@ -101,11 +101,11 @@ Then run the example data file which corresponds to a single COG from the mock c
 described in the manuscript. This COG0015 has 933 variant positions. The input file is in the data 
 folder. We run the variant filtering as follows:
 
-    python ../desman/Variant_Filter.py ../data/contig_6or16_genesL_scgCOG0015.freq -o COG0015_out -p
+    python3 ../desman/Variant_Filter.py ../data/contig_6or16_genesL_scgCOG0015.freq -o COG0015_out -p
 
 The variant filtering has a number of optional parameters to see them run:
 
-    python ../desman/Variant_Filter.py -h
+    python3 ../desman/Variant_Filter.py -h
     
 They should all be fairly self explanatory. We recommend always using the 
 the '-p' flag for one dimenisonal optimisition of individual base frequencies if it is not 
@@ -184,7 +184,7 @@ The following series of commands will install desman onto a clean Debian/Ubuntu 
 
 ```
 # install some programs systemwide (can be skipped if these already exist)
-sudo apt install git python-pip libgsl-dev liblapack-dev liblapacke-dev default-jre samtools bwa r-base
+sudo apt install git python3-pip libgsl-dev liblapack-dev liblapacke-dev default-jre samtools bwa r-base
 
 # install nextflow to the user's account
 mkdir -p ~/bin
@@ -193,14 +193,14 @@ mv nextflow ~/bin
 chmod 755 ~/bin/nextflow
 export PATH=$PATH:~/bin
 
-# install some required python modules
-pip install --user cython numpy
-pip install --user biopython
+# install some required python3 modules
+pip3 install --user cython numpy
+pip3 install --user biopython
 
 # install DESMAN
-git clone https://github.com/koadman/DESMAN
+git clone https://github.com/chrisquince/DESMAN.git
 cd DESMAN
-python setup.py install --user
+python3 setup.py install --user
 export DESMANHOME=`pwd`
 ```
 
