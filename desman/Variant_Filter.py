@@ -9,11 +9,9 @@ import scipy as sp
 import scipy.misc as spm
 import math
 import argparse
-import cPickle
+import pickle
 import logging
 
-from operator import mul, div, eq, ne, add, ge, le, itemgetter
-from itertools import izip
 from itertools import compress
 from numpy import array, log, exp
 from scipy.special import gammaln
@@ -23,6 +21,10 @@ from scipy.stats import chi2
 from collections import defaultdict
 
 #class to perform simple variant filtering assuming fixed genome error rate
+def div(x, y):
+    if x.dtype == np.int64 and y.dtype == np.int64:
+        return x // y
+    return x / y
 
 def log_factorial(x):
     """Returns the logarithm of x!
@@ -46,7 +48,7 @@ def benjamini_Hochberg(pvalues):
         rank = n - i
         pvalue, index = vals                                                                          
         new_values.append((n/rank) * pvalue)                                                          
-    for i in xrange(0, int(n)-1):  
+    for i in range(0, int(n)-1):  
         if new_values[i] < new_values[i+1]:                                                           
             new_values[i+1] = new_values[i]                                                           
     for i, vals in enumerate(values):
@@ -74,7 +76,7 @@ class Variant_Filter():
         self.position = variants_matrix[:,0]
         variants_matrix = np.delete(variants_matrix, 0, 1)
     
-        snps = np.reshape(variants_matrix, (variants_matrix.shape[0],variants_matrix.shape[1]/4,4))
+        snps = np.reshape(variants_matrix, (variants_matrix.shape[0],variants_matrix.shape[1] // 4,4))
         vs_sum = snps.sum(axis=(2))
         vs_mean = np.mean(vs_sum,axis=0)
         #set random state
@@ -226,7 +228,7 @@ class Variant_Filter():
         self.genes = [i for (i, v) in zip(self.genes, select) if v]
         self.selected = np.ones((self.V), dtype=bool)
             
-        self.selected_indices  = range(1,self.V)
+        self.selected_indices  = list(range(1,self.V))
         #list(np.where(select))
         #self.selected_indices = self.selected_indices[0].tolist()
         
@@ -244,7 +246,7 @@ class Variant_Filter():
         selected_contig_names = [i for (i, v) in zip(contig_names, self.selected) if v]
     
         varCols = variants.columns.values.tolist()
-        originalS = (len(varCols) - 1)/4
+        originalS = (len(varCols) - 1) // 4
         sampleNames = list()
     
         j = 0

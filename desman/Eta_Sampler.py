@@ -10,7 +10,7 @@ import math
 import sampletau
 from scipy.special import gammaln
 from numpy import array, log, exp
-import Init_NMFT as inmft
+from . import Init_NMFT as inmft
 import logging
 
 MIN_DELTA = 1.0e-10
@@ -183,7 +183,7 @@ class Eta_Sampler():
         for gene in self.genes:
             c = self.gene_map[gene]
             self.gene_ll[c] = 0.0
-            for g in xrange(self.G):
+            for g in range(self.G):
                 self.gene_ll[c] += self.eta_log_prior[int(self.eta[c,g])]
             
             self.gene_ll[c] += log_Poisson(self.cov[c,:],cov_expminus[c,:]).sum()
@@ -212,7 +212,7 @@ class Eta_Sampler():
     def update(self): #perform max_iter Gibbs updates
         iter = 0
         self.ll = self.logLikelihood()
-        for c in xrange(self.C):
+        for c in range(self.C):
             self.eta_star[c,:] = np.copy(self.eta[c,:])
             self.gene_llstar[c] = self.gene_ll[c]
         
@@ -254,7 +254,7 @@ class Eta_Sampler():
                     else:
                         logVar1 = 0.0
                     
-                    for s in xrange(1,self.max_eta):
+                    for s in range(1,self.max_eta):
                         cov_expminus_S = cov_expminus + s*self.delta[g,:]
                         #temp = norm.logpdf(self.cov[c,:],cov_expminus, self.cov_sd)
                         temp = log_Poisson(self.cov[c,:],cov_expminus_S)
@@ -281,7 +281,7 @@ class Eta_Sampler():
     def update2(self): #perform max_iter Gibbs updates
         iter = 0
         self.ll = self.logLikelihood()
-        for c in xrange(self.C):
+        for c in range(self.C):
             self.eta_star[c,:] = np.copy(self.eta[c,:])
             self.gene_llstar[c] = self.gene_ll[c]
         
@@ -300,7 +300,7 @@ class Eta_Sampler():
                     
                     tempEta = np.copy(self.eta[c,:])
                     newTaus = np.zeros((self.max_eta,V,self.G,4), dtype=np.int,order='C')
-                    for s in xrange(0,self.max_eta):
+                    for s in range(0,self.max_eta):
                         tempEta[g] = s
                         
                         logVar = 0.0
@@ -326,7 +326,7 @@ class Eta_Sampler():
                         self.gene_tau[gene] = newTaus[s]
                         
             self.ll = self.logLikelihood()
-            print "Iter = %d: ll = %f\n" %(iter,self.ll)
+            print("Iter = %d: ll = %f\n" %(iter,self.ll))
             
             self.storeStarState(iter)
             self.eta_store[iter,]=np.copy(self.eta)
@@ -546,7 +546,7 @@ class Eta_Sampler():
         
     def storeStarState(self,iter):
     
-        for c in xrange(self.C):
+        for c in range(self.C):
             if self.gene_ll[c] > self.gene_llstar[c]:
                 self.eta_star[c,:] = np.copy(self.eta[c,:])
                 self.gene_llstar[c] = self.gene_ll[c]

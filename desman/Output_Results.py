@@ -7,11 +7,9 @@ import scipy as sp
 import scipy.misc as spm
 import math
 import argparse
-import cPickle
+import pickle
 import logging
 
-from operator import mul, div, eq, ne, add, ge, le, itemgetter
-from itertools import izip
 from numpy import array, log, exp
 from scipy.special import gammaln
 from scipy.optimize import minimize_scalar
@@ -43,8 +41,8 @@ class Output_Results():
         logging.info("Results created in {0}".format(
             os.path.abspath(self.outputDir)))
 
-        print >> sys.stderr, "Up and running. Check {0} for progress".format(
-            os.path.abspath(self.log_file_name))
+        print("Up and running. Check {0} for progress".format(
+            os.path.abspath(self.log_file_name)), file=sys.stderr)
         
         
     def set_Variants(self,variants):
@@ -58,7 +56,7 @@ class Output_Results():
         self.filtered_position = []
         for i in self.variantFilter.selected_indices:
             self.filtered_contig_names.append(self.contig_names[i])
-            self.filtered_position.append(self.position[i])
+            self.filtered_position.append(self.position.iloc[i])
         
     def set_haplo_SNP(self,haplo_SNP,genomes):
         self.haplo_SNP = haplo_SNP
@@ -164,8 +162,8 @@ class Output_Results():
         #output max posterior relative frequencies gamma
         
         varCols = self.variants.columns.values.tolist()
-        originalS = (len(varCols) - 1)/4
-        idx = range(1,originalS*4,4)
+        originalS = (len(varCols) - 1)//4
+        idx = list(range(1,originalS*4,4))
         sampleNames = [varCols[i] for i in idx] 
         sampleNames = [ rchop(x,'-A') for x in sampleNames ]
         sampleNames = [sampleNames[i] for i in self.variantFilter.sample_indices]
@@ -178,8 +176,8 @@ class Output_Results():
         #output max posterior relative frequencies gamma
         
         varCols = self.variants.columns.values.tolist()
-        originalS = (len(varCols) - 1)/4
-        idx = range(1,originalS*4,4)
+        originalS = (len(varCols) - 1)//4
+        idx = list(range(1,originalS*4,4))
         sampleNames = [varCols[i] for i in idx] 
         sampleNames = [ rchop(x,'-A') for x in sampleNames ]
         sampleNames = [sampleNames[i] for i in self.variantFilter.sample_indices]
@@ -210,5 +208,5 @@ class Output_Results():
     def output_Pickled_haploSNP(self):
         
         with open(self.outputDir+"/haplo_SNP.pickle", 'w') as f:
-            cPickle.dump(self.haplo_SNP,f)
+            pickle.dump(self.haplo_SNP,f)
         logging.info("Wrote pickled haplo_SNP object")

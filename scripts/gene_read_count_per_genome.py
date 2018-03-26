@@ -61,7 +61,7 @@ def count_genes_per_genome(geneDict, bamfile, count_dict, multi_align_tag='XA'):
     bamh = pysam.Samfile(bamfile)
 
 
-    for gene, (contig,start,end) in geneDict.iteritems():
+    for gene, (contig,start,end) in geneDict.items():
         for read in bamh.fetch(contig, start, end):
             contigrow = count_dict[gene]
             ref_origin = extract_read_ref_origin(read.qname)
@@ -75,11 +75,11 @@ def count_genes_per_genome(geneDict, bamfile, count_dict, multi_align_tag='XA'):
         
     
 def print_count_dict(count_dict, column_header):
-    print ("contig" + "\t%s" * len(column_header)) % tuple(column_header)
+    print(("contig" + "\t%s" * len(column_header)) % tuple(column_header))
 
     for contig in count_dict:
-        print ("%s" + "\t%i" * len(column_header)) % tuple([contig] + \
-            [count_dict[contig][ch] for ch in column_header])
+        print(("%s" + "\t%i" * len(column_header)) % tuple([contig] + \
+            [count_dict[contig][ch] for ch in column_header]))
 
  
 def parallel_count_genes_per_genome(args):
@@ -106,7 +106,7 @@ def main(genefile, reffa, bamfiles, max_n_processors):
         (geneId, contig, start, end,strand) = line.split(",")
         geneDict[geneId] = (contig,int(start),int(end))
 
-    geneIds = geneDict.keys()
+    geneIds = list(geneDict.keys())
     count_dict, column_header = init_count_dict(geneIds, reffa)
 
     # Determine counts from bamfiles in parallel
@@ -136,7 +136,6 @@ if __name__ == "__main__":
 
     for bf in args.bamfiles:
         if not os.path.isfile(bf + ".bai"):
-            raise(Exception("No index for %s file found, run samtools index "
-            "first on bam file." % bf))
+            raise Exception
 
     main(args.genefile,args.reffa, args.bamfiles, args.max_n_processors)

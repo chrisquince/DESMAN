@@ -5,7 +5,7 @@ from Bio import SeqIO
 
 
 if len(sys.argv)<4:
-    print "Error: need at least two pileup files as input\n"
+    print("Error: need at least two pileup files as input\n")
     sys.exit(-1)
 
 

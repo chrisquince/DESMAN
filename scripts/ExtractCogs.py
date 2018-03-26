@@ -132,8 +132,8 @@ def main(args):
         if pident_above_threshold and seq_cov_above_threshold:
             cog_accession = cogrecords[record_d['sseqid'].split('|')[2]]['Accession']
             queryloc = featureid_locations[record_d['qseqid']]
-            print record_d['qseqid']+","+cog_accession + "," + str(queryloc.location.start) + "," +  str(queryloc.location.end) + "," + str(record_d['send']) + "," + str(record_d['sstart']) + "," + str(
-queryloc.strand)
+            print(record_d['qseqid']+","+cog_accession + "," + str(queryloc.location.start) + "," +  str(queryloc.location.end) + "," + str(record_d['send']) + "," + str(record_d['sstart']) + "," + str(
+queryloc.strand))
 
 
 if __name__ == "__main__":

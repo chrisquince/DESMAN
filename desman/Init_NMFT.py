@@ -7,18 +7,24 @@ import scipy as sp
 import scipy.misc as spm
 import math
 import argparse
-import cPickle
+import pickle
 import logging
 
-from operator import mul, div, eq, ne, add, ge, le, itemgetter
-from itertools import izip
+from operator import mul, eq, ne, add, ge, le, itemgetter
+
+def div(x, y):
+    if x.dtype == np.int64 and y.dtype == np.int64:
+        return x // y
+    return x / y
+
+
 from numpy import array, log, exp
 from scipy.special import gammaln
 from scipy.optimize import minimize_scalar
 from numpy.random import RandomState
 
 #user defined modules
-import Desman_Utils as du
+from . import Desman_Utils as du
 
 class Init_NMFT:
     """Initialises tau and gamma based on tensor non-negative matrix factorization""" 
@@ -89,7 +95,7 @@ class Init_NMFT:
         return X
     def factorize(self):
     
-        for run in xrange(self.n_run):
+        for run in range(self.n_run):
             self.random_initialize()
             self._adjustment()        
             divl = 0.0
@@ -107,7 +113,7 @@ class Init_NMFT:
                 iter += 1
                 
     def factorize_gamma(self):
-        for run in xrange(self.n_run):
+        for run in range(self.n_run):
            
             divl = 0.0
             div = self.div_objective()
@@ -119,12 +125,12 @@ class Init_NMFT:
                 div = self.div_objective()
  
                 if iter % 100 == 0: 
-                    print str(iter) + "," + str(div)
+                    print(str(iter) + "," + str(div))
 
                 iter += 1
 
     def factorize_tau(self):
-        for run in xrange(self.n_run):
+        for run in range(self.n_run):
             self.random_initialize_tau()
             divl = 0.0
             div = self.div_objective()

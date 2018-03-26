@@ -9,10 +9,10 @@ import scipy as sp
 import scipy.misc as spm
 import math
 import argparse
-import cPickle
+import pickle
 
 from operator import mul, div, eq, ne, add, ge, le, itemgetter
-from itertools import izip
+
 from numpy import array, log, exp
 from scipy.special import gammaln
 from scipy.optimize import minimize_scalar
@@ -105,7 +105,7 @@ def main(argv):
         G2 = ctau_matrix.shape[1]/4
     
         if V2 != V or G2 != G:
-            print 'Haplotype files do not match V %d -> %d or G %d -> %d' % (V,V2,G,G2)
+            print('Haplotype files do not match V %d -> %d or G %d -> %d' % (V,V2,G,G2))
             sys.exit(-1)
     
         ctau_array = np.reshape(ctau_matrix,(V2, G2,4))
@@ -132,7 +132,7 @@ def main(argv):
     mean_acc = np.mean(all_acc, axis=1)
 
     for g in range(G):
-        print "%d,%f,%f" %(g,gamma_mean[g],mean_acc[g])
+        print("%d,%f,%f" %(g,gamma_mean[g],mean_acc[g]))
     
 if __name__ == "__main__":
     main(sys.argv[1:])

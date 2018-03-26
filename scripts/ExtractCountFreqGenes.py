@@ -63,7 +63,7 @@ def main(argv):
         contig_gene_list[contig].append([int(start),int(end),int(length),gene])  
     
     
-    for contig, genes in contig_gene_list.iteritems():
+    for contig, genes in contig_gene_list.items():
         
         sorted_genes = sorted(genes, key=lambda tup: tup[0])
         
@@ -83,7 +83,7 @@ def main(argv):
             sample_files.append(name)
             sample_names.append(sample_name)
     
-    for contig, sorted_genes in contig_gene_list.iteritems():
+    for contig, sorted_genes in contig_gene_list.items():
         
         for gene in sorted_genes:
             length = gene[2]
@@ -96,7 +96,7 @@ def main(argv):
     s = 0
     for file_name in sample_files:
         
-        print "Reading frequencies from " + file_name
+        print("Reading frequencies from " + file_name)
         
         with gzip.open(file_name,'r') as fin:
             for line in fin:
@@ -105,7 +105,7 @@ def main(argv):
                 ttokens = line.split('\t')
                 ltokens = len(ttokens)
                 if ltokens < 10:
-                    print "Format error: " + line
+                    print("Format error: " + line)
                 else:
                     contig = ttokens[0]
                     pos = int(ttokens[1])
@@ -131,9 +131,9 @@ def main(argv):
                                 if lpos >= 0 and lpos < foundGene[2]:
                                     foundGene[4][lpos,s,a] = int(tokens2[1])
                                 else:
-                                    print "Cog index error: " + contig + " " + str(lpos)
+                                    print("Cog index error: " + contig + " " + str(lpos))
                             else:
-                                print "Format error: " + tok 
+                                print("Format error: " + tok) 
         s = s + 1
     
 
@@ -141,7 +141,7 @@ def main(argv):
 
     results = []
 
-    for contig, sorted_genes in contig_gene_list.iteritems():
+    for contig, sorted_genes in contig_gene_list.items():
         
         for gene in sorted_genes:
         

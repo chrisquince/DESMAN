@@ -18,5 +18,5 @@ handle = open(options.ifilename, "rU")
 for record in SeqIO.parse(handle, "fasta"):
 	seq = record.seq
 	
-	print record.id + "\t" + repr(len(seq))
+	print(record.id + "\t" + repr(len(seq)))
 handle.close()

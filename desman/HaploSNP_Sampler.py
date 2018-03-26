@@ -7,21 +7,19 @@ import scipy as sp
 import scipy.misc as spm
 import math
 import argparse
-import cPickle
+import pickle
 import sampletau
 import logging 
 
-from operator import mul, div, eq, ne, add, ge, le, itemgetter
-from itertools import izip
 from numpy import array, log, exp
 from scipy.special import gammaln
 from scipy.optimize import minimize_scalar
 from numpy.random import RandomState
 
 #user defined modules
-import Variant_Filter as vf
-import Init_NMFT as inmft
-import Desman_Utils as du
+from . import Variant_Filter as vf
+from . import Init_NMFT as inmft
+from . import Desman_Utils as du
 
 class Constants(object):
     MAX_LOG_DIR_PROB = 100.0
@@ -319,7 +317,7 @@ class HaploSNP_Sampler():
             self.sampleEta()
             self.ll = self.logLikelihood(self.gamma,self.tau,self.eta)
             self.lp = self.logPosterior(self.gamma,self.tau,self.eta)
-            print str(iter) + " " + str(self.ll) + " " + str(self.lp)
+            print(str(iter) + " " + str(self.ll) + " " + str(self.lp))
             
             iter = iter + 1
     
@@ -375,7 +373,7 @@ class HaploSNP_Sampler():
             self.ll = self.logLikelihood(self.gamma_star,self.tau,self.eta_star)
             self.lp = self.logPosterior(self.gamma_star,self.tau,self.eta_star)
             
-            print str(iter) + "," + str(nchange) + "," + str(self.lp)
+            print(str(iter) + "," + str(nchange) + "," + str(self.lp))
             sys.stdout.flush()
             iter = iter + 1
     
@@ -584,7 +582,7 @@ class HaploSNP_Sampler():
                 logP = du.log_dirichlet_pdf(self.gamma_star[s,:], self.alpha + sum_mu[s,:])
                 
                 logTotalP += logP
-            print str(i)+",GC," + str(logTotalP)
+            print(str(i)+",GC," + str(logTotalP))
             storeLogGamma[i] = logTotalP
             
         logGammaHat = self.logMean(storeLogGamma)
@@ -602,7 +600,7 @@ class HaploSNP_Sampler():
                 for v in range(self.V):
                     temp += tauLogProb[v,self.tauOne(self.tau_star[v,h,:])]
                 storeLogTau[i] = temp
-                print str(i)+",GT," + str(h) + "," + str(temp)
+                print(str(i)+",GT," + str(h) + "," + str(temp))
             logTauHat += self.logMean(storeLogTau)
         
         return cMLogL + logEtaPrior - logEpsilonHat + logGammaPrior - logGammaHat + logTauPrior - logTauHat
@@ -704,7 +702,7 @@ class HaploSNP_Sampler():
         
         logEpsilonHat =  maxSampleEpsilon + np.log(epsilonSum) - np.log(self.max_iter)
         
-        print str(cMLogL) +  "," + str(logGammaHat) + "," + str(logEpsilonHat) + "," + str(logTauHat)
+        print(str(cMLogL) +  "," + str(logGammaHat) + "," + str(logEpsilonHat) + "," + str(logTauHat))
         cMLogL += -logGammaHat - logEpsilonHat - logTauHat
         
         return cMLogL

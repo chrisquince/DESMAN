@@ -8,12 +8,12 @@ import scipy as sp
 import scipy.misc as spm
 import math
 import argparse
-import cPickle
+import pickle
 import re
 from collections import defaultdict
 
 from operator import mul, div, eq, ne, add, ge, le, itemgetter
-from itertools import izip
+
 from numpy import array, log, exp
 from scipy.special import gammaln
 from scipy.optimize import minimize_scalar
@@ -89,7 +89,7 @@ def computeStrainReproducibility(gamma_file,tau_file,comp_files):
         G2 = ctau_matrix.shape[1]/4
     
         if V2 != V or G2 != G:
-            print 'Haplotype files do not match V %d -> %d or G %d -> %d' % (V,V2,G,G2)
+            print('Haplotype files do not match V %d -> %d or G %d -> %d' % (V,V2,G,G2))
             sys.exit(-1)
     
         ctau_array = np.reshape(ctau_matrix,(V2, G2,4))
@@ -202,7 +202,7 @@ def main(argv):
         tau_file = args.input_stub + "_" + str(G) + "_" + str(bestr) +"/Filtered_Tau_star.csv"
         comp_files = []
         
-        for r, fPD in allPDG[G].iteritems():
+        for r, fPD in allPDG[G].items():
             if r != bestr:
                 comp_files.append(args.input_stub + "_" + str(G) + "_" + str(r) +"/Filtered_Tau_star.csv")
         (gamma_mean, mean_acc) = computeStrainReproducibility(gamma_file,tau_file,comp_files)
@@ -239,7 +239,7 @@ def main(argv):
         
         tau_file = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Filtered_Tau_star.csv"
         
-        print str(bestG)+ "," + str(NStrains) + "," + str(bestr) + "," + str(meanError) + "," + tau_file
+        print(str(bestG)+ "," + str(NStrains) + "," + str(bestr) + "," + str(meanError) + "," + tau_file)
         
         #Now remove low quality strains from gamma and tau files
         
