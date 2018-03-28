@@ -26,7 +26,8 @@ while(my $line = <STDIN>){
         
     $tokens[0]=~/(.*)_\d+/;
         
-    my $contig = $1;
+    #my $contig = $1;
+    my $contig = $tokens[0];
         
     my $cog = $tokens[1];
     #k99_40717_1,COG2207,1,370,9.0,116.0,1        

@@ -98,7 +98,7 @@ def main(argv):
         
         print("Reading frequencies from " + file_name)
         
-        with gzip.open(file_name,'r') as fin:
+        with gzip.open(file_name,'rt') as fin:
             for line in fin:
                 line = line.rstrip()
                 
