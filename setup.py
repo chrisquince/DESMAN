@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-from setuptools import setup, find_packages
-import sys, os
+from setuptools import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
 import numpy
+from glob import glob
 
 version = '0.1dev'
 
@@ -30,7 +30,7 @@ setup(name='desman',
       url='https://github.com/chrisquince/DESMAN',
       license='FreeBSD',
       packages=['desman'],
-      scripts=["bin/desman"],
+      scripts=["bin/desman"]+glob("scripts/*"),
       include_package_data=True,
       zip_safe=False,
       cmdclass = {'build_ext': build_ext},
