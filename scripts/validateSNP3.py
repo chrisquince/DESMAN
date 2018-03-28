@@ -12,7 +12,7 @@ import argparse
 import pickle
 
 from collections import defaultdict
-from operator import mul, div, eq, ne, add, ge, le, itemgetter
+from operator import mul, truediv as div, eq, ne, add, ge, le, itemgetter
 
 from numpy import array, log, exp
 from scipy.special import gammaln

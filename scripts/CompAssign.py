@@ -8,7 +8,7 @@ import argparse
 import math
 import logging
 
-from operator import mul, div, eq, ne, add, ge, le, itemgetter
+from operator import mul, truediv as div, eq, ne, add, ge, le, itemgetter
 from numpy.random import RandomState
 
 

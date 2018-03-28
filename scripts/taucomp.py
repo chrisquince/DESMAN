@@ -11,7 +11,7 @@ import math
 import argparse
 import pickle
 
-from operator import mul, div, eq, ne, add, ge, le, itemgetter
+from operator import mul, truediv as div, eq, ne, add, ge, le, itemgetter
 
 from numpy import array, log, exp
 from scipy.special import gammaln
@@ -69,7 +69,7 @@ def main(argv):
     
     parser.add_argument("tau_file", help="haplotypes to determine uncertainty of")
         
-    parser.add_argument('comp_files', type=file, nargs='+', 
+    parser.add_argument('comp_files', type=open, nargs='+',
                         help="tau_file2 ... tau_fileN replicates to compare to")
         
     args = parser.parse_args()
