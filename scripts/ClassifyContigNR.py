@@ -51,7 +51,7 @@ def read_blast_input(blastinputfile,lengths, accession_mode=False):
         fHit *= float(percIdentity)/100.0
         fHit = min(1.0,fHit)
         #hits[queryId] = hits[queryId] + 1
-        if percIdentity > MIN_IDENTITY and nmatches[queryId] < MAX_MATCHES:
+        if float(percIdentity) > MIN_IDENTITY and nmatches[queryId] < MAX_MATCHES:
             matches[queryId].append((gid,fHit))
             nmatches[queryId] += 1
             gids[gid] +=1

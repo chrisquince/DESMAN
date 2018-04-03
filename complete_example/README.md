@@ -196,7 +196,7 @@ git clone https://github.com/chrisquince/DESMAN.git
 
 cd DESMAN
 
-sudo python ./setup.py install
+sudo python3 ./setup.py install
 
 ```
 
@@ -279,7 +279,7 @@ Here we are using 32 threads for bwa mem '-t 32' you can adjust this to whatever
 Then we need to calculate our contig lengths using one of the Desman scripts.
 
 ```bash
-python $DESMAN/scripts/Lengths.py -i contigs/final_contigs_c10K.fa > contigs/final_contigs_c10K.len
+python3 $DESMAN/scripts/Lengths.py -i contigs/final_contigs_c10K.fa > contigs/final_contigs_c10K.len
 ```
 
 Then we calculate coverages for each contig in each sample:
@@ -351,7 +351,7 @@ done
 Then we run a script that extracts the mock genome ids out of the fastq ids of the simulated reads:
 ```
 cd AssignGenome
-python $DESMAN/scripts/contig_read_count_per_genome.py ../contigs/final_contigs_c10K.fa Mock1_20genomes.fasta ../Map/*mapped.sorted.bam > final_contigs_c10K_genome_count.tsv
+python3 $DESMAN/scripts/contig_read_count_per_genome.py ../contigs/final_contigs_c10K.fa Mock1_20genomes.fasta ../Map/*mapped.sorted.bam > final_contigs_c10K_genome_count.tsv
 cd ..
 ``` 
 This file contains counts of unambiguous and ambiguous reads mapping to each of the genomes for each of the 
@@ -409,7 +409,7 @@ Then we begin by calling genes on all contigs greater than 1000bp in length.
 cd ~/DesmanExample/Example
 mkdir Annotate_gt1000
 cd Annotate_gt1000
-python $DESMAN/scripts/LengthFilter.py -m 1000 ../contigs/final_contigs_c10K.fa > final_contigs_gt1000_c10K.fa
+python3 $DESMAN/scripts/LengthFilter.py -m 1000 ../contigs/final_contigs_c10K.fa > final_contigs_gt1000_c10K.fa
 prodigal -i final_contigs_gt1000_c10K.fa -a final_contigs_gt1000_c10K.faa -d final_contigs_gt1000_c10K.fna  -f gff -p meta -o final_contigs_gt1000_c10K.gff
 cd ..
 ```
