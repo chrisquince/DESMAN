@@ -173,11 +173,12 @@ or we also provide a pre-formatted version:
     wget https://desmandatabases.s3.climb.ac.uk/all_taxa_lineage_notnone.tsv
     ```
 
-We then install both the [CONCOCT](https://github.com/BinPro/CONCOCT) and [DESMAN]((https://github.com/chrisquince/DESMAN)) repositories. These are both Python 2.7 and require the following modules:
+We then install both the [CONCOCT](https://github.com/BinPro/CONCOCT) and [DESMAN]((https://github.com/chrisquince/DESMAN)) repositories. Concoct is Python 2.7 whereas Desman is now python3 they require the following modules:
 
 ```
-    sudo apt-get -y install python-pip
+    sudo apt-get -y install python-pip python3-pip 
     sudo pip install cython numpy scipy biopython pandas pip scikit-learn pysam bcbio-gff
+    sudo pip3 install cython numpy scipy biopython pandas pip scikit-learn pysam bcbio-gff
 ```
 
 Then install the repos and set their location in your .bashrc:
@@ -444,8 +445,8 @@ DEF_LINE_FILE = "/home/chris/native/Databases/nr/FASTA/all_taxa_lineage_notnone.
 We calculate the gene length in amino acids before running this.
 Then we can assign the contigs and genes called on them:
 ```
-python $DESMAN/scripts/Lengths.py -i final_contigs_gt1000_c10K.faa > final_contigs_gt1000_c10K.len
-python $DESMAN/scripts/ClassifyContigNR.py final_contigs_gt1000_c10K_nr.m8 final_contigs_gt1000_c10K.len -o final_contigs_gt1000_c10K_nr -l /mypath/all_taxa_lineage_notnone.tsv -g /mypath/gi_taxid_prot.dmp
+python3 $DESMAN/scripts/Lengths.py -i final_contigs_gt1000_c10K.faa > final_contigs_gt1000_c10K.len
+python3 $DESMAN/scripts/ClassifyContigNR.py final_contigs_gt1000_c10K_nr.m8 final_contigs_gt1000_c10K.len -o final_contigs_gt1000_c10K_nr -l /mypath/all_taxa_lineage_notnone.tsv -g /mypath/gi_taxid_prot.dmp
 ```
 
 Then we extract species out:
@@ -509,7 +510,7 @@ $CONCOCT/scripts/RPSBLAST.sh -f ClusterEC.faa -p -c 8 -r 1
 
 and extract out the annotated Cogs associated with called genes:
 ```bash
-$DESMAN/scripts/ExtractCogs.py -g ClusterEC.gff -b ClusterEC.out --cdd_cog_file $CONCOCT/scgs/cdd_to_cog.tsv > ClusterEC.cogs
+python3 $DESMAN/scripts/ExtractCogs.py -g ClusterEC.gff -b ClusterEC.out --cdd_cog_file $CONCOCT/scgs/cdd_to_cog.tsv > ClusterEC.cogs
 ```
 
 Then we determine those regions of the contigs with core COGs on in single copy using the 982 predetermined *E. coli* core COGs:
@@ -580,13 +581,13 @@ The above will run each sample in parallel adjust as necessary. To save space we
 ```
 cd Counts
 gzip *cnt
-cd..
+cd ..
 ```
 
 Next we collate the positions frequencies into a single file for Desman, here we use all genes regardless of length:
 
 ```bash
-python $DESMAN/scripts/ExtractCountFreqGenes.py AnnotateEC/ClusterEC_core.cogs Counts --output_file Cluster_esc3_scgs.freq
+python3 $DESMAN/scripts/ExtractCountFreqGenes.py AnnotateEC/ClusterEC_core.cogs Counts --output_file Cluster_esc3_scgs.freq
 ```
 
 <a name="infer_strains"></a>
@@ -598,7 +599,7 @@ Now lets use Desman to find the variant positions on these core cogs:
 mkdir Variants
 cd Variants/
 mv ../Cluster_esc3_scgs.freq .
-python $DESMAN/desman/Variant_Filter.py Cluster_esc3_scgs.freq
+python3 $DESMAN/desman/Variant_Filter.py Cluster_esc3_scgs.freq
 cd ..
 ```
 
