@@ -813,7 +813,7 @@ cut -f1-6 < ClusterEC_gene_countsR.tsv > ClusterEC_gene_counts_unamb.tsv
 We then do a little bit of R to convert the counts into gene assignments to genomes assuming that if more than 
 1% of reads mapping to a gene derive from a genome then that gene is present in that genome.
 ```
-R
+>R
 Gene_eta <- read.table("ClusterEC_gene_counts_unamb.tsv",header=TRUE,row.names=1)
 Gene_etaP <- Gene_eta/rowSums(Gene_eta)
 Gene_etaP[Gene_etaP > 0.01] = 1.

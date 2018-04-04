@@ -8,7 +8,6 @@ import argparse
 import math
 import logging
 
-from operator import mul, div, eq, ne, add, ge, le, itemgetter
 from numpy.random import RandomState
 
 
@@ -69,9 +68,10 @@ def main(argv):
     eta[eta >= 0.5] = 1.0
         
     (dtotal, dacc,dacc_array) = compGenes(eta, genomes_D)
-    
-    np.savetxt(sys.stdout, dacc, fmt='%.4f')
-    
+
+    for dvalue in dacc:
+        print(str(dvalue))
+
     print(('Av. accurracy = %f' %(dtotal)))
        
 if __name__ == "__main__":
