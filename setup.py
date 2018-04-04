@@ -5,7 +5,7 @@ from distutils.extension import Extension
 from Cython.Distutils import build_ext
 import numpy
 
-version = '0.1dev'
+version = '2.0'
 
 
 
