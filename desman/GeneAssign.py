@@ -8,11 +8,11 @@ import scipy.stats as ss
 from scipy.stats import norm
 import argparse
 import math
-from . import Eta_Sampler as es
+import desman.Eta_Sampler as es
 import sampletau
 import logging
 
-from operator import mul, div, eq, ne, add, ge, le, itemgetter
+from operator import mul, truediv as div, eq, ne, add, ge, le, itemgetter
 from numpy.random import RandomState
 
 def intersect(a, b):
@@ -260,7 +260,7 @@ def main(argv):
     #import ipdb; ipdb.set_trace()
     etaD = np.rint(klassign.eta)
  
-    etaSampler = es.Eta_Sampler(prng,variants_intersect,cov,gamma_star_matrix,delta,total_sd,epsilon_matrix,etaD,
+    etaSampler = es.Eta_Sampler(prng, variants_intersect, cov, gamma_star_matrix, delta, total_sd, epsilon_matrix, etaD,
         max_iter=args.iter_max,max_eta=args.eta_max, max_var=args.var_max)
     
     etaSampler.update()
