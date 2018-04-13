@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 my $fastaFile   = $ARGV[0];
 my $clusterFile = $ARGV[1];

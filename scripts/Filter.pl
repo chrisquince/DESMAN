@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 my $token = $ARGV[0];
 my $min = 0.5;
