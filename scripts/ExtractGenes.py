@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # ***************************************************************
 # Name:      COG_table.py
 # Purpose:   This script integrates with PROKKA or Prodigal and generates Cogs assignments for the protein sequences.

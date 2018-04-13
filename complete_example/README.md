@@ -173,11 +173,12 @@ or we also provide a pre-formatted version:
     wget https://desmandatabases.s3.climb.ac.uk/all_taxa_lineage_notnone.tsv
     ```
 
-We then install both the [CONCOCT](https://github.com/BinPro/CONCOCT) and [DESMAN]((https://github.com/chrisquince/DESMAN)) repositories. These are both Python 2.7 and require the following modules:
+We then install both the [CONCOCT](https://github.com/BinPro/CONCOCT) and [DESMAN]((https://github.com/chrisquince/DESMAN)) repositories. Concoct is Python 2.7 whereas Desman is now python3 they require the following modules:
 
 ```
-    sudo apt-get -y install python-pip
+    sudo apt-get -y install python-pip python3-pip 
     sudo pip install cython numpy scipy biopython pandas pip scikit-learn pysam bcbio-gff
+    sudo pip3 install cython numpy scipy biopython pandas pip scikit-learn pysam bcbio-gff
 ```
 
 Then install the repos and set their location in your .bashrc:
@@ -196,7 +197,7 @@ git clone https://github.com/chrisquince/DESMAN.git
 
 cd DESMAN
 
-sudo python ./setup.py install
+sudo python3 ./setup.py install
 
 ```
 
@@ -279,7 +280,7 @@ Here we are using 32 threads for bwa mem '-t 32' you can adjust this to whatever
 Then we need to calculate our contig lengths using one of the Desman scripts.
 
 ```bash
-python $DESMAN/scripts/Lengths.py -i contigs/final_contigs_c10K.fa > contigs/final_contigs_c10K.len
+python3 $DESMAN/scripts/Lengths.py -i contigs/final_contigs_c10K.fa > contigs/final_contigs_c10K.len
 ```
 
 Then we calculate coverages for each contig in each sample:
@@ -351,7 +352,7 @@ done
 Then we run a script that extracts the mock genome ids out of the fastq ids of the simulated reads:
 ```
 cd AssignGenome
-python $DESMAN/scripts/contig_read_count_per_genome.py ../contigs/final_contigs_c10K.fa Mock1_20genomes.fasta ../Map/*mapped.sorted.bam > final_contigs_c10K_genome_count.tsv
+python3 $DESMAN/scripts/contig_read_count_per_genome.py ../contigs/final_contigs_c10K.fa Mock1_20genomes.fasta ../Map/*mapped.sorted.bam > final_contigs_c10K_genome_count.tsv
 cd ..
 ``` 
 This file contains counts of unambiguous and ambiguous reads mapping to each of the genomes for each of the 
@@ -409,7 +410,7 @@ Then we begin by calling genes on all contigs greater than 1000bp in length.
 cd ~/DesmanExample/Example
 mkdir Annotate_gt1000
 cd Annotate_gt1000
-python $DESMAN/scripts/LengthFilter.py -m 1000 ../contigs/final_contigs_c10K.fa > final_contigs_gt1000_c10K.fa
+python3 $DESMAN/scripts/LengthFilter.py -m 1000 ../contigs/final_contigs_c10K.fa > final_contigs_gt1000_c10K.fa
 prodigal -i final_contigs_gt1000_c10K.fa -a final_contigs_gt1000_c10K.faa -d final_contigs_gt1000_c10K.fna  -f gff -p meta -o final_contigs_gt1000_c10K.gff
 cd ..
 ```
@@ -444,8 +445,8 @@ DEF_LINE_FILE = "/home/chris/native/Databases/nr/FASTA/all_taxa_lineage_notnone.
 We calculate the gene length in amino acids before running this.
 Then we can assign the contigs and genes called on them:
 ```
-python $DESMAN/scripts/Lengths.py -i final_contigs_gt1000_c10K.faa > final_contigs_gt1000_c10K.len
-python $DESMAN/scripts/ClassifyContigNR.py final_contigs_gt1000_c10K_nr.m8 final_contigs_gt1000_c10K.len -o final_contigs_gt1000_c10K_nr -l /mypath/all_taxa_lineage_notnone.tsv -g /mypath/gi_taxid_prot.dmp
+python3 $DESMAN/scripts/Lengths.py -i final_contigs_gt1000_c10K.faa > final_contigs_gt1000_c10K.len
+python3 $DESMAN/scripts/ClassifyContigNR.py final_contigs_gt1000_c10K_nr.m8 final_contigs_gt1000_c10K.len -o final_contigs_gt1000_c10K_nr -l /mypath/all_taxa_lineage_notnone.tsv -g /mypath/gi_taxid_prot.dmp
 ```
 
 Then we extract species out:
@@ -509,7 +510,7 @@ $CONCOCT/scripts/RPSBLAST.sh -f ClusterEC.faa -p -c 8 -r 1
 
 and extract out the annotated Cogs associated with called genes:
 ```bash
-$DESMAN/scripts/ExtractCogs.py -g ClusterEC.gff -b ClusterEC.out --cdd_cog_file $CONCOCT/scgs/cdd_to_cog.tsv > ClusterEC.cogs
+python3 $DESMAN/scripts/ExtractCogs.py -g ClusterEC.gff -b ClusterEC.out --cdd_cog_file $CONCOCT/scgs/cdd_to_cog.tsv > ClusterEC.cogs
 ```
 
 Then we determine those regions of the contigs with core COGs on in single copy using the 982 predetermined *E. coli* core COGs:
@@ -580,13 +581,13 @@ The above will run each sample in parallel adjust as necessary. To save space we
 ```
 cd Counts
 gzip *cnt
-cd..
+cd ..
 ```
 
 Next we collate the positions frequencies into a single file for Desman, here we use all genes regardless of length:
 
 ```bash
-python $DESMAN/scripts/ExtractCountFreqGenes.py AnnotateEC/ClusterEC_core.cogs Counts --output_file Cluster_esc3_scgs.freq
+python3 $DESMAN/scripts/ExtractCountFreqGenes.py AnnotateEC/ClusterEC_core.cogs Counts --output_file Cluster_esc3_scgs.freq
 ```
 
 <a name="infer_strains"></a>
@@ -598,7 +599,7 @@ Now lets use Desman to find the variant positions on these core cogs:
 mkdir Variants
 cd Variants/
 mv ../Cluster_esc3_scgs.freq .
-python $DESMAN/desman/Variant_Filter.py Cluster_esc3_scgs.freq
+python3 $DESMAN/desman/Variant_Filter.py Cluster_esc3_scgs.freq
 cd ..
 ```
 
@@ -638,7 +639,7 @@ five strains are present, since on average there is some improvement going
 from five to six strains. However, we can run our heuristic program for determining haplotype number:
 
 ```
-python $DESMAN/scripts/resolvenhap.py ClusterEC
+python3 $DESMAN/scripts/resolvenhap.py ClusterEC
 ```
 
 This gave in our run the following output:
@@ -678,7 +679,7 @@ $DESMAN/scripts/MapCogBack.pl ../AnnotateEC/ClusterEC_core.cogs < ClusterEC_core
 
 We then compare these known assignments to those predicted by DESMAN for our optimum run:
 ```
-python $DESMAN/scripts/validateSNP2.py ../RunDesman/ClusterEC_6_2/Collated_Tau_mean.csv ClusterEC_core_tau_gene.csv
+python3 $DESMAN/scripts/validateSNP2.py ../RunDesman/ClusterEC_6_2/Collated_Tau_mean.csv ClusterEC_core_tau_gene.csv
 ```
 
 The output should look like:
@@ -709,7 +710,7 @@ Now we need the variant frequencies on all contigs:
 
 ```bash
 cd $DESMAN_EXAMPLE
-$DESMAN/scripts/Lengths.py -i AnnotateEC/ClusterEC.fa > AnnotateEC/ClusterEC.len
+python3 $DESMAN/scripts/Lengths.py -i AnnotateEC/ClusterEC.fa > AnnotateEC/ClusterEC.len
 
 mkdir CountsAll
 
@@ -733,19 +734,19 @@ cd ..
 
 We also need to extract info on all genes in the E. coli clusters:
 ```
-python $DESMAN/scripts/ExtractGenes.py -g AnnotateEC/ClusterEC.gff > AnnotateEC/ClusterEC.genes
+python3 $DESMAN/scripts/ExtractGenes.py -g AnnotateEC/ClusterEC.gff > AnnotateEC/ClusterEC.genes
 ```
 
 Then we collate the count files together filtering to genes greater than 500bp:
 ```
-python $DESMAN/scripts/ExtractCountFreqGenes.py -g AnnotateEC/ClusterEC.genes CountsAll --output_file Cluster_esc3.freq 
+python3 $DESMAN/scripts/ExtractCountFreqGenes.py -g AnnotateEC/ClusterEC.genes CountsAll --output_file Cluster_esc3.freq 
 ```
 The _-g_ flag here tells the script to expect gene positions in a slightly different format to the cog file used above. Now we find variants again, this time insisting on a minimum frequency of 3% and not filtering on sample coverage:
 ```
 mkdir VariantsAll
 cd VariantsAll
 mv ../Cluster_esc3.freq .
-python $DESMAN/desman/Variant_Filter.py Cluster_esc3.freq -m 0.0 -v 0.03
+python3 $DESMAN/desman/Variant_Filter.py Cluster_esc3.freq -m 0.0 -v 0.03
 cd ..
 ```
 
@@ -754,7 +755,7 @@ aggregated count files:
 
 ```
 cd VariantsAll
-python $DESMAN/scripts/CalcGeneCov.py Cluster_esc3.freq > Cluster_esc3_gene_cov.csv
+python3 $DESMAN/scripts/CalcGeneCov.py Cluster_esc3.freq > Cluster_esc3_gene_cov.csv
 ```
 
 Get list of core COGs:
@@ -764,7 +765,7 @@ cut -d"," -f5 ../AnnotateEC/ClusterEC_core.cogs > ClusterEC_core_genes.txt
 
 Calculate coverage on core genes:
 ```
-python $DESMAN/scripts/CalcDelta.py Cluster_esc3_gene_cov.csv ClusterEC_core_genes.txt ClusterEC_core
+python3 $DESMAN/scripts/CalcDelta.py Cluster_esc3_gene_cov.csv ClusterEC_core_genes.txt ClusterEC_core
 ```
 
 Select run with lowest deviance and 5 strains:
@@ -774,7 +775,7 @@ export SEL_RUN=$DESMAN_EXAMPLE/RunDesman/ClusterEC_6_2/
 
 Then we run the gene/contig assignment algorithm.
 ```
-python $DESMAN/desman/GeneAssign.py ClusterEC_coremean_sd_df.csv $SEL_RUN/Gamma_star.csv Cluster_esc3_gene_cov.csv $SEL_RUN/Eta_star.csv -m 20 -v outputsel_var.csv -o ClusterEC --assign_tau > ClusterEC.cout&
+python3 $DESMAN/desman/GeneAssign.py ClusterEC_coremean_sd_df.csv $SEL_RUN/Gamma_star.csv Cluster_esc3_gene_cov.csv $SEL_RUN/Eta_star.csv -m 20 -v outputsel_var.csv -o ClusterEC --assign_tau > ClusterEC.cout&
 ```
 
 This should generate the following output files.
@@ -792,12 +793,12 @@ This should generate the following output files.
 
 <a name="validate_acessory"></a>
 
-##Validate accessory genomes
+## Validate accessory genomes
 
 We will now compare predictions with known assignments to reference genomes. First we 
 use the mapping files to determine number of reads from each genome mapping to each gene.
 ```
-python $DESMAN/scripts/gene_read_count_per_genome.py ../contigs/final_contigs_c10K.fa ../AnnotateEC/ClusterEC.genes ../AssignGenome/Mock1_20genomes.fasta  ../Map/*mapped.sorted.bam > ClusterEC_gene_counts.tsv
+python3 $DESMAN/scripts/gene_read_count_per_genome.py ../contigs/final_contigs_c10K.fa ../AnnotateEC/ClusterEC.genes ../AssignGenome/Mock1_20genomes.fasta  ../Map/*mapped.sorted.bam > ClusterEC_gene_counts.tsv
 ```
 
 As above we will rename the header file to be a bit more presentable:
@@ -812,7 +813,7 @@ cut -f1-6 < ClusterEC_gene_countsR.tsv > ClusterEC_gene_counts_unamb.tsv
 We then do a little bit of R to convert the counts into gene assignments to genomes assuming that if more than 
 1% of reads mapping to a gene derive from a genome then that gene is present in that genome.
 ```
-R
+>R
 Gene_eta <- read.table("ClusterEC_gene_counts_unamb.tsv",header=TRUE,row.names=1)
 Gene_etaP <- Gene_eta/rowSums(Gene_eta)
 Gene_etaP[Gene_etaP > 0.01] = 1.
@@ -820,9 +821,9 @@ Gene_etaP[Gene_etaP <= 0.01] = 0.
 write.csv(Gene_etaP,"Gene_etaP.csv",quote=FALSE)
 ```
 
-Final we compare the mean posterior predictions to those assignments.
+Finally we compare the mean posterior predictions to those assignments.
 ```
-python $DESMAN/scripts/CompAssign.py ClusterECetaM_df.csv Gene_etaP.csv
+python3 $DESMAN/scripts/CompAssign.py ClusterECetaM_df.csv Gene_etaP.csv
 ```
 
 Output should look like:

@@ -11,8 +11,6 @@ import math
 import argparse
 import pickle
 
-from operator import mul, truediv as div, eq, ne, add, ge, le, itemgetter
-
 from numpy import array, log, exp
 from scipy.special import gammaln
 from scipy.optimize import minimize_scalar

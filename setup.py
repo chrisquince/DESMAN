@@ -14,6 +14,7 @@ version = '2.0.5'
 extra_include_path = os.path.join(sysconfig.get_path("data"),"include")
 extra_compile_args = "-I{}".format(extra_include_path)
 
+
 module1 = Extension("sampletau",
                              sources=["sampletau/sampletau.pyx", "sampletau/c_sample_tau.c"],
                              extra_compile_args=['-O3', '-march=native', extra_compile_args],

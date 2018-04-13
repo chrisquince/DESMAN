@@ -8,19 +8,10 @@ import scipy as sp
 import scipy.misc as spm
 import math
 import argparse
-import pickle
 import re
 from collections import defaultdict
 
-from operator import mul, truediv as div, eq, ne, add, ge, le, itemgetter
-
 from numpy import array, log, exp
-from scipy.special import gammaln
-from scipy.optimize import minimize_scalar
-
-from scipy.stats import chi2
-
-from sklearn.metrics import roc_curve, auc, accuracy_score
 
 
 def variableTau(tau):
@@ -72,9 +63,10 @@ def computeStrainReproducibility(gamma_file, tau_file, comp_files):
     tau_matrix = np.delete(tau_matrix, 0, 1)
     
     V = tau_matrix.shape[0]
-    G = tau_matrix.shape[1]/4
 
-    tau_array = np.reshape(tau_matrix, (V, int(G), 4))
+    G = int(tau_matrix.shape[1]/4)
+    
+    tau_array = np.reshape(tau_matrix,(V, G,4)) 
     
     NC = len(comp_files)
     all_acc = np.zeros((int(G),NC))
@@ -87,7 +79,7 @@ def computeStrainReproducibility(gamma_file, tau_file, comp_files):
         ctau_matrix = np.delete(ctau_matrix,0,1)
     
         V2 = ctau_matrix.shape[0]
-        G2 = ctau_matrix.shape[1]/4
+        G2 = int(ctau_matrix.shape[1]/4)
     
         if V2 != V or G2 != G:
             print('Haplotype files do not match V %d -> %d or G %d -> %d' % (V,V2,G,G2))

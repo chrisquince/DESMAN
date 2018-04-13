@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 @author: inodb
 """
@@ -133,7 +133,7 @@ if __name__ == "__main__":
         help="Specify the maximum number of processors to use, if absent, all present processors will be used.") 
 
     args = parser.parse_args()
-
+    #import ipdb; ipdb.set_trace()
     for bf in args.bamfiles:
         if not os.path.isfile(bf + ".bai"):
             raise Exception

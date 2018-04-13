@@ -12,15 +12,9 @@ import argparse
 import pickle
 
 from collections import defaultdict
-from operator import mul, truediv as div, eq, ne, add, ge, le, itemgetter
+
 
 from numpy import array, log, exp
-from scipy.special import gammaln
-from scipy.optimize import minimize_scalar
-
-from scipy.stats import chi2
-
-from sklearn.metrics import roc_curve, auc, accuracy_score
 
 
 def variableTau(tau):
@@ -91,7 +85,7 @@ def main(argv):
         idx = idx + 1
     
     V = tau_star_matrix.shape[0]
-    G = tau_star_matrix.shape[1]/4
+    G = int(tau_star_matrix.shape[1]/4)
     
     tau_star_array = np.reshape(tau_star_matrix,(V, G,4)) 
     
@@ -100,7 +94,7 @@ def main(argv):
     tau_matrix = np.delete(tau_matrix,0,1)
     
     PV = tau_matrix.shape[0]
-    PG = tau_matrix.shape[1]/4
+    PG = int(tau_matrix.shape[1]/4)
     
     #Want the intersection of the two sets
 
