@@ -6,7 +6,7 @@ from Cython.Distutils import build_ext
 import numpy
 from glob import glob
 import os
-version = '0.1dev'
+version = '2.0.4'
 
 # Since Conda started using their own compilers the include dir may not be found when trying to install within an
 # active conda environment.
