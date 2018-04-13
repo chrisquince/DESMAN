@@ -11,10 +11,7 @@ import argparse
 import re
 from collections import defaultdict
 
-
 from numpy import array, log, exp
-
-
 
 
 def variableTau(tau):
@@ -54,23 +51,25 @@ def compSND(tau1,tau2):
                 
     return snd
 
-def computeStrainReproducibility(gamma_file,tau_file,comp_files):
+
+def computeStrainReproducibility(gamma_file, tau_file, comp_files):
 
     gamma = p.read_csv(gamma_file, header=0, index_col=0)
-    gamma_mean = np.mean(gamma.as_matrix(),axis = 0) 
+    gamma_mean = np.mean(gamma.as_matrix(), axis=0)
 
     tau = p.read_csv(tau_file, header=0, index_col=0)
     
     tau_matrix = tau.as_matrix()
-    tau_matrix = np.delete(tau_matrix,0,1)
+    tau_matrix = np.delete(tau_matrix, 0, 1)
     
     V = tau_matrix.shape[0]
+
     G = int(tau_matrix.shape[1]/4)
     
     tau_array = np.reshape(tau_matrix,(V, G,4)) 
     
     NC = len(comp_files)
-    all_acc = np.zeros((G,NC))
+    all_acc = np.zeros((int(G),NC))
     
     c = 0
     for ctau_file in comp_files:
@@ -86,20 +85,20 @@ def computeStrainReproducibility(gamma_file,tau_file,comp_files):
             print('Haplotype files do not match V %d -> %d or G %d -> %d' % (V,V2,G,G2))
             sys.exit(-1)
     
-        ctau_array = np.reshape(ctau_matrix,(V2, G2,4))
+        ctau_array = np.reshape(ctau_matrix, (V2, int(G2), 4))
     
         comp = compSND(tau_array,ctau_array)/float(V)
     
-        accuracies = np.zeros(G)
-        map = np.zeros(G,dtype=int)
+        accuracies = np.zeros(int(G))
+        map = np.zeros(int(G), dtype=int)
         acctotal = 0.0
         ga = 0;
         while (ga < G):
             (mr,mcol) = np.unravel_index(np.argmin(comp),comp.shape)
             curr_acc = np.min(comp)
             acctotal += curr_acc 
-            comp[mr,:] = np.ones(G)
-            comp[:,mcol] = np.ones(G)
+            comp[mr,:] = np.ones(int(G))
+            comp[:,mcol] = np.ones(int(G))
             accuracies[mr] = curr_acc
             map[mr] = mcol
             ga += 1
@@ -153,8 +152,8 @@ def main(argv):
     
     gValues = sorted(gValues)
     NG      = len(gValues)
-    sumPD   = np.zeros(NG)
-    countPD = np.zeros(NG,dtype=np.int)
+    sumPD   = np.array([0.0]*NG)
+    countPD = np.array([0]*NG)
     
     gidx = 0
     for G in gValues:
@@ -175,7 +174,7 @@ def main(argv):
                     sumPD[gidx]   += fPD
                     countPD[gidx] += 1                  
         gidx += 1
-    
+
     meanPD = sumPD/countPD
 
     for gidx in range(2,NG):

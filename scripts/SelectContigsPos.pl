@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 use strict;
 #use warnings;
@@ -25,8 +25,9 @@ while(my $line = <STDIN>){
     my @tokens = split(/,/,$line);
         
     $tokens[0]=~/(.*)_\d+/;
-        
-    my $contig = $1;
+    my @contig_items = split(/_/,$tokens[0]);
+    pop @contig_items;
+    my $contig = join("_", @contig_items);
         
     my $cog = $tokens[1];
     #k99_40717_1,COG2207,1,370,9.0,116.0,1        

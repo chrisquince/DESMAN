@@ -31,15 +31,15 @@ class Init_NMFT:
    
     BASE_PRIOR = 1.0
    
-    def __init__(self,snps, rank, randomState, n_run = 1, max_iter = 5000, min_change = 1.0e-5,alpha_constant=0.01):
+    def __init__(self, snps, rank, randomState, n_run = 1, max_iter = 5000, min_change = 1.0e-5,alpha_constant=0.01):
         
         self.V = snps.shape[0] #number of variants
         self.S = snps.shape[1] # cos there are 4 bases
-        self.G = rank;
+        self.G = rank
         self.randomState = randomState 
-        self.n_run = n_run;
-        self.max_iter = max_iter;
-        self.min_change = min_change;
+        self.n_run = n_run
+        self.max_iter = max_iter
+        self.min_change = min_change
         
         self.alpha = np.empty(self.G); self.alpha.fill(alpha_constant)
         self.alpha4 = np.empty(4); self.alpha4.fill(alpha_constant)

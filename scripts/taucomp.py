@@ -67,7 +67,7 @@ def main(argv):
     
     parser.add_argument("tau_file", help="haplotypes to determine uncertainty of")
         
-    parser.add_argument('comp_files', type=file, nargs='+', 
+    parser.add_argument('comp_files', type=open, nargs='+',
                         help="tau_file2 ... tau_fileN replicates to compare to")
         
     args = parser.parse_args()

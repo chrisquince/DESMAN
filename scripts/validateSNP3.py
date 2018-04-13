@@ -13,6 +13,7 @@ import pickle
 
 from collections import defaultdict
 
+
 from numpy import array, log, exp
 from scipy.special import gammaln
 from scipy.optimize import minimize_scalar

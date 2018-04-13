@@ -10,7 +10,6 @@ import logging
 
 from numpy.random import RandomState
 
-
 def compGenes(etaPred, etaG):
     G = etaPred.shape[1]
     NC = etaPred.shape[0]

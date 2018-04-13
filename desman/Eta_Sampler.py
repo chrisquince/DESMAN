@@ -10,7 +10,7 @@ import math
 import sampletau
 from scipy.special import gammaln
 from numpy import array, log, exp
-from . import Init_NMFT as inmft
+import desman.Init_NMFT as inmft
 import logging
 
 MIN_DELTA = 1.0e-10
@@ -80,8 +80,8 @@ class Eta_Sampler():
                     gene_variants = gene_variants.transpose()
             
                 gene_variants_matrix = gene_variants.as_matrix()
-                
-                gene_snps = np.reshape(gene_variants_matrix, (gene_variants_matrix.shape[0],gene_variants_matrix.shape[1]/4,4))
+                gene_snps = np.reshape(gene_variants_matrix, (gene_variants_matrix.shape[0],
+                                                              int(gene_variants_matrix.shape[1]/4), 4))
                 NV = gene_snps.shape[0]
                 if max_var is not None and NV > max_var:
                     select = np.sort(self.randomState.choice(NV,max_var, replace=False))

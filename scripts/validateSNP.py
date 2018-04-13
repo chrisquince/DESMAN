@@ -11,7 +11,6 @@ import math
 import argparse
 import pickle
 
-
 from numpy import array, log, exp
 from scipy.special import gammaln
 from scipy.optimize import minimize_scalar
