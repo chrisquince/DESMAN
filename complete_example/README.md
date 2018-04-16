@@ -599,7 +599,7 @@ Now lets use Desman to find the variant positions on these core cogs:
 mkdir Variants
 cd Variants/
 mv ../Cluster_esc3_scgs.freq .
-python3 $DESMAN/desman/Variant_Filter.py Cluster_esc3_scgs.freq
+Variant_Filter.py Cluster_esc3_scgs.freq
 cd ..
 ```
 
@@ -746,7 +746,7 @@ The _-g_ flag here tells the script to expect gene positions in a slightly diffe
 mkdir VariantsAll
 cd VariantsAll
 mv ../Cluster_esc3.freq .
-python3 $DESMAN/desman/Variant_Filter.py Cluster_esc3.freq -m 0.0 -v 0.03
+Variant_Filter.py Cluster_esc3.freq -m 0.0 -v 0.03
 cd ..
 ```
 
@@ -798,7 +798,7 @@ This should generate the following output files.
 We will now compare predictions with known assignments to reference genomes. First we 
 use the mapping files to determine number of reads from each genome mapping to each gene.
 ```
-python3 $DESMAN/scripts/gene_read_count_per_genome.py ../contigs/final_contigs_c10K.fa ../AnnotateEC/ClusterEC.genes ../AssignGenome/Mock1_20genomes.fasta  ../Map/*mapped.sorted.bam > ClusterEC_gene_counts.tsv
+python3 $DESMAN/scripts/gene_read_count_per_genome.py ../AnnotateEC/ClusterEC.genes ../AssignGenome/Mock1_20genomes.fasta  ../Map/*mapped.sorted.bam > ClusterEC_gene_counts.tsv
 ```
 
 As above we will rename the header file to be a bit more presentable:
