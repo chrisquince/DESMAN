@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 #from ete2 import NCBITaxa
 import argparse
 import sys, getopt
