@@ -101,11 +101,11 @@ Then run the example data file which corresponds to a single COG from the mock c
 described in the manuscript. This COG0015 has 933 variant positions. The input file is in the data 
 folder. We run the variant filtering as follows:
 
-    python3 ../desman/Variant_Filter.py ../data/contig_6or16_genesL_scgCOG0015.freq -o COG0015_out -p
+    Variant_Filter.py ../data/contig_6or16_genesL_scgCOG0015.freq -o COG0015_out -p
 
 The variant filtering has a number of optional parameters to see them run:
 
-    python3 ../desman/Variant_Filter.py -h
+    Variant_Filter.py -h
     
 They should all be fairly self explanatory. We recommend always using the 
 the '-p' flag for one dimenisonal optimisition of individual base frequencies if it is not 
