@@ -86,7 +86,7 @@ def main(argv):
     with open(args.gene_list) as f:
         gene_ids = f.read().splitlines() 
     
-    G = (len(tau_df.columns) - 1)/4
+    G = int((len(tau_df.columns) - 1)/4)
     c = 0
     C = len(gene_ids)
     
