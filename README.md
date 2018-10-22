@@ -40,14 +40,14 @@ multiple cultured representatives then you will just use the 36 single-copy core
 ## Installation
 
 To install simply type:
-    
-    sudo python3 ./setup.py install
-    
+```bash
+sudo ./setup.py install
+```
 These items are prerequisities for the installation of desman:
 
 1. *Python 3*
-2. *gcc
-3. *gsl
+2. *gcc*
+3. *gsl*
 
 The installation procedure varies on different systems, 
 and described in this README is only how to proceed with a linux (ubuntu) distribution.
@@ -56,16 +56,15 @@ The first item, Python 3, should be installed on a modern Ubuntu distribution.
 A c-compiler, e.g. gcc, is needed to compile the c parts of concoct that uses the 
 GNU Scientific Library gsl. For linux (ubuntu) this is installed through:
 
-```
-    sudo apt-get install build-essential libgsl0-dev
+```bash
+sudo apt-get install build-essential libgsl0-dev
 ```
 
 For convenience we also recommend adding the scripts directory to your path:
 
+```bash
+export PATH=$HOME/myinstalldir/DESMAN/bin:$HOME/myinstalldir/DESMAN/scripts:$PATH
 ```
-export PATH=$HOME/myinstalldir/DESMAN/scripts:$PATH
-
-````
 
 Obviously replacing myinstalldir as appropriate and adding this to your .bash_profile file.
 
@@ -94,22 +93,26 @@ by one line for each position with format:
 The first step is to identify variant positions. This is performed by the desman script Variant_Filter.py. 
 Start assuming you are in the DESMAN repo directory by making a test folder.
 
-    mkdir test
-    cd test
+```bash
+mkdir test
+cd test
+```
 
 Then run the example data file which corresponds to a single COG from the mock community data set 
 described in the manuscript. This COG0015 has 933 variant positions. The input file is in the data 
 folder. We run the variant filtering as follows:
-
-    Variant_Filter.py ../data/contig_6or16_genesL_scgCOG0015.freq -o COG0015_out -p
+```bash
+Variant_Filter.py ../../data/contig_6or16_genesL_scgCOG0015.freq -o COG0015_out -p
+```
 
 The variant filtering has a number of optional parameters to see them run:
+```bash
+Variant_Filter.py -h
+```  
 
-    Variant_Filter.py -h
-    
 They should all be fairly self explanatory. We recommend always using the 
 the '-p' flag for one dimenisonal optimisition of individual base frequencies if it is not 
-too time consuming. The '-o' option is a file stub all output files will be generated with this prefix.
+too time consuming. The '-o' option is a file stub; all output files will be generated with this prefix.
 A log file will be generated 'COG0015_out_log.txt' and output files: 
 
 1. COG0015_outp_df.csv: This gives p-values for each position.
@@ -126,7 +129,9 @@ A log file will be generated 'COG0015_out_log.txt' and output files:
 
 Having found the variant positions we will now the run the program for inferring haplotypes and their abundance:
 
-    desman COG0015_outsel_var.csv -g 5 -e COG0015_outtran_df.csv -o COG0015_out_g5 -i 50 
+```bash
+desman COG0015_outsel_var.csv -g 5 -e COG0015_outtran_df.csv -o COG0015_out_g5 -i 50 
+```
 
 These parameters specify the variants file. Then number of haplotypes as five '-g 5', an initial 
 estimate for the error transition matrix taken from the variant detection '-e COG0015_outtran_df.csv', 
@@ -148,7 +153,7 @@ calculated over all samples.
 4. Filtered_Tau_star.csv: Prediction for strain haplotypes. Each row of comma separated file contains:
 
 ```
-    gene name, position, haplotype1-A,  haplotype1-C,  haplotype1-G,  haplotype1-T,..., haplotypeG-A,  haplotypeG-C,  haplotypeG-G,  haplotypeG-T  
+gene name, position, haplotype1-A,  haplotype1-C,  haplotype1-G,  haplotype1-T,..., haplotypeG-A,  haplotypeG-C,  haplotypeG-G,  haplotypeG-T  
 ```
 
 where 1 indicates the base present in that haplotype at that position.
@@ -164,10 +169,8 @@ largest log posterior. One row for each sample.
 
 8. Selected_variants.csv: Variants used for strain calling if filtering applied.
 
-9. fit.txt: Statistics evaluating fit as number of haplotypes, number of non-degenerate haplotypes inferred, log maximum posterior probability, mean posterior deviance (-2.0*Log likelihood)
-
-10. fitF.txt: Statistics evaluating fit of assigned haplotypes (not in random subsample) as number of haplotypes, number of non-degenerate haplotypes inferred, log maximum posterior probability, mean posterior deviance (-2.0*Log likelihood). Only generated if -r option used.
-
+9. fit.txt: Statistics evaluating fit as number of haplotypes, number of non-degenerate haplotypes inferred, log maximum posterior probability, mean posterior deviance (-2.0\*Log likelihood)
+10. fitF.txt: Statistics evaluating fit of assigned haplotypes (not in random subsample) as number of haplotypes, number of non-degenerate haplotypes inferred, log maximum posterior probability, mean posterior deviance (-2.0\*Log likelihood). Only generated if -r option used.
 
 <a name="desmanflow"/>
 
@@ -182,7 +185,7 @@ To reconstruct strain genomes with desmanflow, you will first need to assemble y
 
 The following series of commands will install desman onto a clean Debian/Ubuntu system. These commands can take an hour or more to complete.
 
-```
+```bash
 # install some programs systemwide (can be skipped if these already exist)
 sudo apt install git python3-pip libgsl-dev liblapack-dev liblapacke-dev default-jre samtools bwa r-base
 
@@ -208,7 +211,7 @@ export DESMANHOME=`pwd`
 
 A test dataset is available which consists of a metagenomic assembly generated by megahit, a list of contigs from the assembly that were assigned to the species, and a directory of FastQ files. The test dataset can be downloaded and unpacked on the command-line:
 
-```
+```bash
 curl -fsSL https://cloudstor.aarnet.edu.au/plus/index.php/s/7DH5qMuM5jMbcUc/download > testdata.tar
 tar xf testdata.tar
 ```
@@ -219,14 +222,14 @@ tar xf testdata.tar
 
 First we run desmanflow to estimate the number of strains for this species:
 
-```
+```bash
 ./scripts/desmanflow.nf --speciescontigs=testdata/species_contigs.txt --assembly=testdata/testasm.fa --inputreads=testdata/fastq
 ```
 
 This produces a PDF figure in `out/Dev.pdf` that shows the posterior mean deviance for each strain count.
 We pick four strains as it looks like the knee in the curve, and now run desmanflow again, this time specifying the number of strains and requesting that it resume computation where the last run left off:
 
-```
+```bash
 ./scripts/desmanflow.nf --speciescontigs=testdata/species_contigs.txt --assembly=testdata/testasm.fa --inputreads=testdata/fastq -resume --straincount=4
 ```
 
