@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import glob
 import sys, getopt
 import os
@@ -192,38 +190,40 @@ def main(argv):
         G = gValues[gidx] 
         
         #get best replicate at this value of G
-        bestr = min(allPDG[G], key=allPDG[G].get)
-        gamma_file =  args.input_stub + "_" + str(G) + "_" + str(bestr) +"/Gamma_star.csv"
-        tau_file = args.input_stub + "_" + str(G) + "_" + str(bestr) +"/Filtered_Tau_star.csv"
-        comp_files = []
+        if countPD[gidx] >0:
+            bestr = min(allPDG[G], key=allPDG[G].get)
+            gamma_file =  args.input_stub + "_" + str(G) + "_" + str(bestr) +"/Gamma_star.csv"
+            tau_file = args.input_stub + "_" + str(G) + "_" + str(bestr) +"/Filtered_Tau_star.csv"
+            comp_files = []
         
-        for r, fPD in allPDG[G].items():
-            if r != bestr:
-                comp_files.append(args.input_stub + "_" + str(G) + "_" + str(r) +"/Filtered_Tau_star.csv")
-        (gamma_mean, mean_acc) = computeStrainReproducibility(gamma_file,tau_file,comp_files)
+            for r, fPD in allPDG[G].items():
+                if r != bestr:
+                    comp_files.append(args.input_stub + "_" + str(G) + "_" + str(r) +"/Filtered_Tau_star.csv")
+            (gamma_mean, mean_acc) = computeStrainReproducibility(gamma_file,tau_file,comp_files)
         
-        hidx = 0
-        NStrains = 0
-        selected_err = []
-        selected_strains = []
-        for mean, acc in zip(gamma_mean, mean_acc):
-            if mean > args.min_freq and acc < args.max_err:
+            hidx = 0
+            NStrains = 0
+            selected_err = []
+            selected_strains = []
+            for mean, acc in zip(gamma_mean, mean_acc):
+                if mean > args.min_freq and acc < args.max_err:
+                    NStrains += 1
+                    selected_err.append(acc)
+                    selected_strains.append(hidx)
+                hidx += 1
+            if NStrains > 0:
+                meanError = np.mean(selected_err)       
+            else:
+                #choose one strain in this event must abundant? most reproducible?
+                bestidx = np.argmin(mean_acc)
                 NStrains += 1
-                selected_err.append(acc)
-                selected_strains.append(hidx)
-            hidx += 1
-        if NStrains > 0:
-            meanError = np.mean(selected_err)       
-        else:
-            #choose one strain in this event must abundant? most reproducible?
-            bestidx = np.argmin(mean_acc)
-            NStrains += 1
-            selected_err.append(mean_acc[bestidx])
-            selected_strains.append(bestidx)
-            meanError = mean_acc[bestidx]
+                selected_err.append(mean_acc[bestidx])
+                selected_strains.append(bestidx)
+                meanError = mean_acc[bestidx]
         
-        strainQuality[G] = (NStrains,meanError,bestr,selected_strains,G)
-    
+            strainQuality[G] = (NStrains,meanError,bestr,selected_strains,G)
+        else:
+            strainQuality[G] = (0,1.0,-1,None,G)
     
     strainSorted = sorted(strainQuality, key=lambda k: (strainQuality[k][0], -strainQuality[k][1],-strainQuality[k][4]))
     
