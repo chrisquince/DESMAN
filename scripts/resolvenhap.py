@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import glob
 import sys, getopt
 import os
@@ -190,7 +192,7 @@ def main(argv):
         G = gValues[gidx] 
         
         #get best replicate at this value of G
-        if countPD[gidx] >0:
+        if len(allPDG[G]) > 0: 
             bestr = min(allPDG[G], key=allPDG[G].get)
             gamma_file =  args.input_stub + "_" + str(G) + "_" + str(bestr) +"/Gamma_star.csv"
             tau_file = args.input_stub + "_" + str(G) + "_" + str(bestr) +"/Filtered_Tau_star.csv"
@@ -199,6 +201,7 @@ def main(argv):
             for r, fPD in allPDG[G].items():
                 if r != bestr:
                     comp_files.append(args.input_stub + "_" + str(G) + "_" + str(r) +"/Filtered_Tau_star.csv")
+            
             (gamma_mean, mean_acc) = computeStrainReproducibility(gamma_file,tau_file,comp_files)
         
             hidx = 0
