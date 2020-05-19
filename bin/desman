@@ -115,7 +115,7 @@ def main(argv):
     if eta_file is not None:
         logging.info('Set eta error transition matrix from = %s' % eta_file)
         eta_df = p.read_csv(eta_file, header=0, index_col=0)
-        variant_Filter.eta = eta_df.as_matrix()
+        variant_Filter.eta = eta_df.to_numpy()
 
     if random_select is not None:
         if random_select < variant_Filter.V:
@@ -208,7 +208,7 @@ def main(argv):
     # assign if assignment file given
     if (assign_file != None):
         assigns = p.read_csv(assign_file, header=0, index_col=0)
-        assigns_matrix = assigns.as_matrix()
+        assigns_matrix = assigns.to_numpy()
         assigns_matrix = np.delete(assigns_matrix, 0, 1)
         import ipdb;
         ipdb.set_trace()

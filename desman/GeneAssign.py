@@ -218,7 +218,7 @@ def main(argv):
     cov = p.read_csv(args.cov_file, header=0, index_col=0)
     logging.info('Read epsilon from %s' %(args.epsilon_file))
     epsilon = p.read_csv(args.epsilon_file, header=0, index_col=0)
-    epsilon_matrix = epsilon.as_matrix()
+    epsilon_matrix = epsilon.to_numpy()
     
     if args.variant_file is not None:
         logging.info('Read variants from %s' %(args.variant_file))
@@ -235,11 +235,11 @@ def main(argv):
     scg_cov = scg_cov.reindex(intersect_names)
     gamma_star = gamma_star.reindex(intersect_names)
         
-    total_mean = scg_cov['mean'].as_matrix()
-    total_sd = scg_cov['sd'].as_matrix()
+    total_mean = scg_cov['mean'].to_numpy()
+    total_sd = scg_cov['sd'].to_numpy()
     
     #renormalise gamma matrix
-    gamma_star_matrix = gamma_star.as_matrix()
+    gamma_star_matrix = gamma_star.to_numpy()
     row_sums = gamma_star_matrix.sum(axis=1)
     gamma_star_matrix = gamma_star_matrix / row_sums[:, np.newaxis]
 
@@ -247,7 +247,7 @@ def main(argv):
     
     #reorder coverage matrix
     cov = cov[intersect_names]
-    cov_matrix = cov.as_matrix()
+    cov_matrix = cov.to_numpy()
     logging.info('Perform KL estimation of contig counts')
     klassign = KLAssign(prng,cov_matrix,delta)
     klassign.factorize()
@@ -313,7 +313,7 @@ def main(argv):
     if args.genomes:
         genomes    = p.read_csv(args.genomes, header=0, index_col=0)
         genomes = genomes.loc[contig_names]
-        genomes_M   = genomes.as_matrix()
+        genomes_M   = genomes.to_numpy()
         genomes_D = np.copy(genomes_M)
         
         #genomes_D[genomes_D < 0.5] = 0.

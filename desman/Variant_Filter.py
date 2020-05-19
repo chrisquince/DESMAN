@@ -71,7 +71,7 @@ class Variant_Filter():
                 qvalue_cutoff = 0.1,max_iter = 100, min_p = 0.01, mCogFilter = 2.0,cogSampleFrac=0.95,Nthreshold=10):
         #first get array dimensions
         
-        variants_matrix = variants.as_matrix()
+        variants_matrix = variants.to_numpy()
         self.genes = list(variants.index)
         self.position = variants_matrix[:,0]
         variants_matrix = np.delete(variants_matrix, 0, 1)
