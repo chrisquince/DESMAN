@@ -55,11 +55,11 @@ def main(argv):
 
     genomes    = p.read_csv(args.genomes, header=0, index_col=0)
     assigns    = p.read_csv(args.assign_file, header=0, index_col=0)
-    eta     = assigns.as_matrix()
+    eta     = assigns.to_numpy()
     contig_names = assigns.index.tolist()
 
     genomes = genomes.loc[contig_names]
-    genomes_M   = genomes.as_matrix()
+    genomes_M   = genomes.to_numpy()
     genomes_D = np.copy(genomes_M)
         
     genomes_D[genomes_D < 0.5] = 0.

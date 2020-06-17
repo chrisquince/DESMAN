@@ -78,7 +78,7 @@ def main(argv):
     tau_star = p.read_csv(tau_star_file, header=0, index_col=0)
     
     tau_star_var = defaultdict(dict)
-    tau_star_matrix = tau_star.as_matrix()
+    tau_star_matrix = tau_star.to_numpy()
     tau_star_matrix = np.delete(tau_star_matrix,0,1)
     tau_star_matrix[tau_star_matrix < 0.5] = 0.0
     tau_star_matrix[tau_star_matrix >= 0.5] = 1.0   
@@ -96,7 +96,7 @@ def main(argv):
     tau_star_array = np.reshape(tau_star_matrix,(V, G,4)) 
     
     tau = p.read_csv(tau_file, header=0, index_col=0)
-    tau_matrix = tau.as_matrix()
+    tau_matrix = tau.to_numpy()
     tau_matrix = np.delete(tau_matrix,0,1)
     
     PV = tau_matrix.shape[0]

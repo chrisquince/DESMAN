@@ -77,11 +77,11 @@ def main(argv):
     comp_files = args.comp_files
 
     gamma = p.read_csv(gamma_file, header=0, index_col=0)
-    gamma_mean = np.mean(gamma.as_matrix(),axis = 0) 
+    gamma_mean = np.mean(gamma.to_numpy(),axis = 0) 
 
     tau = p.read_csv(tau_file, header=0, index_col=0)
     
-    tau_matrix = tau.as_matrix()
+    tau_matrix = tau.to_numpy()
     tau_matrix = np.delete(tau_matrix,0,1)
     
     V = tau_matrix.shape[0]
@@ -96,7 +96,7 @@ def main(argv):
     for ctau_file in comp_files:
     
         ctau = p.read_csv(ctau_file, header=0, index_col=0)
-        ctau_matrix = ctau.as_matrix()
+        ctau_matrix = ctau.to_numpy()
         ctau_matrix = np.delete(ctau_matrix,0,1)
     
         V2 = ctau_matrix.shape[0]

@@ -27,7 +27,7 @@ def main(argv):
     import ipdb; ipdb.set_trace()
 
     gene_counts    = p.read_csv(args.gene_counts_file, header=0, index_col=0, sep='\t')
-    gene_counts_matrix = (gene_counts.as_matrix()).astype(float)
+    gene_counts_matrix = (gene_counts.to_numpy()).astype(float)
     row_sums = gene_counts.sum(axis=1)
     gene_countsP = gene_counts_matrix / row_sums[:, np.newaxis]
     

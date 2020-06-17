@@ -251,7 +251,7 @@ def main(argv):
     
     tau_star = p.read_csv(args.tau_file, header=0, index_col=0)
     
-    tau_star_matrix = tau_star.as_matrix()
+    tau_star_matrix = tau_star.to_numpy()
     tau_star_matrix = np.delete(tau_star_matrix,0,1)
     tau_star_matrix[tau_star_matrix < 0.5] = 0.0
     tau_star_matrix[tau_star_matrix >= 0.5] = 1.0   

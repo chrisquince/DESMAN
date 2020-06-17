@@ -103,7 +103,7 @@ def main(argv):
                 gene_variants = gene_variants.transpose()
         
             gene_pos = gene_variants['Position']
-            gene_variants_matrix = gene_variants.as_matrix()
+            gene_variants_matrix = gene_variants.to_numpy()
             gene_variants_matrix = np.delete(gene_variants_matrix, 0,1)
             V = gene_variants_matrix.shape[0]
             gene_variants_matrix = np.reshape(gene_variants_matrix,(V,G,4))

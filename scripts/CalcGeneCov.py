@@ -61,7 +61,7 @@ def main(argv):
     for gene in genes:
         try:
             gene_freqs = gene_freq.loc[gene]
-            gene_freq_matrix = gene_freqs.as_matrix()
+            gene_freq_matrix = gene_freqs.to_numpy()
             gene_freq_matrix = np.delete(gene_freq_matrix, 0, 1)
             gene_freqs = np.reshape(gene_freq_matrix, (gene_freq_matrix.shape[0],gene_freq_matrix.shape[1] // 4,4))
             gene_totals = gene_freqs.sum(axis=2)
