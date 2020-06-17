@@ -245,7 +245,7 @@ def main(argv):
         
         gamma    = p.read_csv(gamma_file, header=0, index_col=0)
         
-        gammaR = gamma.ix[:,selected_strains]
+        gammaR = gamma.loc[:,selected_strains]
         
         gamma_fileR = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Gamma_starR.csv"
         
@@ -257,7 +257,7 @@ def main(argv):
         
         gamma2    = p.read_csv(gamma_file2, header=0, index_col=0)
         
-        gammaR2 = gamma2.ix[:,selected_strains]
+        gammaR2 = gamma2.loc[:,selected_strains]
         
         gamma_fileR2 = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Gamma_meanR.csv"
         
@@ -273,7 +273,7 @@ def main(argv):
             for n in range(4):
                 tau_select_idx.append(offset + n)
         
-        tauR = tau.ix[:,tau_select_idx]
+        tauR = tau.loc[:,tau_select_idx]
         
         tau_fileR = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Filtered_Tau_starR.csv"
         
@@ -284,7 +284,7 @@ def main(argv):
         tau_mean_file = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Tau_Mean.csv"
         tau2 = p.read_csv(tau_mean_file, header=0, index_col=0)
         
-        tauR2 = tau2.ix[:,tau_select_idx]
+        tauR2 = tau2.loc[:,tau_select_idx]
         
         tau_fileR2 = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Tau_MeanR.csv"
         
@@ -295,7 +295,7 @@ def main(argv):
         if os.path.isfile(tau_collated_file):
             tauC = p.read_csv(tau_collated_file, header=0, index_col=0)
         
-            tauCR = tauC.ix[:,tau_select_idx]
+            tauCR = tauC.loc[:,tau_select_idx]
         
             tau_fileCR = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Collated_Tau_starR.csv"
         
@@ -306,7 +306,7 @@ def main(argv):
         
             tauC2 = p.read_csv(tau_collated_mean_file, header=0, index_col=0)
         
-            tauCR2 = tauC2.ix[:,tau_select_idx]
+            tauCR2 = tauC2.loc[:,tau_select_idx]
         
             tau_fileCR2 = args.input_stub + "_" + str(bestG) + "_" + str(bestr) +"/Collated_Tau_meanR.csv"
         
