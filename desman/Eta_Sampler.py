@@ -47,7 +47,7 @@ class Eta_Sampler():
         self.delta = np.transpose(delta)
         self.cov_sd = np.transpose(cov_sd)
         self.gamma = np.copy(gamma,order='C')
-        self.cov = covs.as_matrix()
+        self.cov = covs.to_numpy()
         self.epsilon = np.copy(epsilon,order='C')
         
         self.G = self.gamma.shape[1]
@@ -81,7 +81,7 @@ class Eta_Sampler():
                     gene_variants = gene_variants.to_frame()
                     gene_variants = gene_variants.transpose()
             
-                gene_variants_matrix = gene_variants.as_matrix()
+                gene_variants_matrix = gene_variants.to_numpy()
                 gene_snps = np.reshape(gene_variants_matrix, (gene_variants_matrix.shape[0],
                                                               int(gene_variants_matrix.shape[1]/4), 4))
                 NV = gene_snps.shape[0]
@@ -541,7 +541,7 @@ class Eta_Sampler():
                 start = Vcum_array[c]
                 end = start + V
                 contig_index[start:end] = [gene]*V
-                positions[start:end] = gene_pos.as_matrix()        
+                positions[start:end] = gene_pos.to_numpy()        
             except KeyError:
                 pass
         return (tauStar,tauMean, positions,contig_index)

@@ -36,7 +36,7 @@ def main(argv):
 
     #read in coverages
     coverage  = p.read_csv(args.coverage_file, header=0, index_col=0)
-    coverage_matrix = coverage.as_matrix()
+    coverage_matrix = coverage.to_numpy()
     
     contig_names = coverage.index.values
     sample_names = list(coverage.columns.values)        
